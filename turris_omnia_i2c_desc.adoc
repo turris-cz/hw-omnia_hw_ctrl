@@ -104,7 +104,7 @@ enum i2c_commands {
  * Bit meanings in ext_status_word:
  *  Bit Nr. |   Meanings
  * -----------------
- *      0   |   SFP_DET         : 1 - no SFP detected, 0 - SFP detected
+ *      0   |   SFP_NDET        : 1 - no SFP detected, 0 - SFP detected
  *  1..15   |   reserved
  */
 

@@ -371,7 +371,7 @@ void slave_i2c_ext_control(uint16_t ext_control_word, uint16_t bit_mask)
     /*
      * PHY_SFP_AUTO isn't a GPIO, rather an internal setting.
      * If set, we let PHY_SFP to be set in app.c' input_manager() according to
-     * value read from SFP_DET, so we don't change it here.
+     * value read from SFP_NDET, so we don't change it here.
      * If not set, we want to set PHY_SFP according to value in
      * ext_control_word.
      */

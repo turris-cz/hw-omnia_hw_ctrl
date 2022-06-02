@@ -60,7 +60,7 @@ enum features_bits {
 };
 
 enum ext_status_word_bits {
-    SFP_DET_STSBIT         = 0x0001,
+    SFP_NDET_STSBIT        = 0x0001,
 };
 
 enum i2c_ext_control_mask {
@@ -116,7 +116,7 @@ enum i2c_ext_control_mask {
  * Bit meanings in ext_status_word:
  *  Bit Nr. |   Meanings
  * -----------------
- *      0   |   SFP_DET         : 1 - no SFP detected, 0 - SFP detected
+ *      0   |   SFP_NDET        : 1 - no SFP detected, 0 - SFP detected
  *  1..15   |   reserved
 */
 

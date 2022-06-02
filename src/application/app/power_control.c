@@ -937,15 +937,15 @@ void power_new_io_config(void)
     GPIO_InitTypeDef GPIO_InitStructure;
 
     RCC_AHBPeriphClockCmd(PERST0_PIN_PERIPH_CLOCK | PERST1_PIN_PERIPH_CLOCK
-                          | PERST2_PIN_PERIPH_CLOCK | SFP_DET_PIN_PERIPH_CLOCK
+                          | PERST2_PIN_PERIPH_CLOCK | SFP_NDET_PIN_PERIPH_CLOCK
                           | PHY_SFP_PIN_PERIPH_CLOCK | VHV_CTRL_PIN_PERIPH_CLOCK
                           | RES_PHY_PIN_PERIPH_CLOCK | RES_LAN_PERIPH_CLOCK
                           | RES_MMC_PIN_PERIPH_CLOCK, ENABLE);
 
-    GPIO_InitStructure.GPIO_Pin = SFP_DET_PIN;
+    GPIO_InitStructure.GPIO_Pin = SFP_NDET_PIN;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-    GPIO_Init(SFP_DET_PIN_PORT, &GPIO_InitStructure);
+    GPIO_Init(SFP_NDET_PIN_PORT, &GPIO_InitStructure);
 
     GPIO_InitStructure.GPIO_Pin = RES_MMC_PIN;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;

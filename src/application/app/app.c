@@ -131,8 +131,8 @@ static uint16_t app_get_ext_status_word(void)
 {
     uint16_t ext_status_word = 0;
 
-    if (GPIO_ReadInputDataBit(SFP_DET_PIN_PORT, SFP_DET_PIN))
-        ext_status_word |= SFP_DET_STSBIT;
+    if (GPIO_ReadInputDataBit(SFP_NDET_PIN_PORT, SFP_NDET_PIN))
+        ext_status_word |= SFP_NDET_STSBIT;
 
     return ext_status_word;
 }
@@ -346,15 +346,15 @@ static ret_value_t input_manager(void)
         i2c_control->status_word &= (~MSATA_IND_STSBIT);
 
 
-    if(GPIO_ReadInputDataBit(SFP_DET_PIN_PORT, SFP_DET_PIN))
-        i2c_control->ext_status_word |= SFP_DET_STSBIT;
+    if(GPIO_ReadInputDataBit(SFP_NDET_PIN_PORT, SFP_NDET_PIN))
+        i2c_control->ext_status_word |= SFP_NDET_STSBIT;
     else
-        i2c_control->ext_status_word &= (~(SFP_DET_STSBIT));
+        i2c_control->ext_status_word &= (~(SFP_NDET_STSBIT));
 
     __disable_irq();
     if (i2c_control->ext_control_word & PHY_SFP_AUTO_MASK)
         GPIO_WriteBit(PHY_SFP_PIN_PORT, PHY_SFP_PIN,
-                      !!(i2c_control->ext_status_word & SFP_DET_STSBIT));
+                      !!(i2c_control->ext_status_word & SFP_NDET_STSBIT));
     __enable_irq();
 
     return value;

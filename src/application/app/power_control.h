@@ -151,9 +151,9 @@
 #define RSVD_PIN_PORT                       GPIOC
 #define RSVD_4V5_PIN                        GPIO_Pin_7
 
-#define SFP_DET_PIN_PERIPH_CLOCK            RCC_AHBPeriph_GPIOD
-#define SFP_DET_PIN_PORT                    GPIOD
-#define SFP_DET_PIN                         GPIO_Pin_2
+#define SFP_NDET_PIN_PERIPH_CLOCK           RCC_AHBPeriph_GPIOD
+#define SFP_NDET_PIN_PORT                   GPIOD
+#define SFP_NDET_PIN                        GPIO_Pin_2
 
 #define PERST2_PIN_PERIPH_CLOCK             RCC_AHBPeriph_GPIOF
 #define PERST2_PIN_PORT                     GPIOF
