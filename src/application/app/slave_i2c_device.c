@@ -61,10 +61,12 @@ enum i2c_commands {
     CMD_WATCHDOG_STATUS                 = 0x0C, /* 0 - DISABLE, 1 - ENABLE -> permanently */
     CMD_GET_WATCHDOG_STATE              = 0x0D,
     CMD_GET_FW_VERSION_BOOT             = 0x0E, /* 20B git hash number */
-    CMD_EXT_CONTROL                     = 0x0F,
-    CMD_GET_EXT_CONTROL_STATUS          = 0x10,
-    CMD_GET_FEATURES                    = 0x11,
-    CMD_GET_EXT_STATUS_WORD             = 0x12,
+
+    /* new commands */
+    CMD_GET_FEATURES                    = 0x10,
+    CMD_GET_EXT_STATUS_WORD             = 0x11,
+    CMD_EXT_CONTROL                     = 0x12,
+    CMD_GET_EXT_CONTROL_STATUS          = 0x13,
 };
 
 enum i2c_control_byte_mask {

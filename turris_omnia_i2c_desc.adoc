@@ -9,6 +9,7 @@ This document describes the communication between MCU na CPU on Turris Omnia (re
 * Overview of commands:
 
 [source,C]
+----
 enum i2c_commands {
     CMD_GET_STATUS_WORD        = 0x01, /* slave sends status word back */
     CMD_GENERAL_CONTROL        = 0x02,
@@ -24,11 +25,14 @@ enum i2c_commands {
     CMD_WATCHDOG_STATUS        = 0x0C, /* 0 - DISABLE, 1 - ENABLE -> permanently */
     CMD_GET_WATCHDOG_STATE     = 0x0D,
     CMD_GET_FW_VERSION_BOOT    = 0x0E, /* 20B git hash number */
-    CMD_EXT_CONTROL            = 0x0F,
-    CMD_GET_EXT_CONTROL_STATUS = 0x10,
-    CMD_GET_FEATURES           = 0x11
-    CMD_GET_EXT_STATUS_WORD    = 0x12
+
+    /* new commands */
+    CMD_GET_FEATURES           = 0x10
+    CMD_GET_EXT_STATUS_WORD    = 0x11
+    CMD_EXT_CONTROL            = 0x12,
+    CMD_GET_EXT_CONTROL_STATUS = 0x13,
 };
+----
 
 === CMD_GET_STATUS_WORD
 * The status information is read from the MCU.
@@ -88,10 +92,10 @@ enum i2c_commands {
 */
 
 * Example of a reading of features from Linux:
-** "i2cget 1 0x2A 0x11 w"
+** "i2cget 1 0x2A 0x10 w"
 *** 1 -> i2cbus number
 *** 0x2A -> I2C address of the slave
-*** 0x11 -> "address of the register" = command
+*** 0x10 -> "address of the register" = command
 *** w -> word data type
 
 === CMD_GET_EXT_STATUS_WORD
@@ -109,9 +113,11 @@ enum i2c_commands {
  */
 
 * Example of a reading of the extended status word from Linux:
-** "i2cget 1 0x2A 0x12 w"
+** "i2cget 1 0x2A 0x11 w"
 *** 1 -> i2cbus number
 *** 0x2A -> I2C address of the slave
+*** 0x11 -> "address of the register" = command
+*** w -> word data type
 
 === CMD_GENERAL_CONTROL
 * Different HW related settings (disabling USB, changing behaviour of the front button, etc.)
@@ -163,10 +169,10 @@ enum i2c_commands {
 */
 
 * Example of a setting of the extended control word (release PERST0):
-** "i2cset 1 0x2A 0x0F 0x00 0x00 0x08 0x00 i"
+** "i2cset 1 0x2A 0x12 0x00 0x00 0x08 0x00 i"
 *** 1 -> i2cbus number
 *** 0x2A -> I2C address of the slave
-*** 0x0F -> "address of the register" = command
+*** 0x12 -> "address of the register" = command
 *** 0x00 0x00 -> value of the word, lower byte first. Bit 3 is 0 -> release PERST0 from reset
 *** 0x08 0x00 -> value of the mask, lower byte first. Bit 3 is 1 -> bit 3 will be changed
 ***	i -> block data type
@@ -176,10 +182,10 @@ enum i2c_commands {
 * Read only
 
 * Example of an extended control reading
-** "i2cget 1 0x2A 0x10 w"
+** "i2cget 1 0x2A 0x13 w"
 *** 1 -> i2cbus number
 *** 0x2A -> I2C address of the slave
-*** 0x10 -> "address of the register" = command
+*** 0x13 -> "address of the register" = command
 ***	w -> word data type
 
 [source,C]
