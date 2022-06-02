@@ -56,7 +56,7 @@ enum status_word_bits {
 
 enum features_bits {
     PERIPH_MCU_SUPPORTED   = 0x0001,
-    EXT_CONTROL_SUPPORTED  = 0x0002,
+    EXT_CMDS_SUPPORTED     = 0x0002,
 };
 
 enum ext_status_word_bits {
@@ -108,7 +108,7 @@ enum i2c_ext_control_mask {
  *      0   |   PERIPH_MCU      : 1 - resets (eMMC, PHY, switch, PCIe), SerDes switch (PHY vs SFP cage) and VHV control are connected to MCU
  *                                    (available to set via CMD_EXT_CONTROL command)
  *                                0 - otherwise
- *      1   |   EXT_CONTROL     : 1 - CMD_EXT_CONTROL and CMD_GET_EXT_CONTROL_STATUS commands are available, 0 - otherwise
+ *      1   |   EXT_CMDS        : 1 - extended control and status commands are available, 0 - otherwise
  *  2..15   |   reserved
 */
 

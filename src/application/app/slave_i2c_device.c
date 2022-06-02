@@ -44,7 +44,7 @@ static const uint8_t version[] = VERSION;
 
 static const uint16_t slave_features_supported =
 	PERIPH_MCU_SUPPORTED |
-	EXT_CONTROL_SUPPORTED;
+	EXT_CMDS_SUPPORTED;
 
 enum i2c_commands {
     CMD_GET_STATUS_WORD                 = 0x01, /* slave sends status word back */
