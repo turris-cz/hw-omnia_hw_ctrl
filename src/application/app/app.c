@@ -122,19 +122,19 @@ static uint16_t app_get_status_word(void)
 }
 
 /*******************************************************************************
-  * @function   app_get_ext_status_word
+  * @function   app_get_ext_status_dword
   * @brief      Get value for extended status word after reset.
   * @param      None.
   * @retval     features.
   *****************************************************************************/
-static uint16_t app_get_ext_status_word(void)
+static uint32_t app_get_ext_status_dword(void)
 {
-    uint16_t ext_status_word = 0;
+    uint32_t ext_status_dword = 0;
 
     if (GPIO_ReadInputDataBit(SFP_NDET_PIN_PORT, SFP_NDET_PIN))
-        ext_status_word |= SFP_NDET_STSBIT;
+        ext_status_dword |= SFP_NDET_STSBIT;
 
-    return ext_status_word;
+    return ext_status_dword;
 }
 
 /*******************************************************************************
@@ -223,7 +223,7 @@ static ret_value_t load_settings(void)
 
     debounce_config(); /* start evaluation of inputs */
     i2c_control->status_word = app_get_status_word();
-    i2c_control->ext_status_word = app_get_ext_status_word();
+    i2c_control->ext_status_dword = app_get_ext_status_dword();
     i2c_control->ext_control_word =
         RES_MMC_MASK | RES_LAN_MASK | RES_PHY_MASK | PERST0_MASK | PERST1_MASK |
         PERST2_MASK | PHY_SFP_MASK | PHY_SFP_AUTO_MASK;
@@ -347,14 +347,14 @@ static ret_value_t input_manager(void)
 
 
     if(GPIO_ReadInputDataBit(SFP_NDET_PIN_PORT, SFP_NDET_PIN))
-        i2c_control->ext_status_word |= SFP_NDET_STSBIT;
+        i2c_control->ext_status_dword |= SFP_NDET_STSBIT;
     else
-        i2c_control->ext_status_word &= (~(SFP_NDET_STSBIT));
+        i2c_control->ext_status_dword &= (~(SFP_NDET_STSBIT));
 
     __disable_irq();
     if (i2c_control->ext_control_word & PHY_SFP_AUTO_MASK)
         GPIO_WriteBit(PHY_SFP_PIN_PORT, PHY_SFP_PIN,
-                      !!(i2c_control->ext_status_word & SFP_NDET_STSBIT));
+                      !!(i2c_control->ext_status_dword & SFP_NDET_STSBIT));
     __enable_irq();
 
     return value;

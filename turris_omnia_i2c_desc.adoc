@@ -28,7 +28,7 @@ enum i2c_commands {
 
     /* new commands */
     CMD_GET_FEATURES           = 0x10
-    CMD_GET_EXT_STATUS_WORD    = 0x11
+    CMD_GET_EXT_STATUS_DWORD   = 0x11
     CMD_EXT_CONTROL            = 0x12,
     CMD_GET_EXT_CONTROL_STATUS = 0x13,
 };
@@ -98,26 +98,26 @@ enum i2c_commands {
 *** 0x10 -> "address of the register" = command
 *** w -> word data type
 
-=== CMD_GET_EXT_STATUS_WORD
+=== CMD_GET_EXT_STATUS_DWORD
 * The extended status information is read from the MCU.
 * Read only
 * Bit overview:
 
 [source,C]
 /*
- * Bit meanings in ext_status_word:
+ * Bit meanings in ext_status_dword:
  *  Bit Nr. |   Meanings
  * -----------------
  *      0   |   SFP_NDET        : 1 - no SFP detected, 0 - SFP detected
- *  1..15   |   reserved
+ *  1..31   |   reserved
  */
 
-* Example of a reading of the extended status word from Linux:
-** "i2cget 1 0x2A 0x11 w"
+* Example of a reading of the extended status dword from Linux:
+** "i2ctransfer 1 w1@0x2a 0x11 r4"
 *** 1 -> i2cbus number
-*** 0x2A -> I2C address of the slave
-*** 0x11 -> "address of the register" = command
-*** w -> word data type
+*** w1@0x2a -> write 1 byte (command) to I2C address of the slave
+*** 0x11 -> CMD_GET_EXT_STATUS_DWORD command
+*** r4 -> read 4 bytes
 
 === CMD_GENERAL_CONTROL
 * Different HW related settings (disabling USB, changing behaviour of the front button, etc.)

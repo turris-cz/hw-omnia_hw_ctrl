@@ -24,8 +24,8 @@ typedef enum slave_i2c_states {
 
 struct st_i2c_status {
     uint16_t status_word;
-    uint16_t ext_status_word;
     uint16_t ext_control_word;
+    uint32_t ext_status_dword;
     uint8_t reset_type;
     slave_i2c_states_t state;             // reported in main state machine
     uint8_t rx_data_ctr;                  // RX data counter
@@ -59,7 +59,7 @@ enum features_bits {
     EXT_CMDS_SUPPORTED     = 0x0002,
 };
 
-enum ext_status_word_bits {
+enum ext_status_dword_bits {
     SFP_NDET_STSBIT        = 0x0001,
 };
 
@@ -113,11 +113,11 @@ enum i2c_ext_control_mask {
 */
 
 /*
- * Bit meanings in ext_status_word:
+ * Bit meanings in ext_status_dword:
  *  Bit Nr. |   Meanings
  * -----------------
  *      0   |   SFP_NDET        : 1 - no SFP detected, 0 - SFP detected
- *  1..15   |   reserved
+ *  1..31   |   reserved
 */
 
 /*

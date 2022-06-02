@@ -64,7 +64,7 @@ enum i2c_commands {
 
     /* new commands */
     CMD_GET_FEATURES                    = 0x10,
-    CMD_GET_EXT_STATUS_WORD             = 0x11,
+    CMD_GET_EXT_STATUS_DWORD            = 0x11,
     CMD_EXT_CONTROL                     = 0x12,
     CMD_GET_EXT_CONTROL_STATUS          = 0x13,
 };
@@ -743,15 +743,17 @@ void slave_i2c_handler(void)
                     I2C_NumberOfBytesConfig(I2C_PERIPH_NAME, TWO_BYTES_EXPECTED);
                 } break;
 
-                case CMD_GET_EXT_STATUS_WORD:
+                case CMD_GET_EXT_STATUS_DWORD:
                 {
                     /* prepare data to be sent to the master */
-                    i2c_state->tx_buf[0] = i2c_state->ext_status_word & 0x00FF;
-                    i2c_state->tx_buf[1] = (i2c_state->ext_status_word & 0xFF00) >> 8;
+                    i2c_state->tx_buf[0] = i2c_state->ext_status_dword & 0xFF;
+                    i2c_state->tx_buf[1] = (i2c_state->ext_status_dword >> 8) & 0xFF;
+                    i2c_state->tx_buf[2] = (i2c_state->ext_status_dword >> 16) & 0xFF;
+                    i2c_state->tx_buf[3] = (i2c_state->ext_status_dword >> 24) & 0xFF;
                     DBG("EXT_STS\r\n");
 
                     I2C_AcknowledgeConfig(I2C_PERIPH_NAME, ENABLE);
-                    I2C_NumberOfBytesConfig(I2C_PERIPH_NAME, TWO_BYTES_EXPECTED);
+                    I2C_NumberOfBytesConfig(I2C_PERIPH_NAME, FOUR_BYTES_EXPECTED);
                 } break;
 
                 default: /* command doesnt exist - send NACK */
