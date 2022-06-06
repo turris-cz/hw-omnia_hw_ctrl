@@ -134,18 +134,18 @@ enum i2c_commands {
 * Bit overview:
 
 [source,C]
-/* 
- * Bit meanings in control_byte: 
- *  Bit Nr. |   Meanings 
- * ----------------- 
- *      0   |   LIGHT_RST   : 1 - do light reset, 0 - no reset 
- *      1   |   HARD_RST    : 1 - do hard reset, 0 - no reset 
+/*
+ * Bit meanings in control_byte:
+ *  Bit Nr. |   Meanings
+ * -----------------
+ *      0   |   LIGHT_RST   : 1 - do light reset, 0 - no reset
+ *      1   |   HARD_RST    : 1 - do hard reset, 0 - no reset
  *      2   |   don't care
- *      3   |   USB30_PWRON : 1 - USB3-port0 power ON, 0 - USB-port0 power off 
- *      4   |   USB31_PWRON : 1 - USB3-port1 power ON, 0 - USB-port1 power off 
- *      5   |   ENABLE_4V5  : 1 - 4.5V power supply ON, 0 - 4.5V power supply OFF 
- *      6   |   BUTTON_MODE : 1 - user mode, 0 - default mode (brightness settings) 
- *      7   |   BOOTLOADER  : 1 - jump to bootloader 
+ *      3   |   USB30_PWRON : 1 - USB3-port0 power ON, 0 - USB-port0 power off
+ *      4   |   USB31_PWRON : 1 - USB3-port1 power ON, 0 - USB-port1 power off
+ *      5   |   ENABLE_4V5  : 1 - 4.5V power supply ON, 0 - 4.5V power supply OFF
+ *      6   |   BUTTON_MODE : 1 - user mode, 0 - default mode (brightness settings)
+ *      7   |   BOOTLOADER  : 1 - jump to bootloader
 */
 
 * Example of a setting of the control byte (do a light reset):
@@ -163,10 +163,10 @@ enum i2c_commands {
 * Bit overview:
 
 [source,C]
-/* 
+/*
  * Bit meanings in extended control_byte:
- *  Bit Nr. |   Meanings 
- * ----------------- 
+ *  Bit Nr. |   Meanings
+ * -----------------
  *      0   |   RES_MMC   : 1 - reset of MMC, 0 - no reset
  *      1   |   RES_LAN   : 1 - reset of LAN switch, 0 - no reset
  *      2   |   RES_PHY   : 1 - reset of PHY WAN, 0 - no reset
@@ -200,10 +200,10 @@ enum i2c_commands {
 ***	w -> word data type
 
 [source,C]
-/* 
- * Bit meanings in reset status: 
- *  Bit Nr. |   Meanings 
- * ----------------- 
+/*
+ * Bit meanings in reset status:
+ *  Bit Nr. |   Meanings
+ * -----------------
  *      0   |   RES_MMC   : 1 - reset of MMC, 0 - no reset
  *      1   |   RES_LAN   : 1 - reset of LAN switch, 0 - no reset
  *      2   |   RES_PHY   : 1 - reset of PHY WAN, 0 - no reset
@@ -328,7 +328,7 @@ NOTE: LED numbers are reversed. LED11 (the first LED from the left) is POWER_LED
 * Default voltage after enabling the regulator is 4.5V
 * Write only
 * The procedure has two steps
-** 1. step - enable the dc/dc regulator 
+** 1. step - enable the dc/dc regulator
 *** "i2cset 1 0x2A 2 0x2020 w"
 **** 1 -> i2cbus number
 **** 0x2A -> I2C address of the slave
@@ -343,10 +343,10 @@ NOTE: LED numbers are reversed. LED11 (the first LED from the left) is POWER_LED
 **** 6 -> "address of the register" = command
 **** 1 - value for 3.3V
 ***** values for voltages:
-1 -> 3.3V; 
-2 -> 3.6V; 
-3 -> 4.5V; 
-4 -> 5.1V; 
+1 -> 3.3V;
+2 -> 3.6V;
+3 -> 4.5V;
+4 -> 5.1V;
 **** b -> word data type
 
 
