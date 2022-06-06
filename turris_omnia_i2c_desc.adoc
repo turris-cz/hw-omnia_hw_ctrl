@@ -26,8 +26,10 @@ enum i2c_commands {
     CMD_GET_WATCHDOG_STATE     = 0x0D,
     CMD_GET_FW_VERSION_BOOT    = 0x0E, /* 20B git hash number */
 
-    /* new commands */
+    /* available if FEATURES_SUPPORTED bit set in status word */
     CMD_GET_FEATURES           = 0x10
+
+    /* available if EXT_CMD bit set in features */
     CMD_GET_EXT_STATUS_DWORD   = 0x11
     CMD_EXT_CONTROL            = 0x12,
     CMD_GET_EXT_CONTROL_STATUS = 0x13,
@@ -80,6 +82,7 @@ enum i2c_commands {
 
 === CMD_GET_FEATURES
 * The features information is read from the MCU.
+* Available only if the FEATURES_SUPPORTED bit is set in status word.
 * Read only
 * Bit overview:
 
@@ -105,6 +108,7 @@ enum i2c_commands {
 
 === CMD_GET_EXT_STATUS_DWORD
 * The extended status information is read from the MCU.
+* Available only if the EXT_CMDS bit is set in features.
 * Read only
 * Bit overview:
 
@@ -154,6 +158,7 @@ enum i2c_commands {
 
 === CMD_EXT_CONTROL
 * Extended control - resets of different peripheral devices on the board, PHY/SFP SerDes switch control, VHV regulator control
+* Available only if the EXT_CMDS bit is set in features.
 * Write only
 * Bit overview:
 
@@ -183,7 +188,8 @@ enum i2c_commands {
 ***	i -> block data type
 
 === CMD_GET_EXT_CONTROL_STATUS
-* Reads status of extended control (if applicable)
+* Reads status of extended control.
+* Available only if the EXT_CMDS bit is set in features.
 * Read only
 
 * Example of an extended control reading

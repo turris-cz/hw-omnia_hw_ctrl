@@ -62,8 +62,10 @@ enum i2c_commands {
     CMD_GET_WATCHDOG_STATE              = 0x0D,
     CMD_GET_FW_VERSION_BOOT             = 0x0E, /* 20B git hash number */
 
-    /* new commands */
+    /* available if FEATURES_SUPPORTED bit set in status word */
     CMD_GET_FEATURES                    = 0x10,
+
+    /* available if EXT_CMD bit set in features */
     CMD_GET_EXT_STATUS_DWORD            = 0x11,
     CMD_EXT_CONTROL                     = 0x12,
     CMD_GET_EXT_CONTROL_STATUS          = 0x13,
