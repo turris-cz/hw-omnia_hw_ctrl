@@ -31,6 +31,10 @@ enum i2c_commands {
     CMD_GET_EXT_STATUS_DWORD   = 0x11
     CMD_EXT_CONTROL            = 0x12,
     CMD_GET_EXT_CONTROL_STATUS = 0x13,
+
+    /* available if WDT_PING bit set in features */
+    CMD_SET_WDT_TIMEOUT        = 0x20,
+    CMD_GET_WDT_TIMELEFT       = 0x21,
 };
 ----
 
@@ -88,7 +92,8 @@ enum i2c_commands {
  *                                    (available to set via CMD_EXT_CONTROL command)
  *                                0 - otherwise
  *      1   |   EXT_CMDS        : 1 - extended control and status commands are available, 0 - otherwise
- *  2..15   |   reserved
+ *      2   |   WDT_PING        : 1 - CMD_SET_WDT_TIMEOUT and CMD_GET_WDT_TIMELEFT supported, 0 - otherwise
+ *  3..15   |   reserved
 */
 
 * Example of a reading of features from Linux:
@@ -371,6 +376,33 @@ NOTE: LED numbers are reversed. LED11 (the first LED from the left) is POWER_LED
 *** 0x2A -> I2C address of the slave
 *** 0x0D -> "address of the register" = command
 ***	b -> byte data type
+
+
+=== CMD_SET_WDT_TIMEOUT
+* Ping watchdog / set watchdog timeout in 0.1s units
+* Available only if WDT_PING feature bit is set in CMD_GET_FEATURES
+* Write only
+
+* Example of pinging watchdog and setting 60s timeout
+** "i2cset 1 0x2a 0x20 0x258 w"
+*** 1 -> i2cbus number
+*** 0x2A -> I2C address of the slave
+*** 0x20 -> "address of the register" = command
+*** 0x258 -> 60 seconds * 10 = 600 = 0x258
+***	w -> word data type
+
+
+=== CMD_GET_WDT_TIMELEFT
+* Get watchdog time left in 0.1s units
+* Available only if WDT_PING feature bit is set in CMD_GET_FEATURES
+* Read only
+
+* Example of reading watchdog time left
+** "i2cget 1 0x2a 0x21 w"
+*** 1 -> i2cbus number
+*** 0x2A -> I2C address of the slave
+*** 0x21 -> "address of the register" = command
+***	w -> word data type
 
 
 === CMD_WATCHDOG_STATUS

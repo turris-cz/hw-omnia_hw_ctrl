@@ -67,6 +67,10 @@ enum i2c_commands {
     CMD_GET_EXT_STATUS_DWORD            = 0x11,
     CMD_EXT_CONTROL                     = 0x12,
     CMD_GET_EXT_CONTROL_STATUS          = 0x13,
+
+    /* available if WDT_PING bit set in features */
+    CMD_SET_WDT_TIMEOUT                 = 0x20,
+    CMD_GET_WDT_TIMELEFT                = 0x21,
 };
 
 enum i2c_control_byte_mask {

@@ -57,6 +57,7 @@ enum status_word_bits {
 enum features_bits {
     PERIPH_MCU_SUPPORTED   = 0x0001,
     EXT_CMDS_SUPPORTED     = 0x0002,
+    WDT_PING_SUPPORTED     = 0x0004,
 };
 
 enum ext_status_dword_bits {
@@ -109,7 +110,8 @@ enum i2c_ext_control_mask {
  *                                    (available to set via CMD_EXT_CONTROL command)
  *                                0 - otherwise
  *      1   |   EXT_CMDS        : 1 - extended control and status commands are available, 0 - otherwise
- *  2..15   |   reserved
+ *      2   |   WDT_PING        : 1 - CMD_SET_WDT_TIMEOUT and CMD_GET_WDT_TIMELEFT supported, 0 - otherwise
+ *  3..15   |   reserved
 */
 
 /*
