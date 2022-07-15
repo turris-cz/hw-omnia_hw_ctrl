@@ -40,8 +40,10 @@ struct st_i2c_status {
 extern struct st_i2c_status i2c_status;
 
 enum status_word_bits {
-    GD32_MCU_STSBIT                     = BIT(0),
-    MKL_MCU_STSBIT                      = BIT(1),
+    MCU_TYPE_MASK                       = GENMASK(1, 0),
+    MCU_TYPE_STM32                      = FIELD_PREP(MCU_TYPE_MASK, 0),
+    MCU_TYPE_GD32                       = FIELD_PREP(MCU_TYPE_MASK, 1),
+    MCU_TYPE_MKL                        = FIELD_PREP(MCU_TYPE_MASK, 2),
     FEATURES_SUPPORTED_STSBIT           = BIT(2),
     USER_REGULATOR_NOT_SUPPORTED_STSBIT = BIT(3),
     CARD_DET_STSBIT                     = BIT(4),
