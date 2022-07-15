@@ -74,17 +74,6 @@ enum commands_e {
     CMD_GET_WDT_TIMELEFT                = 0x21,
 };
 
-enum control_byte_e {
-    LIGHT_RST_MASK                      = 0x01,
-    HARD_RST_MASK                       = 0x02,
-    RESERVED_MASK                       = 0x04,
-    USB30_PWRON_MASK                    = 0x08,
-    USB31_PWRON_MASK                    = 0x10,
-    ENABLE_4V5_MASK                     = 0x20,
-    BUTTON_MODE_MASK                    = 0x40,
-    BOOTLOADER_MASK                     = 0x80
-};
-
 enum expected_bytes_in_cmd_e {
     ONE_BYTE_EXPECTED                   = 1,
     TWO_BYTES_EXPECTED                  = 2,
@@ -245,7 +234,7 @@ static void slave_i2c_check_control_byte(uint8_t control_byte, uint8_t bit_mask)
 
     i2c_control->state = SLAVE_I2C_OK;
 
-    if ((control_byte & LIGHT_RST_MASK) && (bit_mask & LIGHT_RST_MASK))
+    if ((control_byte & CTL_LIGHT_RST) && (bit_mask & CTL_LIGHT_RST))
     {
         /* confirm received byte of I2C and reset */
         I2C_AcknowledgeConfig(I2C_PERIPH_NAME, ENABLE);
@@ -258,15 +247,15 @@ static void slave_i2c_check_control_byte(uint8_t control_byte, uint8_t bit_mask)
         return;
     }
 
-    if ((control_byte & HARD_RST_MASK) && (bit_mask & HARD_RST_MASK))
+    if ((control_byte & CTL_HARD_RST) && (bit_mask & CTL_HARD_RST))
     {
         i2c_control->state = SLAVE_I2C_HARD_RST;
         return;
     }
 
-    if (bit_mask & USB30_PWRON_MASK)
+    if (bit_mask & CTL_USB30_PWRON)
     {
-        if (control_byte & USB30_PWRON_MASK)
+        if (control_byte & CTL_USB30_PWRON)
         {
             power_control_usb(USB3_PORT0, USB_ON);
             i2c_control->status_word |= STS_USB30_PWRON;
@@ -278,9 +267,9 @@ static void slave_i2c_check_control_byte(uint8_t control_byte, uint8_t bit_mask)
         }
     }
 
-    if (bit_mask & USB31_PWRON_MASK)
+    if (bit_mask & CTL_USB31_PWRON)
     {
-        if (control_byte & USB31_PWRON_MASK)
+        if (control_byte & CTL_USB31_PWRON)
         {
             power_control_usb(USB3_PORT1, USB_ON);
             i2c_control->status_word |= STS_USB31_PWRON;
@@ -293,9 +282,9 @@ static void slave_i2c_check_control_byte(uint8_t control_byte, uint8_t bit_mask)
     }
 
 #if USER_REGULATOR_ENABLED
-    if (bit_mask & ENABLE_4V5_MASK)
+    if (bit_mask & CTL_ENABLE_4V5)
     {
-        if (control_byte & ENABLE_4V5_MASK)
+        if (control_byte & CTL_ENABLE_4V5)
         {
             i2c_control->state = SLAVE_I2C_PWR4V5_ENABLE;
         }
@@ -307,9 +296,9 @@ static void slave_i2c_check_control_byte(uint8_t control_byte, uint8_t bit_mask)
     }
 #endif
 
-    if (bit_mask & BUTTON_MODE_MASK)
+    if (bit_mask & CTL_BUTTON_MODE)
     {
-        if (control_byte & BUTTON_MODE_MASK)
+        if (control_byte & CTL_BUTTON_MODE)
         {
            button->button_mode = BUTTON_USER;
            i2c_control->status_word |= STS_BUTTON_MODE;
@@ -322,9 +311,9 @@ static void slave_i2c_check_control_byte(uint8_t control_byte, uint8_t bit_mask)
         }
     }
 
-    if (bit_mask & BOOTLOADER_MASK)
+    if (bit_mask & CTL_BOOTLOADER)
     {
-        if (control_byte & BOOTLOADER_MASK)
+        if (control_byte & CTL_BOOTLOADER)
         {
             ee_var = EE_WriteVariable(RESET_VIRT_ADDR, BOOTLOADER_REQ);
 

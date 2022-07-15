@@ -58,6 +58,17 @@ enum sts_word_e {
     STS_BUTTON_COUNTER_MASK          = GENMASK(15, 13)
 };
 
+enum ctl_byte_e {
+    CTL_LIGHT_RST   = BIT(0),
+    CTL_HARD_RST    = BIT(1),
+    /*CTL_RESERVED    = BIT(2),*/
+    CTL_USB30_PWRON = BIT(3),
+    CTL_USB31_PWRON = BIT(4),
+    CTL_ENABLE_4V5  = BIT(5),
+    CTL_BUTTON_MODE = BIT(6),
+    CTL_BOOTLOADER  = BIT(7)
+};
+
 enum features_e {
     FEAT_PERIPH_MCU         = BIT(0),
     FEAT_EXT_CMDS           = BIT(1),
