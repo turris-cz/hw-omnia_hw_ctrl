@@ -96,7 +96,11 @@ enum i2c_commands {
  *                                0 - otherwise
  *      1   |   EXT_CMDS        : 1 - extended control and status commands are available, 0 - otherwise
  *      2   |   WDT_PING        : 1 - CMD_SET_WDT_TIMEOUT and CMD_GET_WDT_TIMELEFT supported, 0 - otherwise
- *  3..15   |   reserved
+ *    3,4   |   LED_STATE_EXT   : 00 -> LED status extension not supported in extended status word
+ *                                01 -> LED status extension supported, board revision <32
+ *                                10 -> LED status extension supported, board revision >=32
+ *                                11 -> reserved
+ *  5..15   |   reserved
 */
 
 * Example of a reading of features from Linux:
@@ -118,7 +122,49 @@ enum i2c_commands {
  *  Bit Nr. |   Meanings
  * -----------------
  *      0   |   SFP_NDET        : 1 - no SFP detected, 0 - SFP detected
- *  1..31   |   reserved
+ *  1..20   |   LED states      : 1 - LED is on, 0 - LED is off
+ * 21..31   |   reserved
+ *
+ * Meanings for LED states bits 1..20:
+ *  Bit Nr. |   Meanings          | Note
+ * -------------------------------------
+ *      1   |   WLAN0_MSATA_LED   | note 1
+ *      2   |   WLAN1_LED         | note 2
+ *      3   |   WLAN2_LED         | note 2
+ *      4   |   WPAN0_LED         | note 3
+ *      5   |   WPAN1_LED         | note 3
+ *      6   |   WPAN2_LED         | note 3
+ *      7   |   WAN_LED0
+ *      8   |   WAN_LED1          | note 4
+ *      9   |   LAN0_LED0
+ *     10   |   LAN0_LED1
+ *     11   |   LAN1_LED0
+ *     12   |   LAN1_LED1
+ *     13   |   LAN2_LED0
+ *     14   |   LAN2_LED1
+ *     15   |   LAN3_LED0
+ *     16   |   LAN3_LED1
+ *     17   |   LAN4_LED0
+ *     18   |   LAN4_LED1
+ *     19   |   LAN5_LED0
+ *     20   |   LAN5_LED1
+ * 21..31   |   reserved
+ *
+ * Notes: in the following notes, pre-v32 and v32+ boards can be determined
+ *        from the LED_STATE_EXT field of the features word.
+ * note 1: On pre-v32 boards, WLAN0_MSATA_LED corresponds (as logical OR) to
+ *         nLED_WLAN and DA_DSS pins of the MiniPCIe/mSATA port.
+ *         On v32+ boards it corresponds also to the nLED_WWAN and nLED_WPAN
+ *         pins.
+ * note 2: On pre-v32 boards, WLAN*_LED corresponds to the nLED_WLAN pin of the
+ *         MiniPCIe port.
+ *         On v32+ boards it corresponds (as logical OR) to nLED_WWAN, nLED_WLAN
+ *         and nLED_WPAN pins.
+ * note 3: On pre-v32 boards, WPAN*_LED bits correspond to the nLED_WPAN pins of
+ *         the MiniPCIe port.
+ *         On v32+ boards, WPAN*_LED bits are unavailable, because their
+ *         functionality is ORed in WLAN*_LED bits.
+ * note 4: WAN_LED1 is only available on v32+ boards.
  */
 
 * Example of a reading of the extended status dword from Linux:

@@ -58,10 +58,34 @@ enum features_bits {
     PERIPH_MCU_SUPPORTED   = 0x0001,
     EXT_CMDS_SUPPORTED     = 0x0002,
     WDT_PING_SUPPORTED     = 0x0004,
+    LED_STATE_EXT_MASK     = 0x0018,
+    LED_STATE_EXT          = 0x0008,
+    LED_STATE_EXT_V32      = 0x0010,
 };
 
 enum ext_status_dword_bits {
-    SFP_NDET_STSBIT        = 0x0001,
+    SFP_NDET_STSBIT        = 0x000001,
+    LED_STATES_MASK        = 0x1FFFFE,
+    WLAN0_MSATA_LED_STSBIT = 0x000002,
+    WLAN1_LED_STSBIT       = 0x000004,
+    WLAN2_LED_STSBIT       = 0x000008,
+    WPAN0_LED_STSBIT       = 0x000010,
+    WPAN1_LED_STSBIT       = 0x000020,
+    WPAN2_LED_STSBIT       = 0x000040,
+    WAN_LED0_STSBIT        = 0x000080,
+    WAN_LED1_STSBIT        = 0x000100,
+    LAN0_LED0_STSBIT       = 0x000200,
+    LAN0_LED1_STSBIT       = 0x000400,
+    LAN1_LED0_STSBIT       = 0x000800,
+    LAN1_LED1_STSBIT       = 0x001000,
+    LAN2_LED0_STSBIT       = 0x002000,
+    LAN2_LED1_STSBIT       = 0x004000,
+    LAN3_LED0_STSBIT       = 0x008000,
+    LAN3_LED1_STSBIT       = 0x010000,
+    LAN4_LED0_STSBIT       = 0x020000,
+    LAN4_LED1_STSBIT       = 0x040000,
+    LAN5_LED0_STSBIT       = 0x080000,
+    LAN5_LED1_STSBIT       = 0x100000,
 };
 
 enum i2c_ext_control_mask {
@@ -111,7 +135,11 @@ enum i2c_ext_control_mask {
  *                                0 - otherwise
  *      1   |   EXT_CMDS        : 1 - extended control and status commands are available, 0 - otherwise
  *      2   |   WDT_PING        : 1 - CMD_SET_WDT_TIMEOUT and CMD_GET_WDT_TIMELEFT supported, 0 - otherwise
- *  3..15   |   reserved
+ *    3,4   |   LED_STATE_EXT   : 00 -> LED status extension not supported in extended status word
+ *                                01 -> LED status extension supported, board revision <32
+ *                                10 -> LED status extension supported, board revision >=32
+ *                                11 -> reserved
+ *  5..15   |   reserved
 */
 
 /*
@@ -119,7 +147,49 @@ enum i2c_ext_control_mask {
  *  Bit Nr. |   Meanings
  * -----------------
  *      0   |   SFP_NDET        : 1 - no SFP detected, 0 - SFP detected
- *  1..31   |   reserved
+ *  1..20   |   LED states      : 1 - LED is on, 0 - LED is off
+ * 21..31   |   reserved
+ *
+ * Meanings for LED states bits 1..20:
+ *  Bit Nr. |   Meanings          | Note
+ * -------------------------------------
+ *      1   |   WLAN0_MSATA_LED   | note 1
+ *      2   |   WLAN1_LED         | note 2
+ *      3   |   WLAN2_LED         | note 2
+ *      4   |   WPAN0_LED         | note 3
+ *      5   |   WPAN1_LED         | note 3
+ *      6   |   WPAN2_LED         | note 3
+ *      7   |   WAN_LED0
+ *      8   |   WAN_LED1          | note 4
+ *      9   |   LAN0_LED0
+ *     10   |   LAN0_LED1
+ *     11   |   LAN1_LED0
+ *     12   |   LAN1_LED1
+ *     13   |   LAN2_LED0
+ *     14   |   LAN2_LED1
+ *     15   |   LAN3_LED0
+ *     16   |   LAN3_LED1
+ *     17   |   LAN4_LED0
+ *     18   |   LAN4_LED1
+ *     19   |   LAN5_LED0
+ *     20   |   LAN5_LED1
+ * 21..31   |   reserved
+ *
+ * Notes: in the following notes, pre-v32 and v32+ boards can be determined
+ *        from the LED_STATE_EXT field of the features word.
+ * note 1: On pre-v32 boards, WLAN0_MSATA_LED corresponds (as logical OR) to
+ *         nLED_WLAN and DA_DSS pins of the MiniPCIe/mSATA port.
+ *         On v32+ boards it corresponds also to the nLED_WWAN and nLED_WPAN
+ *         pins.
+ * note 2: On pre-v32 boards, WLAN*_LED corresponds to the nLED_WLAN pin of the
+ *         MiniPCIe port.
+ *         On v32+ boards it corresponds (as logical OR) to nLED_WWAN, nLED_WLAN
+ *         and nLED_WPAN pins.
+ * note 3: On pre-v32 boards, WPAN*_LED bits correspond to the nLED_WPAN pins of
+ *         the MiniPCIe port.
+ *         On v32+ boards, WPAN*_LED bits are unavailable, because their
+ *         functionality is ORed in WLAN*_LED bits.
+ * note 4: WAN_LED1 is only available on v32+ boards.
 */
 
 /*
