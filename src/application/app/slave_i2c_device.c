@@ -46,7 +46,7 @@ static const uint16_t slave_features_supported =
 	PERIPH_MCU_SUPPORTED |
 	EXT_CMDS_SUPPORTED;
 
-enum i2c_commands {
+enum commands_e {
     CMD_GET_STATUS_WORD                 = 0x01, /* slave sends status word back */
     CMD_GENERAL_CONTROL                 = 0x02,
     CMD_LED_MODE                        = 0x03, /* default/user */
@@ -75,7 +75,7 @@ enum i2c_commands {
     CMD_GET_WDT_TIMELEFT                = 0x21,
 };
 
-enum i2c_control_byte_mask {
+enum control_byte_e {
     LIGHT_RST_MASK                      = 0x01,
     HARD_RST_MASK                       = 0x02,
     RESERVED_MASK                       = 0x04,
@@ -86,21 +86,21 @@ enum i2c_control_byte_mask {
     BOOTLOADER_MASK                     = 0x80
 };
 
-enum expected_bytes_in_cmd {
+enum expected_bytes_in_cmd_e {
     ONE_BYTE_EXPECTED                   = 1,
     TWO_BYTES_EXPECTED                  = 2,
     FOUR_BYTES_EXPECTED                 = 4,
     TWENTY_BYTES_EXPECTED               = 20
 };
 
-typedef enum i2c_dir {
+typedef enum i2c_dir_e {
     I2C_DIR_TRANSMITTER_MCU             = 0,
     I2C_DIR_RECEIVER_MCU                = 1,
     I2C_DIR_TRANSMITTER_EMULATOR        = 3,
     I2C_DIR_RECEIVER_EMULATOR           = 4,
 } i2c_dir_t;
 
-enum boot_requests {
+enum boot_request_e {
     BOOTLOADER_REQ                      = 0xAA,
     FLASH_ERROR                         = 0x55,
     FLASH_OK                            = 0x88

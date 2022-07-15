@@ -39,7 +39,7 @@ struct st_i2c_status {
 
 extern struct st_i2c_status i2c_status;
 
-enum status_word_bits {
+enum sts_word_e {
     MCU_TYPE_MASK                       = GENMASK(1, 0),
     MCU_TYPE_STM32                      = FIELD_PREP(MCU_TYPE_MASK, 0),
     MCU_TYPE_GD32                       = FIELD_PREP(MCU_TYPE_MASK, 1),
@@ -58,7 +58,7 @@ enum status_word_bits {
     BUTTON_COUNTER_VALBITS              = GENMASK(15, 13)
 };
 
-enum features_bits {
+enum features_e {
     PERIPH_MCU_SUPPORTED   = BIT(0),
     EXT_CMDS_SUPPORTED     = BIT(1),
     WDT_PING_SUPPORTED     = BIT(2),
@@ -67,7 +67,7 @@ enum features_bits {
     LED_STATE_EXT_V32      = FIELD_PREP(LED_STATE_EXT_MASK, 2),
 };
 
-enum ext_status_dword_bits {
+enum ext_sts_dword_e {
     SFP_NDET_STSBIT        = BIT(0),
     LED_STATES_MASK        = GENMASK(20, 1),
     WLAN0_MSATA_LED_STSBIT = BIT(1),
@@ -92,7 +92,7 @@ enum ext_status_dword_bits {
     LAN5_LED1_STSBIT       = BIT(20),
 };
 
-enum i2c_ext_control_mask {
+enum ext_ctl_e {
     RES_MMC_MASK           = BIT(0),
     RES_LAN_MASK           = BIT(1),
     RES_PHY_MASK           = BIT(2),

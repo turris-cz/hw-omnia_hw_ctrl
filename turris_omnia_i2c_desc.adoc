@@ -10,7 +10,7 @@ This document describes the communication between MCU na CPU on Turris Omnia (re
 
 [source,C]
 ----
-enum i2c_commands {
+enum commands_e {
     CMD_GET_STATUS_WORD        = 0x01, /* slave sends status word back */
     CMD_GENERAL_CONTROL        = 0x02,
     CMD_LED_MODE               = 0x03, /* default/user */
