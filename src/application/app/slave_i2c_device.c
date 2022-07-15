@@ -45,35 +45,6 @@ static const uint8_t version[] = VERSION;
 static const uint16_t slave_features_supported =
 	FEAT_PERIPH_MCU | FEAT_EXT_CMDS;
 
-enum commands_e {
-    CMD_GET_STATUS_WORD                 = 0x01, /* slave sends status word back */
-    CMD_GENERAL_CONTROL                 = 0x02,
-    CMD_LED_MODE                        = 0x03, /* default/user */
-    CMD_LED_STATE                       = 0x04, /* LED on/off */
-    CMD_LED_COLOUR                      = 0x05, /* LED number + RED + GREEN + BLUE */
-    CMD_USER_VOLTAGE                    = 0x06,
-    CMD_SET_BRIGHTNESS                  = 0x07,
-    CMD_GET_BRIGHTNESS                  = 0x08,
-    CMD_GET_RESET                       = 0x09,
-    CMD_GET_FW_VERSION_APP              = 0x0A, /* 20B git hash number */
-    CMD_WATCHDOG_STATE                  = 0x0B, /* 0 - STOP, 1 - RUN -> must be stopped in less than 2 mins after reset */
-    CMD_WATCHDOG_STATUS                 = 0x0C, /* 0 - DISABLE, 1 - ENABLE -> permanently */
-    CMD_GET_WATCHDOG_STATE              = 0x0D,
-    CMD_GET_FW_VERSION_BOOT             = 0x0E, /* 20B git hash number */
-
-    /* available if FEATURES_SUPPORTED bit set in status word */
-    CMD_GET_FEATURES                    = 0x10,
-
-    /* available if EXT_CMD bit set in features */
-    CMD_GET_EXT_STATUS_DWORD            = 0x11,
-    CMD_EXT_CONTROL                     = 0x12,
-    CMD_GET_EXT_CONTROL_STATUS          = 0x13,
-
-    /* available if WDT_PING bit set in features */
-    CMD_SET_WDT_TIMEOUT                 = 0x20,
-    CMD_GET_WDT_TIMELEFT                = 0x21,
-};
-
 enum expected_bytes_in_cmd_e {
     ONE_BYTE_EXPECTED                   = 1,
     TWO_BYTES_EXPECTED                  = 2,
