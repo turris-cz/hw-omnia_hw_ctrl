@@ -225,8 +225,8 @@ static ret_value_t load_settings(void)
     i2c_control->status_word = app_get_status_word();
     i2c_control->ext_status_dword = app_get_ext_status_dword();
     i2c_control->ext_control_word =
-        RES_MMC_MASK | RES_LAN_MASK | RES_PHY_MASK | PERST0_MASK | PERST1_MASK |
-        PERST2_MASK | PHY_SFP_MASK | PHY_SFP_AUTO_MASK;
+        EXT_CTL_RES_MMC | EXT_CTL_RES_LAN | EXT_CTL_RES_PHY | EXT_CTL_PERST0 |
+        EXT_CTL_PERST1 | EXT_CTL_PERST2 | EXT_CTL_PHY_SFP | EXT_CTL_PHY_SFP_AUTO;
 
     return OK;
 }
@@ -352,7 +352,7 @@ static ret_value_t input_manager(void)
         i2c_control->ext_status_dword &= (~(SFP_NDET_STSBIT));
 
     __disable_irq();
-    if (i2c_control->ext_control_word & PHY_SFP_AUTO_MASK)
+    if (i2c_control->ext_control_word & EXT_CTL_PHY_SFP_AUTO)
         GPIO_WriteBit(PHY_SFP_PIN_PORT, PHY_SFP_PIN,
                       !!(i2c_control->ext_status_dword & SFP_NDET_STSBIT));
     __enable_irq();

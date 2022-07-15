@@ -350,7 +350,7 @@ static const struct {
     bool inv;
 } ext_control_pins[] = {
 #define ECTRL(n, i) \
-    { n ## _PIN_PORT, n ## _PIN, n ## _MASK, i }
+    { n ## _PIN_PORT, n ## _PIN, EXT_CTL_ ## n, i }
     ECTRL(RES_MMC, 1),
     ECTRL(RES_LAN, 1),
     ECTRL(RES_PHY, 1),
@@ -383,10 +383,10 @@ void slave_i2c_ext_control(uint16_t ext_control_word, uint16_t bit_mask)
      * If not set, we want to set PHY_SFP according to value in
      * ext_control_word.
      */
-    if (ext_control_word & PHY_SFP_AUTO_MASK)
-        bit_mask &= ~PHY_SFP_MASK;
+    if (ext_control_word & EXT_CTL_PHY_SFP_AUTO)
+        bit_mask &= ~EXT_CTL_PHY_SFP;
     else
-        bit_mask |= PHY_SFP_MASK;
+        bit_mask |= EXT_CTL_PHY_SFP;
 
     for_each_const(pin, ext_control_pins)
         if (bit_mask & pin->mask)
@@ -409,7 +409,7 @@ static uint16_t slave_i2c_get_ext_control_status(void)
             ext_control_status |= pin->mask;
 
     /* PHY_SFP_AUTO isn't a GPIO, rather an internal setting about behavior */
-    ext_control_status |= i2c_status.ext_control_word & PHY_SFP_AUTO_MASK;
+    ext_control_status |= i2c_status.ext_control_word & EXT_CTL_PHY_SFP_AUTO;
 
     return ext_control_status;
 }

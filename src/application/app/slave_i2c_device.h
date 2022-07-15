@@ -93,15 +93,15 @@ enum ext_sts_dword_e {
 };
 
 enum ext_ctl_e {
-    RES_MMC_MASK           = BIT(0),
-    RES_LAN_MASK           = BIT(1),
-    RES_PHY_MASK           = BIT(2),
-    PERST0_MASK            = BIT(3),
-    PERST1_MASK            = BIT(4),
-    PERST2_MASK            = BIT(5),
-    PHY_SFP_MASK           = BIT(6),
-    PHY_SFP_AUTO_MASK      = BIT(7),
-    VHV_CTRL_MASK          = BIT(8),
+    EXT_CTL_RES_MMC      = BIT(0),
+    EXT_CTL_RES_LAN      = BIT(1),
+    EXT_CTL_RES_PHY      = BIT(2),
+    EXT_CTL_PERST0       = BIT(3),
+    EXT_CTL_PERST1       = BIT(4),
+    EXT_CTL_PERST2       = BIT(5),
+    EXT_CTL_PHY_SFP      = BIT(6),
+    EXT_CTL_PHY_SFP_AUTO = BIT(7),
+    EXT_CTL_VHV_CTRL     = BIT(8),
 };
 
 /*
