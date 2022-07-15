@@ -91,32 +91,32 @@ static uint16_t app_get_status_word(void)
     uint16_t status_word = 0;
 
     /* GET_FEATURES command is supported */
-    status_word |= FEATURES_SUPPORTED_STSBIT;
+    status_word |= STS_FEATURES_SUPPORTED;
 
     #if USER_REGULATOR_ENABLED
         if(GPIO_ReadOutputDataBit(ENABLE_4V5_PIN_PORT, ENABLE_4V5_PIN))
-            status_word |= ENABLE_4V5_STSBIT;
+            status_word |= STS_ENABLE_4V5;
     #else
-        status_word |= USER_REGULATOR_NOT_SUPPORTED_STSBIT;
+        status_word |= STS_USER_REGULATOR_NOT_SUPPORTED;
     #endif
 
     if (msata_pci_card_detection())
-        status_word |= CARD_DET_STSBIT;
+        status_word |= STS_CARD_DET;
 
     if (msata_pci_type_card_detection())
-        status_word |= MSATA_IND_STSBIT;
+        status_word |= STS_MSATA_IND;
 
     if (power_control_get_usb_overcurrent(USB3_PORT0))
-        status_word |= USB30_OVC_STSBIT;
+        status_word |= STS_USB30_OVC;
 
     if (power_control_get_usb_overcurrent(USB3_PORT1))
-        status_word |= USB31_OVC_STSBIT;
+        status_word |= STS_USB31_OVC;
 
     if (power_control_get_usb_poweron(USB3_PORT0))
-        status_word |= USB30_PWRON_STSBIT;
+        status_word |= STS_USB30_PWRON;
 
     if (power_control_get_usb_poweron(USB3_PORT1))
-        status_word |= USB31_PWRON_STSBIT;
+        status_word |= STS_USB31_PWRON;
 
     return status_word;
 }
@@ -281,12 +281,12 @@ static ret_value_t input_manager(void)
     /* USB30 overcurrent */
     if(input_state->usb30_ovc == ACTIVATED)
     {
-        i2c_control->status_word |= USB30_OVC_STSBIT;
+        i2c_control->status_word |= STS_USB30_OVC;
         input_state->usb30_ovc = DEACTIVATED;
         power_control_usb(USB3_PORT0, USB_OFF); /* USB power off */
 
         if(!power_control_get_usb_poweron(USB3_PORT0))  /* update status word */
-            i2c_control->status_word &= (~USB30_PWRON_STSBIT);
+            i2c_control->status_word &= (~STS_USB30_PWRON);
 
         /* USB timeout set to 1 sec */
         power_control_usb_timeout_enable();
@@ -295,13 +295,13 @@ static ret_value_t input_manager(void)
     /* USB31 overcurrent */
     if(input_state->usb31_ovc == ACTIVATED)
     {
-        i2c_control->status_word |= USB31_OVC_STSBIT;
+        i2c_control->status_word |= STS_USB31_OVC;
         input_state->usb31_ovc = DEACTIVATED;
 
         power_control_usb(USB3_PORT1, USB_OFF); /* USB power off */
 
         if(!power_control_get_usb_poweron(USB3_PORT1)) /* update status word */
-            i2c_control->status_word &= (~USB31_PWRON_STSBIT);
+            i2c_control->status_word &= (~STS_USB31_PWRON);
 
         /* USB timeout set to 1 sec */
         power_control_usb_timeout_enable();
@@ -324,26 +324,26 @@ static ret_value_t input_manager(void)
     {
         if (button->button_pressed_counter)
         {
-            i2c_control->status_word &= ~BUTTON_COUNTER_VALBITS;
-            i2c_control->status_word |= (button->button_pressed_counter << 13) & BUTTON_COUNTER_VALBITS;
-            i2c_control->status_word |= BUTTON_PRESSED_STSBIT;
+            i2c_control->status_word &= ~STS_BUTTON_COUNTER_MASK;
+            i2c_control->status_word |= (button->button_pressed_counter << 13) & STS_BUTTON_COUNTER_MASK;
+            i2c_control->status_word |= STS_BUTTON_PRESSED;
         }
         else
         {
-            i2c_control->status_word &= (~(BUTTON_PRESSED_STSBIT | BUTTON_COUNTER_VALBITS));
+            i2c_control->status_word &= (~(STS_BUTTON_PRESSED | STS_BUTTON_COUNTER_MASK));
         }
     }
 
     /* these flags are automatically cleared in debounce function */
     if(input_state->card_det == ACTIVATED)
-        i2c_control->status_word |= CARD_DET_STSBIT;
+        i2c_control->status_word |= STS_CARD_DET;
     else
-        i2c_control->status_word &= (~CARD_DET_STSBIT);
+        i2c_control->status_word &= (~STS_CARD_DET);
 
     if(input_state->msata_ind == ACTIVATED)
-        i2c_control->status_word |= MSATA_IND_STSBIT;
+        i2c_control->status_word |= STS_MSATA_IND;
     else
-        i2c_control->status_word &= (~MSATA_IND_STSBIT);
+        i2c_control->status_word &= (~STS_MSATA_IND);
 
 
     if(GPIO_ReadInputDataBit(SFP_NDET_PIN_PORT, SFP_NDET_PIN))
@@ -377,7 +377,7 @@ static ret_value_t enable_4v5(void)
 
     if (pwr_error == NO_ERROR)
     {
-        i2c_control->status_word |= ENABLE_4V5_STSBIT;
+        i2c_control->status_word |= STS_ENABLE_4V5;
         val = OK;
     }
     else /* error */

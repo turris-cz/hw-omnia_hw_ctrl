@@ -250,7 +250,7 @@ void debounce_check_inputs(void)
     }
 
     /* PG signal from 4.5V user controlled regulator */
-    if(i2c_control->status_word & ENABLE_4V5_STSBIT)
+    if(i2c_control->status_word & STS_ENABLE_4V5)
     {
         if (port_changed & PG_4V5_MASK)
             input_state->pg_4v5 = ACTIVATED;

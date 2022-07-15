@@ -40,22 +40,22 @@ struct st_i2c_status {
 extern struct st_i2c_status i2c_status;
 
 enum sts_word_e {
-    MCU_TYPE_MASK                       = GENMASK(1, 0),
-    MCU_TYPE_STM32                      = FIELD_PREP(MCU_TYPE_MASK, 0),
-    MCU_TYPE_GD32                       = FIELD_PREP(MCU_TYPE_MASK, 1),
-    MCU_TYPE_MKL                        = FIELD_PREP(MCU_TYPE_MASK, 2),
-    FEATURES_SUPPORTED_STSBIT           = BIT(2),
-    USER_REGULATOR_NOT_SUPPORTED_STSBIT = BIT(3),
-    CARD_DET_STSBIT                     = BIT(4),
-    MSATA_IND_STSBIT                    = BIT(5),
-    USB30_OVC_STSBIT                    = BIT(6),
-    USB31_OVC_STSBIT                    = BIT(7),
-    USB30_PWRON_STSBIT                  = BIT(8),
-    USB31_PWRON_STSBIT                  = BIT(9),
-    ENABLE_4V5_STSBIT                   = BIT(10),
-    BUTTON_MODE_STSBIT                  = BIT(11),
-    BUTTON_PRESSED_STSBIT               = BIT(12),
-    BUTTON_COUNTER_VALBITS              = GENMASK(15, 13)
+    STS_MCU_TYPE_MASK                = GENMASK(1, 0),
+    STS_MCU_TYPE_STM32               = FIELD_PREP(STS_MCU_TYPE_MASK, 0),
+    STS_MCU_TYPE_GD32                = FIELD_PREP(STS_MCU_TYPE_MASK, 1),
+    STS_MCU_TYPE_MKL                 = FIELD_PREP(STS_MCU_TYPE_MASK, 2),
+    STS_FEATURES_SUPPORTED           = BIT(2),
+    STS_USER_REGULATOR_NOT_SUPPORTED = BIT(3),
+    STS_CARD_DET                     = BIT(4),
+    STS_MSATA_IND                    = BIT(5),
+    STS_USB30_OVC                    = BIT(6),
+    STS_USB31_OVC                    = BIT(7),
+    STS_USB30_PWRON                  = BIT(8),
+    STS_USB31_PWRON                  = BIT(9),
+    STS_ENABLE_4V5                   = BIT(10),
+    STS_BUTTON_MODE                  = BIT(11),
+    STS_BUTTON_PRESSED               = BIT(12),
+    STS_BUTTON_COUNTER_MASK          = GENMASK(15, 13)
 };
 
 enum features_e {

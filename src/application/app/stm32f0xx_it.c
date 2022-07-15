@@ -188,7 +188,7 @@ void TIM17_IRQHandler(void)
         power_control_usb(USB3_PORT0, USB_ON);
         power_control_usb(USB3_PORT1, USB_ON);
 
-        i2c_control->status_word |= USB30_PWRON_STSBIT | USB31_PWRON_STSBIT;
+        i2c_control->status_word |= STS_USB30_PWRON | STS_USB31_PWRON;
 
         power_control_usb_timeout_disable();
 

@@ -270,12 +270,12 @@ static void slave_i2c_check_control_byte(uint8_t control_byte, uint8_t bit_mask)
         if (control_byte & USB30_PWRON_MASK)
         {
             power_control_usb(USB3_PORT0, USB_ON);
-            i2c_control->status_word |= USB30_PWRON_STSBIT;
+            i2c_control->status_word |= STS_USB30_PWRON;
         }
         else
         {
             power_control_usb(USB3_PORT0, USB_OFF);
-            i2c_control->status_word &= (~USB30_PWRON_STSBIT);
+            i2c_control->status_word &= (~STS_USB30_PWRON);
         }
     }
 
@@ -284,12 +284,12 @@ static void slave_i2c_check_control_byte(uint8_t control_byte, uint8_t bit_mask)
         if (control_byte & USB31_PWRON_MASK)
         {
             power_control_usb(USB3_PORT1, USB_ON);
-            i2c_control->status_word |= USB31_PWRON_STSBIT;
+            i2c_control->status_word |= STS_USB31_PWRON;
         }
         else
         {
             power_control_usb(USB3_PORT1, USB_OFF);
-            i2c_control->status_word &= (~USB31_PWRON_STSBIT);
+            i2c_control->status_word &= (~STS_USB31_PWRON);
         }
     }
 
@@ -303,7 +303,7 @@ static void slave_i2c_check_control_byte(uint8_t control_byte, uint8_t bit_mask)
         else
         {
             GPIO_ResetBits(ENABLE_4V5_PIN_PORT, ENABLE_4V5_PIN);
-            i2c_control->status_word &= (~ENABLE_4V5_STSBIT);
+            i2c_control->status_word &= (~STS_ENABLE_4V5);
         }
     }
 #endif
@@ -313,13 +313,13 @@ static void slave_i2c_check_control_byte(uint8_t control_byte, uint8_t bit_mask)
         if (control_byte & BUTTON_MODE_MASK)
         {
            button->button_mode = BUTTON_USER;
-           i2c_control->status_word |= BUTTON_MODE_STSBIT;
+           i2c_control->status_word |= STS_BUTTON_MODE;
         }
         else
         {
            button->button_mode = BUTTON_DEFAULT;
            button->button_pressed_counter = 0;
-           i2c_control->status_word &= (~BUTTON_MODE_STSBIT);
+           i2c_control->status_word &= (~STS_BUTTON_MODE);
         }
     }
 
@@ -893,9 +893,9 @@ void slave_i2c_handler(void)
             /* delete button status and counter bit from status_word */
             if (i2c_state->rx_buf[CMD_INDEX] == CMD_GET_STATUS_WORD)
             {
-                i2c_state->status_word &= ~BUTTON_PRESSED_STSBIT;
+                i2c_state->status_word &= ~STS_BUTTON_PRESSED;
                 /* decrease button counter by the value has been sent */
-                button_counter_decrease((i2c_state->status_word & BUTTON_COUNTER_VALBITS) >> 13);
+                button_counter_decrease((i2c_state->status_word & STS_BUTTON_COUNTER_MASK) >> 13);
             }
         }
 
