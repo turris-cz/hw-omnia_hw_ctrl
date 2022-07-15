@@ -105,7 +105,7 @@ enum i2c_ext_control_mask {
 };
 
 /*
- * Bit meanings in status_word:
+ * Bit meanings in status word:
  *  Bit Nr. |   Meanings
  * -----------------
  *    0,1   |   MCU_TYPE        : 00 -> STM32
@@ -147,7 +147,7 @@ enum i2c_ext_control_mask {
 */
 
 /*
- * Bit meanings in ext_status_dword:
+ * Bit meanings in extended status dword:
  *  Bit Nr. |   Meanings
  * -----------------
  *      0   |   SFP_NDET        : 1 - no SFP detected, 0 - SFP detected
@@ -197,7 +197,7 @@ enum i2c_ext_control_mask {
 */
 
 /*
- * Byte meanings in reset_byte:
+ * Byte meanings in reset byte:
  *  Byte Nr. |   Meanings
  * -----------------
  *   1.B    |   RESET_TYPE      : 0 - normal reset, 1 - previous snapshot,
@@ -205,7 +205,7 @@ enum i2c_ext_control_mask {
 */
 
 /*
- * Bit meanings in control_byte:
+ * Bit meanings in control byte:
  *  Bit Nr. |   Meanings
  * -----------------
  *      0   |   LIGHT_RST   : 1 - do light reset, 0 - no reset
@@ -219,7 +219,7 @@ enum i2c_ext_control_mask {
 */
 
 /*
- * Bit meanings in extended control byte:
+ * Bit meanings in extended control dword:
  *  Bit Nr. |   Meanings
  * -----------------
  *      0   |   RES_MMC   : 1 - reset of MMC, 0 - no reset
@@ -236,7 +236,7 @@ enum i2c_ext_control_mask {
 */
 
 /*
- * Bit meanings in led_mode_byte:
+ * Bit meanings in led mode byte:
  *  Bit Nr. |   Meanings
  * -----------------
  *   0..3   |   LED number [0..11] (or in case setting of all LED at once -> LED number = 12)
@@ -245,7 +245,7 @@ enum i2c_ext_control_mask {
 */
 
 /*
- * Bit meanings in led_state_byte:
+ * Bit meanings in led state byte:
  *  Bit Nr. |   Meanings
  * -----------------
  *   0..3   |   LED number [0..11] (or in case setting of all LED at once -> LED number = 12)
@@ -254,7 +254,7 @@ enum i2c_ext_control_mask {
 */
 
 /*
- * Bit meanings in led_colour:
+ * Bit meanings in led colour:
  * Byte Nr. |  Bit Nr. |   Meanings
  * -----------------
  *  1.B     |  0..3   |   LED number [0..11] (or in case setting of all LED at once -> LED number = 12)

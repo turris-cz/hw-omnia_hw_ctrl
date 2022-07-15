@@ -47,7 +47,7 @@ enum i2c_commands {
 
 [source,C]
 /*
- * Bit meanings in status_word:
+ * Bit meanings in status word:
  *  Bit Nr. |   Meanings
  * -----------------
  *    0,1   |   MCU_TYPE        : 00 -> STM32
@@ -118,7 +118,7 @@ enum i2c_commands {
 
 [source,C]
 /*
- * Bit meanings in ext_status_dword:
+ * Bit meanings in extended status dword:
  *  Bit Nr. |   Meanings
  * -----------------
  *      0   |   SFP_NDET        : 1 - no SFP detected, 0 - SFP detected
@@ -181,7 +181,7 @@ enum i2c_commands {
 
 [source,C]
 /*
- * Bit meanings in control_byte:
+ * Bit meanings in control byte:
  *  Bit Nr. |   Meanings
  * -----------------
  *      0   |   LIGHT_RST   : 1 - do light reset, 0 - no reset
@@ -210,44 +210,7 @@ enum i2c_commands {
 
 [source,C]
 /*
- * Bit meanings in extended control_byte:
- *  Bit Nr. |   Meanings
- * -----------------
- *      0   |   RES_MMC   : 1 - reset of MMC, 0 - no reset
- *      1   |   RES_LAN   : 1 - reset of LAN switch, 0 - no reset
- *      2   |   RES_PHY   : 1 - reset of PHY WAN, 0 - no reset
- *      3   |   PERST0    : 1 - reset of PCIE0, 0 - no reset
- *      4   |   PERST1    : 1 - reset of PCIE1, 0 - no reset
- *      5   |   PERST2    : 1 - reset of PCIE2, 0 - no reset
- *      6   |   PHY_SFP   : 1 - PHY WAN mode, 0 - SFP WAN mode
- *      7   |   VHV_CTRL  : 1 - VHV control not active, 0 - VHV control voltage active
- *  8..15   |   reserved
-*/
-
-* Example of a setting of the extended control word (release PERST0):
-** "i2cset 1 0x2A 0x12 0x00 0x00 0x08 0x00 i"
-*** 1 -> i2cbus number
-*** 0x2A -> I2C address of the slave
-*** 0x12 -> "address of the register" = command
-*** 0x00 0x00 -> value of the word, lower byte first. Bit 3 is 0 -> release PERST0 from reset
-*** 0x08 0x00 -> value of the mask, lower byte first. Bit 3 is 1 -> bit 3 will be changed
-***	i -> block data type
-
-=== CMD_GET_EXT_CONTROL_STATUS
-* Reads status of extended control.
-* Available only if the EXT_CMDS bit is set in features.
-* Read only
-
-* Example of an extended control reading
-** "i2cget 1 0x2A 0x13 w"
-*** 1 -> i2cbus number
-*** 0x2A -> I2C address of the slave
-*** 0x13 -> "address of the register" = command
-***	w -> word data type
-
-[source,C]
-/*
- * Bit meanings in reset status:
+ * Bit meanings in extended control dword:
  *  Bit Nr. |   Meanings
  * -----------------
  *      0   |   RES_MMC   : 1 - reset of MMC, 0 - no reset
@@ -263,6 +226,28 @@ enum i2c_commands {
  *  9..15   |   reserved
 */
 
+* Example of a setting of the extended control word (release PERST0):
+** "i2cset 1 0x2A 0x12 0x00 0x00 0x08 0x00 i"
+*** 1 -> i2cbus number
+*** 0x2A -> I2C address of the slave
+*** 0x12 -> "address of the register" = command
+*** 0x00 0x00 -> value of the word, lower byte first. Bit 3 is 0 -> release PERST0 from reset
+*** 0x08 0x00 -> value of the mask, lower byte first. Bit 3 is 1 -> bit 3 will be changed
+***	i -> block data type
+
+=== CMD_GET_EXT_CONTROL_STATUS
+* Reads status of extended control.
+* Available only if the EXT_CMDS bit is set in features.
+* Read only
+* Bit meaning same as for extended control dword.
+
+* Example of an extended control reading
+** "i2cget 1 0x2A 0x13 w"
+*** 1 -> i2cbus number
+*** 0x2A -> I2C address of the slave
+*** 0x13 -> "address of the register" = command
+***	w -> word data type
+
 
 === CMD_LED_MODE
 * We distinguish between two modes: default (HW) mode or user mode.
@@ -271,7 +256,7 @@ enum i2c_commands {
 
 [source,C]
 /*
- * Bit meanings in led_mode_byte:
+ * Bit meanings in led mode byte:
  *  Bit Nr. |   Meanings
  * -----------------
  *   0..3   |   LED number [0..11] (or in case setting of all LED at once -> LED number = 12)
@@ -297,7 +282,7 @@ NOTE: LED numbers are reversed. LED11 (the first LED from the left) is POWER_LED
 
 [source,C]
 /*
- * Bit meanings in led_state_byte:
+ * Bit meanings in led state byte:
  *  Bit Nr. |   Meanings
  * -----------------
  *   0..3   |   LED number [0..11] (or in case setting of all LED at once -> LED number = 12)
@@ -321,7 +306,7 @@ NOTE: LED numbers are reversed. LED11 (the first LED from the left) is POWER_LED
 
 [source,C]
 /*
- * Bit meanings in led_colour:
+ * Bit meanings in led colour:
  * Byte Nr. |  Bit Nr. |   Meanings
  * -----------------
  *  1.B     |  0..3   |   LED number [0..11] (or in case setting of all LED at once->LED number=12)
