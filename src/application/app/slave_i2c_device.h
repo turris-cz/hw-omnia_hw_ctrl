@@ -38,20 +38,20 @@ struct st_i2c_status {
 extern struct st_i2c_status i2c_status;
 
 enum status_word_bits {
-    GD32_MCU_STSBIT        = 0x0001,
-    MKL_MCU_STSBIT         = 0x0002,
-    FEATURES_SUPPORTED_STSBIT = 0x0004,
+    GD32_MCU_STSBIT                     = 0x0001,
+    MKL_MCU_STSBIT                      = 0x0002,
+    FEATURES_SUPPORTED_STSBIT           = 0x0004,
     USER_REGULATOR_NOT_SUPPORTED_STSBIT = 0x0008,
-    CARD_DET_STSBIT        = 0x0010,
-    MSATA_IND_STSBIT       = 0x0020,
-    USB30_OVC_STSBIT       = 0x0040,
-    USB31_OVC_STSBIT       = 0x0080,
-    USB30_PWRON_STSBIT     = 0x0100,
-    USB31_PWRON_STSBIT     = 0x0200,
-    ENABLE_4V5_STSBIT      = 0x0400,
-    BUTTON_MODE_STSBIT     = 0x0800,
-    BUTTON_PRESSED_STSBIT  = 0x1000,
-    BUTTON_COUNTER_VALBITS = 0xE000
+    CARD_DET_STSBIT                     = 0x0010,
+    MSATA_IND_STSBIT                    = 0x0020,
+    USB30_OVC_STSBIT                    = 0x0040,
+    USB31_OVC_STSBIT                    = 0x0080,
+    USB30_PWRON_STSBIT                  = 0x0100,
+    USB31_PWRON_STSBIT                  = 0x0200,
+    ENABLE_4V5_STSBIT                   = 0x0400,
+    BUTTON_MODE_STSBIT                  = 0x0800,
+    BUTTON_PRESSED_STSBIT               = 0x1000,
+    BUTTON_COUNTER_VALBITS              = 0xE000
 };
 
 enum features_bits {
@@ -89,15 +89,15 @@ enum ext_status_dword_bits {
 };
 
 enum i2c_ext_control_mask {
-    RES_MMC_MASK                        = 0x0001,
-    RES_LAN_MASK                        = 0x0002,
-    RES_PHY_MASK                        = 0x0004,
-    PERST0_MASK                         = 0x0008,
-    PERST1_MASK                         = 0x0010,
-    PERST2_MASK                         = 0x0020,
-    PHY_SFP_MASK                        = 0x0040,
-    PHY_SFP_AUTO_MASK                   = 0x0080,
-    VHV_CTRL_MASK                       = 0x0100,
+    RES_MMC_MASK           = 0x0001,
+    RES_LAN_MASK           = 0x0002,
+    RES_PHY_MASK           = 0x0004,
+    PERST0_MASK            = 0x0008,
+    PERST1_MASK            = 0x0010,
+    PERST2_MASK            = 0x0020,
+    PHY_SFP_MASK           = 0x0040,
+    PHY_SFP_AUTO_MASK      = 0x0080,
+    VHV_CTRL_MASK          = 0x0100,
 };
 
 /*
