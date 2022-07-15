@@ -43,8 +43,7 @@ static const uint8_t version[] = VERSION;
 #define BOOTLOADER_VERSION_ADDR         0x080000C0
 
 static const uint16_t slave_features_supported =
-	PERIPH_MCU_SUPPORTED |
-	EXT_CMDS_SUPPORTED;
+	FEAT_PERIPH_MCU | FEAT_EXT_CMDS;
 
 enum commands_e {
     CMD_GET_STATUS_WORD                 = 0x01, /* slave sends status word back */

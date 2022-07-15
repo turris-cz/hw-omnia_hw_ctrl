@@ -59,12 +59,12 @@ enum sts_word_e {
 };
 
 enum features_e {
-    PERIPH_MCU_SUPPORTED   = BIT(0),
-    EXT_CMDS_SUPPORTED     = BIT(1),
-    WDT_PING_SUPPORTED     = BIT(2),
-    LED_STATE_EXT_MASK     = GENMASK(4, 3),
-    LED_STATE_EXT          = FIELD_PREP(LED_STATE_EXT_MASK, 1),
-    LED_STATE_EXT_V32      = FIELD_PREP(LED_STATE_EXT_MASK, 2),
+    FEAT_PERIPH_MCU         = BIT(0),
+    FEAT_EXT_CMDS           = BIT(1),
+    FEAT_WDT_PING           = BIT(2),
+    FEAT_LED_STATE_EXT_MASK = GENMASK(4, 3),
+    FEAT_LED_STATE_EXT      = FIELD_PREP(FEAT_LED_STATE_EXT_MASK, 1),
+    FEAT_LED_STATE_EXT_V32  = FIELD_PREP(FEAT_LED_STATE_EXT_MASK, 2),
 };
 
 enum ext_sts_dword_e {
