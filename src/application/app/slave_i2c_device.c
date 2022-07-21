@@ -374,10 +374,10 @@ static uint16_t slave_i2c_get_ext_control_status(void)
         for_each_const(pin, ext_control_pins)
             if (GPIO_ReadInputDataBit(pin->port, pin->pin) ^ pin->inv)
                 ext_control_status |= pin->mask;
-
-        /* PHY_SFP_AUTO isn't a GPIO, rather an internal setting about behavior */
-        ext_control_status |= i2c_status.ext_control_word & EXT_CTL_PHY_SFP_AUTO;
     }
+
+    /* PHY_SFP_AUTO isn't a GPIO, rather an internal setting about behavior */
+    ext_control_status |= i2c_status.ext_control_word & EXT_CTL_PHY_SFP_AUTO;
 
     return ext_control_status;
 }

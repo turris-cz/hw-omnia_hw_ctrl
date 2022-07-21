@@ -190,6 +190,7 @@ static ret_value_t light_reset(void)
     reset_type_t reset_event = NORMAL_RESET;
     struct st_i2c_status *i2c_control = &i2c_status;
     struct st_watchdog *wdg = &watchdog;
+    uint16_t ext_control = 0;
 
     wdg->watchdog_state = INIT;
 
@@ -199,7 +200,7 @@ static ret_value_t light_reset(void)
 
     /* set active reset of peripherals after CPU reset on v32+ boards */
     if (OMNIA_BOARD_REVISION >= 32)
-        periph_control_rst_init();
+        ext_control = periph_control_rst_init();
 
     i2c_control->reset_type = reset_event;
 
@@ -219,9 +220,7 @@ static ret_value_t light_reset(void)
     debounce_config(); /* start evaluation of inputs */
     i2c_control->status_word = app_get_status_word();
     i2c_control->ext_status_dword = app_get_ext_status_dword();
-    i2c_control->ext_control_word =
-        EXT_CTL_RES_MMC | EXT_CTL_RES_LAN | EXT_CTL_RES_PHY | EXT_CTL_PERST0 |
-        EXT_CTL_PERST1 | EXT_CTL_PERST2 | EXT_CTL_PHY_SFP | EXT_CTL_PHY_SFP_AUTO;
+    i2c_control->ext_control_word = ext_control | EXT_CTL_PHY_SFP_AUTO;
 
     return value;
 }

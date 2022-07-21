@@ -12,6 +12,7 @@
 #include "power_control.h"
 #include "delay.h"
 #include "led_driver.h"
+#include "slave_i2c_device.h"
 #include "debug_serial.h"
 
 #if !defined(OMNIA_BOARD_REVISION)
@@ -1364,9 +1365,9 @@ void periph_control_io_config(void)
   * @function   periph_control_rst_init
   * @brief      Set reset init states for peripherals for Omnia32
   * @param      None.
-  * @retval     None.
+  * @retval     The corresponding initial settings for extended control word.
   *****************************************************************************/
-void periph_control_rst_init(void)
+uint16_t periph_control_rst_init(void)
 {
     GPIO_ResetBits(RES_MMC_PIN_PORT, RES_MMC_PIN);
     GPIO_ResetBits(RES_LAN_PIN_PORT, RES_LAN_PIN);
@@ -1384,4 +1385,7 @@ void periph_control_rst_init(void)
 
     GPIO_SetBits(VHV_CTRL_PIN_PORT, VHV_CTRL_PIN);
     GPIO_SetBits(PHY_SFP_PIN_PORT, PHY_SFP_PIN);
+
+    return EXT_CTL_RES_MMC | EXT_CTL_RES_LAN | EXT_CTL_RES_PHY |
+           EXT_CTL_PERST0 | EXT_CTL_PERST1 | EXT_CTL_PERST2 | EXT_CTL_PHY_SFP;
 }
