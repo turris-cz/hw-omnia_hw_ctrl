@@ -33,7 +33,9 @@
 #define ENABLE_1V35_PIN_PORT                GPIOC
 #define ENABLE_1V35_PIN                     GPIO_Pin_6
 
-
+#define ENABLE_4V5_PIN_PERIPH_CLOCK         RCC_AHBPeriph_GPIOC
+#define ENABLE_4V5_PIN_PORT                 GPIOC
+#define ENABLE_4V5_PIN                      GPIO_Pin_7
 
 #define ENABLE_1V8_PIN_PERIPH_CLOCK         RCC_AHBPeriph_GPIOC
 #define ENABLE_1V8_PIN_PORT                 GPIOC
@@ -63,7 +65,9 @@
 #define CFG_CTRL_PIN_PORT                   GPIOC
 #define CFG_CTRL_PIN                        GPIO_Pin_15
 
-
+#define PRG_4V5_PIN_PERIPH_CLOCK            RCC_AHBPeriph_GPIOF
+#define PRG_4V5_PIN_PORT                    GPIOF
+#define PRG_4V5_PIN                         GPIO_Pin_1
 
 /* Inputs */
 #define MANRES_PIN_PERIPH_CLOCK             RCC_AHBPeriph_GPIOB
@@ -90,7 +94,9 @@
 #define PG_1V35_PIN_PORT                    GPIOB
 #define PG_1V35_PIN                         GPIO_Pin_6
 
-
+#define PG_4V5_PIN_PERIPH_CLOCK             RCC_AHBPeriph_GPIOB
+#define PG_4V5_PIN_PORT                     GPIOB
+#define PG_4V5_PIN                          GPIO_Pin_7
 
 #define PG_1V8_PIN_PERIPH_CLOCK             RCC_AHBPeriph_GPIOB
 #define PG_1V8_PIN_PORT                     GPIOB
@@ -146,10 +152,6 @@
 #define PHY_SFP_PIN_PERIPH_CLOCK            RCC_AHBPeriph_GPIOC
 #define PHY_SFP_PIN_PORT                    GPIOC
 #define PHY_SFP_PIN                         GPIO_Pin_3
-
-#define RSVD_PIN_PERIPH_CLOCK               RCC_AHBPeriph_GPIOC
-#define RSVD_PIN_PORT                       GPIOC
-#define RSVD_4V5_PIN                        GPIO_Pin_7
 
 #define SFP_NDET_PIN_PERIPH_CLOCK           RCC_AHBPeriph_GPIOD
 #define SFP_NDET_PIN_PORT                   GPIOD
@@ -330,6 +332,14 @@ void power_control_usb_timeout_enable(void);
   * @retval     None.
   *****************************************************************************/
 void power_control_usb_timeout_disable(void);
+
+/*******************************************************************************
+  * @function   power_control_set_voltage
+  * @brief      Set required voltage to the user regulator.
+  * @param      voltage: enum value for desired voltage.
+  * @retval     None.
+  *****************************************************************************/
+void power_control_set_voltage(voltage_value_t voltage);
 
 /*******************************************************************************
   * @function   power_io_new_config

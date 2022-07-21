@@ -24,6 +24,90 @@
 
 /* Private define ------------------------------------------------------------*/
 
+/* programming pin for user regulator */
+#define PRG_PIN_HIGH            PRG_4V5_PIN_PORT->BSRR = PRG_4V5_PIN
+#define PRG_PIN_LOW             PRG_4V5_PIN_PORT->BRR = PRG_4V5_PIN
+
+/* timing for logic '1' and '0' consists of only NOPs, because it must be very
+precise. Pulse for logic '1' or '0' takes only 1 us */
+#define SET_LOGIC_HIGH() ({PRG_PIN_HIGH; \
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    PRG_PIN_LOW;\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();})
+
+#define SET_LOGIC_LOW() ({PRG_PIN_HIGH; \
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    PRG_PIN_LOW;\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();\
+    __NOP();})
+
 /* defines for timeout handling during regulator startup */
 #define DELAY_AFTER_ENABLE      5
 #define DELAY_BETWEEN_READINGS  20
@@ -51,6 +135,31 @@ typedef enum reset_states {
     RST_LED11,
 } reset_state_t;
 
+#if USER_REGULATOR_ENABLED
+/*******************************************************************************
+ * @function   power_control_prog4v5_config
+ * @brief      Configuration for programming possibility of 4V5 power source.
+ * @param      None.
+ * @retval     None.
+ *****************************************************************************/
+static void power_control_prog4v5_config(void)
+{
+    GPIO_InitTypeDef GPIO_InitStructure;
+
+    /* pin config for programming */
+    RCC_AHBPeriphClockCmd(PRG_4V5_PIN_PERIPH_CLOCK, ENABLE);
+
+    GPIO_InitStructure.GPIO_Pin = PRG_4V5_PIN;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_2;
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+    GPIO_Init(PRG_4V5_PIN_PORT, &GPIO_InitStructure);
+
+    PRG_PIN_LOW;
+}
+#endif
+
 /*******************************************************************************
   * @function   system_control_io_config
   * @brief      GPIO config for EN, PG, Reset and USB signals.
@@ -60,15 +169,21 @@ typedef enum reset_states {
 void power_control_io_config(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
+    uint32_t periph_clks;
+
+    periph_clks =
+        ENABLE_5V_PIN_PERIPH_CLOCK | ENABLE_3V3_PIN_PERIPH_CLOCK |
+        ENABLE_1V35_PIN_PERIPH_CLOCK | ENABLE_1V8_PIN_PERIPH_CLOCK |
+        ENABLE_1V5_PIN_PERIPH_CLOCK | ENABLE_1V2_PIN_PERIPH_CLOCK |
+        ENABLE_VTT_PIN_PERIPH_CLOCK | USB30_PWRON_PIN_PERIPH_CLOCK |
+        USB31_PWRON_PIN_PERIPH_CLOCK | SYSRES_OUT_PIN_PERIPH_CLOCK |
+        INT_MCU_PIN_PERIPH_CLOCK | MANRES_PIN_PERIPH_CLOCK;
+
+    if (USER_REGULATOR_ENABLED)
+        periph_clks |= ENABLE_4V5_PIN_PERIPH_CLOCK;
 
     /* GPIO Periph clock enable */
-    RCC_AHBPeriphClockCmd(ENABLE_5V_PIN_PERIPH_CLOCK |
-       ENABLE_3V3_PIN_PERIPH_CLOCK | ENABLE_1V35_PIN_PERIPH_CLOCK |
-       ENABLE_1V8_PIN_PERIPH_CLOCK |
-       ENABLE_1V5_PIN_PERIPH_CLOCK | ENABLE_1V2_PIN_PERIPH_CLOCK |
-       ENABLE_VTT_PIN_PERIPH_CLOCK | USB30_PWRON_PIN_PERIPH_CLOCK |
-       USB31_PWRON_PIN_PERIPH_CLOCK | SYSRES_OUT_PIN_PERIPH_CLOCK |
-       INT_MCU_PIN_PERIPH_CLOCK | MANRES_PIN_PERIPH_CLOCK, ENABLE);
+    RCC_AHBPeriphClockCmd(periph_clks, ENABLE);
 
     /* Output signals */
     GPIO_InitStructure.GPIO_Pin = INT_MCU_PIN;
@@ -86,6 +201,11 @@ void power_control_io_config(void)
 
     GPIO_InitStructure.GPIO_Pin = ENABLE_1V35_PIN;
     GPIO_Init(ENABLE_1V35_PIN_PORT, &GPIO_InitStructure);
+
+    if (USER_REGULATOR_ENABLED) {
+        GPIO_InitStructure.GPIO_Pin = ENABLE_4V5_PIN;
+        GPIO_Init(ENABLE_4V5_PIN_PORT, &GPIO_InitStructure);
+    }
 
     GPIO_InitStructure.GPIO_Pin = ENABLE_1V8_PIN;
     GPIO_Init(ENABLE_1V8_PIN_PORT, &GPIO_InitStructure);
@@ -125,15 +245,18 @@ void power_control_io_config(void)
 
     /* Input signals */
 
-    /* GPIO Periph clock enable */
-    RCC_AHBPeriphClockCmd(PG_5V_PIN_PERIPH_CLOCK | PG_3V3_PIN_PERIPH_CLOCK |
-                          PG_1V35_PIN_PERIPH_CLOCK |
-                          PG_1V8_PIN_PERIPH_CLOCK | PG_1V5_PIN_PERIPH_CLOCK |
-                          PG_1V2_PIN_PERIPH_CLOCK | PG_VTT_PIN_PERIPH_CLOCK |
-                          USB30_OVC_PIN_PERIPH_CLOCK | USB31_OVC_PIN_PERIPH_CLOCK |
-                          LED_BRT_PIN_PERIPH_CLOCK,
-                          ENABLE);
+    periph_clks =
+        PG_5V_PIN_PERIPH_CLOCK | PG_3V3_PIN_PERIPH_CLOCK |
+        PG_1V35_PIN_PERIPH_CLOCK | PG_1V8_PIN_PERIPH_CLOCK |
+        PG_1V5_PIN_PERIPH_CLOCK | PG_1V2_PIN_PERIPH_CLOCK |
+        PG_VTT_PIN_PERIPH_CLOCK | USB30_OVC_PIN_PERIPH_CLOCK |
+        USB31_OVC_PIN_PERIPH_CLOCK | LED_BRT_PIN_PERIPH_CLOCK;
 
+    if (USER_REGULATOR_ENABLED)
+        periph_clks |= PG_4V5_PIN_PERIPH_CLOCK;
+
+    /* GPIO Periph clock enable */
+    RCC_AHBPeriphClockCmd(periph_clks, ENABLE);
 
     GPIO_InitStructure.GPIO_Pin = PG_5V_PIN;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
@@ -145,6 +268,11 @@ void power_control_io_config(void)
 
     GPIO_InitStructure.GPIO_Pin = PG_1V35_PIN;
     GPIO_Init(PG_1V35_PIN_PORT, &GPIO_InitStructure);
+
+    if (USER_REGULATOR_ENABLED) {
+        GPIO_InitStructure.GPIO_Pin = PG_4V5_PIN;
+        GPIO_Init(PG_4V5_PIN_PORT, &GPIO_InitStructure);
+    }
 
     GPIO_InitStructure.GPIO_Pin = PG_1V8_PIN;
     GPIO_Init(PG_1V8_PIN_PORT, &GPIO_InitStructure);
@@ -169,6 +297,10 @@ void power_control_io_config(void)
 
     GPIO_SetBits(SYSRES_OUT_PIN_PORT, SYSRES_OUT_PIN); /* dont control this ! */
     GPIO_SetBits(INT_MCU_PIN_PORT, INT_MCU_PIN);
+
+#if USER_REGULATOR_ENABLED
+    power_control_prog4v5_config();
+#endif
 }
 
 /*******************************************************************************
@@ -248,6 +380,24 @@ error_type_t power_control_start_regulator(reg_type_t regulator)
                 }
             }
         }break;
+
+#if USER_REGULATOR_ENABLED
+        case REG_4V5:
+        {
+            GPIO_SetBits(ENABLE_4V5_PIN_PORT, ENABLE_4V5_PIN);
+            delay(DELAY_AFTER_ENABLE);
+            while(!(GPIO_ReadInputDataBit(PG_4V5_PIN_PORT, PG_4V5_PIN)))
+            {
+                delay(DELAY_BETWEEN_READINGS);
+                counter++;
+                if (counter >= TIMEOUT)
+                {
+                    error = PG_4V5_ERROR;
+                    break;
+                }
+            }
+        }break;
+#endif /* USER_REGULATOR_ENABLED */
 
         case REG_1V8:
         {
@@ -347,9 +497,9 @@ error_type_t power_control_enable_regulators(void)
         return value;
 
 #if USER_REGULATOR_ENABLED
-//    value = power_control_start_regulator(REG_4V5);
-//    if (value != NO_ERROR)
-//        return value;
+    value = power_control_start_regulator(REG_4V5);
+    if (value != NO_ERROR)
+        return value;
 #endif
 
     value = power_control_start_regulator(REG_3V3);
@@ -392,6 +542,8 @@ void power_control_disable_regulators(void)
     GPIO_ResetBits(ENABLE_VTT_PIN_PORT, ENABLE_VTT_PIN);
     GPIO_ResetBits(ENABLE_1V8_PIN_PORT, ENABLE_1V8_PIN);
     GPIO_ResetBits(ENABLE_3V3_PIN_PORT, ENABLE_3V3_PIN);
+    if (USER_REGULATOR_ENABLED)
+        GPIO_ResetBits(ENABLE_4V5_PIN_PORT, ENABLE_4V5_PIN);
     GPIO_ResetBits(ENABLE_5V_PIN_PORT, ENABLE_5V_PIN);
 }
 
@@ -925,6 +1077,180 @@ void power_led_activity(void)
         rgb_leds[POWER_LED].led_state_default = LED_ON;
     }
 }
+
+#if USER_REGULATOR_ENABLED
+/*******************************************************************************
+  * @function   power_control_set_voltage33
+  * @brief      Set 3.3V voltage to the user regulator.
+  * @param      None.
+  * @retval     None.
+  *****************************************************************************/
+static void power_control_set_voltage33(void)
+{
+     /* start condition */
+     SET_LOGIC_HIGH();
+
+     /* chip select */
+     SET_LOGIC_LOW();
+     SET_LOGIC_HIGH();
+     SET_LOGIC_LOW();
+     SET_LOGIC_HIGH();
+
+     /* register address */
+     SET_LOGIC_LOW();
+     SET_LOGIC_LOW();
+     SET_LOGIC_HIGH();
+     SET_LOGIC_LOW();
+
+     /* datafield - 0xDF */
+     SET_LOGIC_HIGH();
+     SET_LOGIC_HIGH();
+     SET_LOGIC_LOW();
+     SET_LOGIC_HIGH();
+
+     SET_LOGIC_HIGH();
+     SET_LOGIC_HIGH();
+     SET_LOGIC_HIGH();
+     SET_LOGIC_HIGH();
+
+     /* stop condition */
+     SET_LOGIC_HIGH();
+}
+
+/*******************************************************************************
+  * @function   power_control_set_voltage36
+  * @brief      Set 3.63V voltage to the user regulator.
+  * @param      None.
+  * @retval     None.
+  *****************************************************************************/
+static void power_control_set_voltage36(void)
+{
+     /* start condition */
+     SET_LOGIC_HIGH();
+
+     /* chip select */
+     SET_LOGIC_LOW();
+     SET_LOGIC_HIGH();
+     SET_LOGIC_LOW();
+     SET_LOGIC_HIGH();
+
+     /* register address */
+     SET_LOGIC_LOW();
+     SET_LOGIC_LOW();
+     SET_LOGIC_HIGH();
+     SET_LOGIC_LOW();
+
+     /* datafield - 0xEF */
+     SET_LOGIC_HIGH();
+     SET_LOGIC_HIGH();
+     SET_LOGIC_HIGH();
+     SET_LOGIC_LOW();
+
+     SET_LOGIC_HIGH();
+     SET_LOGIC_HIGH();
+     SET_LOGIC_HIGH();
+     SET_LOGIC_HIGH();
+
+     /* stop condition */
+     SET_LOGIC_HIGH();
+}
+
+/*******************************************************************************
+  * @function   power_control_set_voltage51
+  * @brief      Set 5.125V voltage to the user regulator.
+  * @param      None.
+  * @retval     None.
+  *****************************************************************************/
+static void power_control_set_voltage51(void)
+{
+     /* start condition */
+     SET_LOGIC_HIGH();
+
+     /* chip select */
+     SET_LOGIC_LOW();
+     SET_LOGIC_HIGH();
+     SET_LOGIC_LOW();
+     SET_LOGIC_HIGH();
+
+     /* register address */
+     SET_LOGIC_LOW();
+     SET_LOGIC_LOW();
+     SET_LOGIC_HIGH();
+     SET_LOGIC_LOW();
+
+     /* datafield - 0xFC */
+     SET_LOGIC_HIGH();
+     SET_LOGIC_HIGH();
+     SET_LOGIC_HIGH();
+     SET_LOGIC_HIGH();
+
+     SET_LOGIC_HIGH();
+     SET_LOGIC_HIGH();
+     SET_LOGIC_LOW();
+     SET_LOGIC_LOW();
+
+     /* stop condition */
+     SET_LOGIC_HIGH();
+}
+
+/*******************************************************************************
+  * @function   power_control_set_voltage45
+  * @brief      Set 4.5V voltage to the user regulator.
+  * @param      None.
+  * @retval     None.
+  *****************************************************************************/
+static void power_control_set_voltage45(void)
+{
+     /* start condition */
+     SET_LOGIC_HIGH();
+
+     /* chip select */
+     SET_LOGIC_LOW();
+     SET_LOGIC_HIGH();
+     SET_LOGIC_LOW();
+     SET_LOGIC_HIGH();
+
+     /* register address */
+     SET_LOGIC_LOW();
+     SET_LOGIC_LOW();
+     SET_LOGIC_HIGH();
+     SET_LOGIC_LOW();
+
+     /* datafield - 0xF8 */
+     SET_LOGIC_HIGH();
+     SET_LOGIC_HIGH();
+     SET_LOGIC_HIGH();
+     SET_LOGIC_HIGH();
+
+     SET_LOGIC_HIGH();
+     SET_LOGIC_LOW();
+     SET_LOGIC_LOW();
+     SET_LOGIC_LOW();
+
+     /* stop condition */
+     SET_LOGIC_HIGH();
+}
+
+/*******************************************************************************
+  * @function   power_control_set_voltage
+  * @brief      Set required voltage to the user regulator.
+  * @param      voltage: enum value for desired voltage.
+  * @retval     None.
+  *****************************************************************************/
+void power_control_set_voltage(voltage_value_t voltage)
+{
+    /* delay at least 10us before the next sequence */
+    switch (voltage)
+    {
+        case VOLTAGE_33: power_control_set_voltage33(); break; /* 3.3V */
+        case VOLTAGE_36: power_control_set_voltage36(); break; /* 3.63V */
+        case VOLTAGE_45: power_control_set_voltage45(); break; /* 4.5V */
+        case VOLTAGE_51: power_control_set_voltage51(); break; /* 5.125V */
+        default:
+            break;
+    }
+}
+#endif /* USER_REGULATOR_ENABLED */
 
 /*******************************************************************************
   * @function   power_io_new_config
