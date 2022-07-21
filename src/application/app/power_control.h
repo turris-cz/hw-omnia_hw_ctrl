@@ -19,7 +19,9 @@
 #define INT_MCU_PIN_PORT                    GPIOC
 #define INT_MCU_PIN                         GPIO_Pin_0
 
-
+#define RES_RAM_PIN_PERIPH_CLOCK            RCC_AHBPeriph_GPIOC
+#define RES_RAM_PIN_PORT                    GPIOC
+#define RES_RAM_PIN                         GPIO_Pin_3
 
 #define ENABLE_5V_PIN_PERIPH_CLOCK          RCC_AHBPeriph_GPIOC
 #define ENABLE_5V_PIN_PORT                  GPIOC
@@ -78,9 +80,13 @@
 #define SYSRES_OUT_PIN_PORT                 GPIOB
 #define SYSRES_OUT_PIN                      GPIO_Pin_1
 
+#define DBGRES_PIN_PERIPH_CLOCK             RCC_AHBPeriph_GPIOB
+#define DBGRES_PIN_PORT                     GPIOB
+#define DBGRES_PIN                          GPIO_Pin_2
 
-
-
+#define MRES_PIN_PERIPH_CLOCK               RCC_AHBPeriph_GPIOB
+#define MRES_PIN_PORT                       GPIOB
+#define MRES_PIN                            GPIO_Pin_3
 
 #define PG_5V_PIN_PERIPH_CLOCK              RCC_AHBPeriph_GPIOB
 #define PG_5V_PIN_PORT                      GPIOB
@@ -122,7 +128,9 @@
 #define USB31_OVC_PIN_PORT                  GPIOB
 #define USB31_OVC_PIN                       GPIO_Pin_13
 
-
+#define RTC_ALARM_PIN_PERIPH_CLOCK          RCC_AHBPeriph_GPIOB
+#define RTC_ALARM_PIN_PORT                  GPIOB
+#define RTC_ALARM_PIN                       GPIO_Pin_14
 
 #define LED_BRT_PIN_PERIPH_CLOCK            RCC_AHBPeriph_GPIOB
 #define LED_BRT_PIN_PORT                    GPIOB

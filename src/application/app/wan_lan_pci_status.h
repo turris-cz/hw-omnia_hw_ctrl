@@ -13,18 +13,25 @@
 #include "stm32f0xx_conf.h"
 
 /* PCIe status LED */
-
+#define PCI_PLED0_PIN_PERIPH_CLOCK          RCC_AHBPeriph_GPIOF
+#define PCI_PLED0_PIN_PORT                  GPIOF
+#define PCI_PLED0_PIN                       GPIO_Pin_5
 
 #define PCI_LLED1_PIN_PERIPH_CLOCK          RCC_AHBPeriph_GPIOC
 #define PCI_LLED1_PIN_PORT                  GPIOC
 #define PCI_LLED1_PIN                       GPIO_Pin_2
 
-
+#define PCI_PLED1_PIN_PERIPH_CLOCK          RCC_AHBPeriph_GPIOA
+#define PCI_PLED1_PIN_PORT                  GPIOA
+#define PCI_PLED1_PIN                       GPIO_Pin_10
 
 #define PCI_LLED2_PIN_PERIPH_CLOCK          RCC_AHBPeriph_GPIOC
 #define PCI_LLED2_PIN_PORT                  GPIOC
 #define PCI_LLED2_PIN                       GPIO_Pin_1
 
+#define PCI_PLED2_PIN_PERIPH_CLOCK          RCC_AHBPeriph_GPIOF
+#define PCI_PLED2_PIN_PORT                  GPIOF
+#define PCI_PLED2_PIN                       GPIO_Pin_4
 
 /* WAN LED */
 #define WAN_LED0_PIN_PERIPH_CLOCK           RCC_AHBPeriph_GPIOF

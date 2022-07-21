@@ -226,19 +226,21 @@ void debounce_check_inputs(void)
         input_state->sysres_out = ACTIVATED;
     }
 
-    if (port_changed & DBG_RES_MASK)
-    {
-        /* no reaction necessary */
-    }
+    if (OMNIA_BOARD_REVISION < 32) {
+        if (port_changed & DBG_RES_MASK)
+        {
+            /* no reaction necessary */
+        }
 
-    /* reaction: follow MRES signal */
-    if (port_changed & MRES_MASK)
-    {
-     //   GPIO_ResetBits(RES_RAM_PIN_PORT, RES_RAM_PIN);
-    }
-    else
-    {
-     //   GPIO_SetBits(RES_RAM_PIN_PORT, RES_RAM_PIN);
+        /* reaction: follow MRES signal */
+        if (port_changed & MRES_MASK)
+        {
+            GPIO_ResetBits(RES_RAM_PIN_PORT, RES_RAM_PIN);
+        }
+        else
+        {
+            GPIO_SetBits(RES_RAM_PIN_PORT, RES_RAM_PIN);
+        }
     }
 
     if ((port_changed & PG_5V_MASK) || (port_changed & PG_3V3_MASK) ||

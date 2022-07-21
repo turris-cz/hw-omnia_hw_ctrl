@@ -14,12 +14,16 @@
 #include "led_driver.h"
 #include "debug_serial.h"
 
+#if !defined(OMNIA_BOARD_REVISION)
+#error build system did not define OMNIA_BOARD_REVISION macro
+#endif
+
 #if !defined(USER_REGULATOR_ENABLED)
 #error build system did not define USER_REGULATOR_ENABLED macro
 #endif
 
-#if USER_REGULATOR_ENABLED
-#error user regulator not supported on this branch, wait until branches are merged
+#if USER_REGULATOR_ENABLED && OMNIA_BOARD_REVISION >= 32
+#error user regulator not supported on board revision 32 and newer
 #endif
 
 /* Private define ------------------------------------------------------------*/
@@ -179,6 +183,9 @@ void power_control_io_config(void)
         USB31_PWRON_PIN_PERIPH_CLOCK | SYSRES_OUT_PIN_PERIPH_CLOCK |
         INT_MCU_PIN_PERIPH_CLOCK | MANRES_PIN_PERIPH_CLOCK;
 
+    if (OMNIA_BOARD_REVISION < 32)
+        periph_clks |= RES_RAM_PIN_PERIPH_CLOCK;
+
     if (USER_REGULATOR_ENABLED)
         periph_clks |= ENABLE_4V5_PIN_PERIPH_CLOCK;
 
@@ -192,6 +199,11 @@ void power_control_io_config(void)
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_2;
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
     GPIO_Init(INT_MCU_PIN_PORT, &GPIO_InitStructure);
+
+    if (OMNIA_BOARD_REVISION < 32) {
+        GPIO_InitStructure.GPIO_Pin = RES_RAM_PIN;
+        GPIO_Init(RES_RAM_PIN_PORT, &GPIO_InitStructure);
+    }
 
     GPIO_InitStructure.GPIO_Pin = ENABLE_5V_PIN;
     GPIO_Init(ENABLE_5V_PIN_PORT, &GPIO_InitStructure);
@@ -252,6 +264,11 @@ void power_control_io_config(void)
         PG_VTT_PIN_PERIPH_CLOCK | USB30_OVC_PIN_PERIPH_CLOCK |
         USB31_OVC_PIN_PERIPH_CLOCK | LED_BRT_PIN_PERIPH_CLOCK;
 
+    if (OMNIA_BOARD_REVISION < 32)
+        periph_clks |=
+            DBGRES_PIN_PERIPH_CLOCK | RTC_ALARM_PIN_PERIPH_CLOCK |
+            MRES_PIN_PERIPH_CLOCK;
+
     if (USER_REGULATOR_ENABLED)
         periph_clks |= PG_4V5_PIN_PERIPH_CLOCK;
 
@@ -268,6 +285,17 @@ void power_control_io_config(void)
 
     GPIO_InitStructure.GPIO_Pin = PG_1V35_PIN;
     GPIO_Init(PG_1V35_PIN_PORT, &GPIO_InitStructure);
+
+    if (OMNIA_BOARD_REVISION < 32) {
+        GPIO_InitStructure.GPIO_Pin = DBGRES_PIN;
+        GPIO_Init(DBGRES_PIN_PORT, &GPIO_InitStructure);
+
+        GPIO_InitStructure.GPIO_Pin = MRES_PIN;
+        GPIO_Init(MRES_PIN_PORT, &GPIO_InitStructure);
+
+        GPIO_InitStructure.GPIO_Pin = RTC_ALARM_PIN;
+        GPIO_Init(RTC_ALARM_PIN_PORT, &GPIO_InitStructure);
+    }
 
     if (USER_REGULATOR_ENABLED) {
         GPIO_InitStructure.GPIO_Pin = PG_4V5_PIN;

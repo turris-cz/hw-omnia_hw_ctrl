@@ -44,6 +44,16 @@ else
 	DEBUG_INFO_PRINT =
 endif
 
+ifdef OMNIA_BOARD_REVISION
+	ifeq ($(shell echo "$(OMNIA_BOARD_REVISION)" | grep -qe "[^0-9]" && echo err),err)
+		DEFS += $(error Wrong value for OMNIA_BOARD_REVISION: $(OMNIA_BOARD_REVISION))
+	else
+		DEFS += -DOMNIA_BOARD_REVISION=$(OMNIA_BOARD_REVISION)
+	endif
+else
+	DEFS += $(error OMNIA_BOARD_REVISION not defined)
+endif
+
 ifeq ($(USER_REGULATOR_ENABLED), 1)
 	DEFS += -DUSER_REGULATOR_ENABLED=1
 else
