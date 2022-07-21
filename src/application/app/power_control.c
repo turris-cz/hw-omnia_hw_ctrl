@@ -538,9 +538,11 @@ error_type_t power_control_enable_regulators(void)
     if (value != NO_ERROR)
         return value;
 
-//    value = power_control_start_regulator(REG_1V5);
-//    if (value != NO_ERROR)
-//        return value;
+    if (OMNIA_BOARD_REVISION < 32) {
+        value = power_control_start_regulator(REG_1V5);
+        if (value != NO_ERROR)
+            return value;
+    }
 
     value = power_control_start_regulator(REG_1V35);
     if (value != NO_ERROR)
@@ -568,6 +570,8 @@ void power_control_disable_regulators(void)
     GPIO_ResetBits(ENABLE_1V2_PIN_PORT, ENABLE_1V2_PIN);
     GPIO_ResetBits(ENABLE_1V35_PIN_PORT, ENABLE_1V35_PIN);
     GPIO_ResetBits(ENABLE_VTT_PIN_PORT, ENABLE_VTT_PIN);
+    if (OMNIA_BOARD_REVISION < 32)
+        GPIO_ResetBits(ENABLE_1V5_PIN_PORT, ENABLE_1V5_PIN);
     GPIO_ResetBits(ENABLE_1V8_PIN_PORT, ENABLE_1V8_PIN);
     GPIO_ResetBits(ENABLE_3V3_PIN_PORT, ENABLE_3V3_PIN);
     if (USER_REGULATOR_ENABLED)
