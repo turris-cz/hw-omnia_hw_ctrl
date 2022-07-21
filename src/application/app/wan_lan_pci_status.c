@@ -9,6 +9,7 @@
  **/
 #include "wan_lan_pci_status.h"
 #include "led_driver.h"
+#include "debug_serial.h"
 
 enum lan_led_masks {
     LAN_LED_MASK        = 0x1947,
@@ -63,8 +64,14 @@ static void wan_lan_pci_io_config(void)
         GPIO_InitStructure.GPIO_Pin = PCI_PLED0_PIN;
         GPIO_Init(PCI_PLED0_PIN_PORT, &GPIO_InitStructure);
 
-        GPIO_InitStructure.GPIO_Pin = PCI_PLED1_PIN;
-        GPIO_Init(PCI_PLED1_PIN_PORT, &GPIO_InitStructure);
+        /*
+         * PCI_PLED1 pin is also used as MCU's UART RX pin, so only configure it
+         * as GPIO if debugging is disabled
+         */
+        if (!DBG_ENABLE) {
+            GPIO_InitStructure.GPIO_Pin = PCI_PLED1_PIN;
+            GPIO_Init(PCI_PLED1_PIN_PORT, &GPIO_InitStructure);
+        }
 
         GPIO_InitStructure.GPIO_Pin = PCI_PLED2_PIN;
         GPIO_Init(PCI_PLED2_PIN_PORT, &GPIO_InitStructure);
