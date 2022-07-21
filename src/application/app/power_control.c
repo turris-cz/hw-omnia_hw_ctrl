@@ -1285,12 +1285,12 @@ void power_control_set_voltage(voltage_value_t voltage)
 #endif /* USER_REGULATOR_ENABLED */
 
 /*******************************************************************************
-  * @function   power_io_new_config
+  * @function   periph_control_io_config
   * @brief      Configuration of new IO pins for Omnia32
   * @param      None.
   * @retval     None.
   *****************************************************************************/
-void power_new_io_config(void)
+void periph_control_io_config(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
 
@@ -1361,12 +1361,12 @@ void power_new_io_config(void)
 }
 
 /*******************************************************************************
-  * @function   power_control_periph_rst_init
+  * @function   periph_control_rst_init
   * @brief      Set reset init states for peripherals for Omnia32
   * @param      None.
   * @retval     None.
   *****************************************************************************/
-void power_control_periph_rst_init(void)
+void periph_control_rst_init(void)
 {
     GPIO_ResetBits(RES_MMC_PIN_PORT, RES_MMC_PIN);
     GPIO_ResetBits(RES_LAN_PIN_PORT, RES_LAN_PIN);

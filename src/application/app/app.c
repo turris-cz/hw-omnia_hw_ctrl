@@ -73,7 +73,11 @@ void app_mcu_init(void)
     power_control_usb_timeout_config();
     led_driver_config();
     slave_i2c_config();
-    power_new_io_config(); /* new features for Omnia32 */
+
+    /* new features for Omnia32 */
+    if (OMNIA_BOARD_REVISION >= 32)
+        periph_control_io_config();
+
     debug_serial_config();
 
 
@@ -191,7 +195,9 @@ static ret_value_t light_reset(void)
 
     reset_event = power_control_first_startup();
 
-    power_control_periph_rst_init(); // set active reset of peripherals after CPU reset
+    /* set active reset of peripherals after CPU reset on v32+ boards */
+    if (OMNIA_BOARD_REVISION >= 32)
+        periph_control_rst_init();
 
     i2c_control->reset_type = reset_event;
 
