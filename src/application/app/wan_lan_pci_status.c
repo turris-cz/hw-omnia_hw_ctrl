@@ -100,15 +100,14 @@ void wan_lan_pci_config(void)
   *****************************************************************************/
 void wan_led_activity(void)
 {
-    uint8_t led0_status, led1_status;
+    uint8_t led0_status;
     struct led_rgb *rgb_leds = leds;
 
     if (rgb_leds[WAN_LED].led_mode == LED_DEFAULT_MODE)
     {
         led0_status = GPIO_ReadInputDataBit(WAN_LED0_PIN_PORT, WAN_LED0_PIN);
-        led1_status = GPIO_ReadInputDataBit(WAN_LED1_PIN_PORT, WAN_LED1_PIN);
 
-        if ((led0_status == 0) || (led1_status == 0))
+        if (led0_status == 0)
         {
             rgb_leds[WAN_LED].led_state_default = LED_ON;
         }
