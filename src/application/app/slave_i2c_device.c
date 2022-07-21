@@ -43,7 +43,10 @@ static const uint8_t version[] = VERSION;
 #define BOOTLOADER_VERSION_ADDR         0x080000C0
 
 static const uint16_t slave_features_supported =
-	FEAT_PERIPH_MCU | FEAT_EXT_CMDS;
+#if OMNIA_BOARD_REVISION >= 32
+	FEAT_PERIPH_MCU |
+#endif
+	FEAT_EXT_CMDS;
 
 enum expected_bytes_in_cmd_e {
     ONE_BYTE_EXPECTED                   = 1,
@@ -330,6 +333,10 @@ static const struct {
   *****************************************************************************/
 void slave_i2c_ext_control(uint16_t ext_control_word, uint16_t bit_mask)
 {
+    /* don't do anything on pre-v32 boards */
+    if (OMNIA_BOARD_REVISION < 32)
+        return;
+
     /* save the requested value */
     ext_control_word = (i2c_status.ext_control_word & ~bit_mask) |
                        (ext_control_word & bit_mask);
@@ -363,12 +370,14 @@ static uint16_t slave_i2c_get_ext_control_status(void)
 {
     uint16_t ext_control_status = 0;
 
-    for_each_const(pin, ext_control_pins)
-        if (GPIO_ReadInputDataBit(pin->port, pin->pin) ^ pin->inv)
-            ext_control_status |= pin->mask;
+    if (OMNIA_BOARD_REVISION >= 32) {
+        for_each_const(pin, ext_control_pins)
+            if (GPIO_ReadInputDataBit(pin->port, pin->pin) ^ pin->inv)
+                ext_control_status |= pin->mask;
 
-    /* PHY_SFP_AUTO isn't a GPIO, rather an internal setting about behavior */
-    ext_control_status |= i2c_status.ext_control_word & EXT_CTL_PHY_SFP_AUTO;
+        /* PHY_SFP_AUTO isn't a GPIO, rather an internal setting about behavior */
+        ext_control_status |= i2c_status.ext_control_word & EXT_CTL_PHY_SFP_AUTO;
+    }
 
     return ext_control_status;
 }

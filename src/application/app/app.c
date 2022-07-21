@@ -135,8 +135,10 @@ static uint32_t app_get_ext_status_dword(void)
 {
     uint32_t ext_status_dword = 0;
 
-    if (GPIO_ReadInputDataBit(SFP_NDET_PIN_PORT, SFP_NDET_PIN))
-        ext_status_dword |= EXT_STS_SFP_NDET;
+    if (OMNIA_BOARD_REVISION >= 32) {
+        if (GPIO_ReadInputDataBit(SFP_NDET_PIN_PORT, SFP_NDET_PIN))
+            ext_status_dword |= EXT_STS_SFP_NDET;
+    }
 
     return ext_status_dword;
 }
@@ -352,16 +354,18 @@ static ret_value_t input_manager(void)
         i2c_control->status_word &= (~STS_MSATA_IND);
 
 
-    if(GPIO_ReadInputDataBit(SFP_NDET_PIN_PORT, SFP_NDET_PIN))
-        i2c_control->ext_status_dword |= EXT_STS_SFP_NDET;
-    else
-        i2c_control->ext_status_dword &= (~(EXT_STS_SFP_NDET));
+    if (OMNIA_BOARD_REVISION >= 32) {
+        if(GPIO_ReadInputDataBit(SFP_NDET_PIN_PORT, SFP_NDET_PIN))
+            i2c_control->ext_status_dword |= EXT_STS_SFP_NDET;
+        else
+            i2c_control->ext_status_dword &= (~(EXT_STS_SFP_NDET));
 
-    __disable_irq();
-    if (i2c_control->ext_control_word & EXT_CTL_PHY_SFP_AUTO)
-        GPIO_WriteBit(PHY_SFP_PIN_PORT, PHY_SFP_PIN,
-                      !!(i2c_control->ext_status_dword & EXT_STS_SFP_NDET));
-    __enable_irq();
+        __disable_irq();
+        if (i2c_control->ext_control_word & EXT_CTL_PHY_SFP_AUTO)
+            GPIO_WriteBit(PHY_SFP_PIN_PORT, PHY_SFP_PIN,
+                          !!(i2c_control->ext_status_dword & EXT_STS_SFP_NDET));
+        __enable_irq();
+    }
 
     return value;
 }
