@@ -216,19 +216,6 @@ static ret_value_t light_reset(void)
 
     led_driver_reset_effect(ENABLE);
 
-    return value;
-}
-
-/*******************************************************************************
-  * @function   load_settings
-  * @brief      Set other initialization.
-  * @param      None.
-  * @retval     next_state.
-  *****************************************************************************/
-static ret_value_t load_settings(void)
-{
-    struct st_i2c_status *i2c_control = &i2c_status;
-
     debounce_config(); /* start evaluation of inputs */
     i2c_control->status_word = app_get_status_word();
     i2c_control->ext_status_dword = app_get_ext_status_dword();
@@ -236,7 +223,7 @@ static ret_value_t load_settings(void)
         EXT_CTL_RES_MMC | EXT_CTL_RES_LAN | EXT_CTL_RES_PHY | EXT_CTL_PERST0 |
         EXT_CTL_PERST1 | EXT_CTL_PERST2 | EXT_CTL_PHY_SFP | EXT_CTL_PHY_SFP_AUTO;
 
-    return OK;
+    return value;
 }
 
 /*******************************************************************************
@@ -513,21 +500,13 @@ void app_mcu_cyclic(void)
         {
             val = light_reset();
 
-            next_state = LOAD_SETTINGS;
+            next_state = INPUT_MANAGER;
         }
         break;
 
         case HARD_RESET:
         {
             NVIC_SystemReset();
-        }
-        break;
-
-        case LOAD_SETTINGS:
-        {
-            load_settings();
-
-            next_state = INPUT_MANAGER;
         }
         break;
 

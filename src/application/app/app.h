@@ -31,7 +31,6 @@ typedef enum {
     POWER_ON,
     LIGHT_RESET,
     HARD_RESET,
-    LOAD_SETTINGS,
     ERROR_STATE,
     INPUT_MANAGER,
     I2C_MANAGER,
