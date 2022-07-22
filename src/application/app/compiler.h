@@ -13,6 +13,10 @@
          (__m) < &(__a)[ARRAY_SIZE((__a))];		\
          ++(__m))
 
+#define unreachable() __builtin_unreachable()
+
+#define __force_inline inline __attribute__((__always_inline__))
+
 typedef _Bool bool;
 
 #endif /* COMPILER_H */
