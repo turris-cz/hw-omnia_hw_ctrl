@@ -8,11 +8,8 @@
  ******************************************************************************
  **/
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f0xx_conf.h"
 #include "msata_pci.h"
 #include "led_driver.h"
-#include "wan_lan_pci_status.h"
-#include "debug_serial.h"
 
 /*******************************************************************************
   * @function   msata_pci_io_config
@@ -22,29 +19,7 @@
   *****************************************************************************/
 static void msata_pci_io_config(void)
 {
-    GPIO_InitTypeDef  GPIO_InitStructure;
-
-    /* GPIO Periph clock enable */
-    RCC_AHBPeriphClockCmd(CARD_DET_PIN_PERIPH_CLOCK | MSATALED_PIN_PERIPH_CLOCK
-                          | MSATAIND_PIN_PERIPH_CLOCK, ENABLE);
-
-    /* Input signals */
-    GPIO_InitStructure.GPIO_Pin = CARD_DET_PIN;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-
-    /*
-     * CARD_DET pin is also used as MCU's UART TX pin, so only configure it as
-     * GPIO if debugging is disabled
-     */
-    if (!DBG_ENABLE)
-        GPIO_Init(CARD_DET_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = MSATALED_PIN;
-    GPIO_Init(MSATALED_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = MSATAIND_PIN;
-    GPIO_Init(MSATAIND_PIN_PORT, &GPIO_InitStructure);
+    gpio_init_inputs(pin_pullup, CARD_DET_PIN, MSATALED_PIN, MSATAIND_PIN);
 }
 
 /*******************************************************************************
@@ -66,22 +41,10 @@ void msata_pci_indication_config(void)
   *****************************************************************************/
 void msata_pci_activity(void)
 {
-    uint8_t msata_pci_activity;
     struct led_rgb *rgb_leds = leds;
 
-    msata_pci_activity = GPIO_ReadInputDataBit(MSATALED_PIN_PORT, MSATALED_PIN);
-
     if (rgb_leds[MSATA_PCI_LED].led_mode == LED_DEFAULT_MODE)
-    {
-        if (!msata_pci_activity)
-        {
-            rgb_leds[MSATA_PCI_LED].led_state_default = LED_ON;
-        }
-        else
-        {
-            rgb_leds[MSATA_PCI_LED].led_state_default = LED_OFF;
-        }
-    }
+        rgb_leds[MSATA_PCI_LED].led_state_default = !gpio_read(MSATALED_PIN);
 }
 
 /*******************************************************************************
@@ -90,11 +53,11 @@ void msata_pci_activity(void)
   * @param      None.
   * @retval     1 - a card inserted, 0 - no card inserted.
   *****************************************************************************/
-uint8_t msata_pci_card_detection(void)
+bool msata_pci_card_detection(void)
 {
     /* inverted due to the HW connection
     HW connection: 1 = no card inserted, 0 = card inserted */
-    return (!(GPIO_ReadInputDataBit(CARD_DET_PIN_PORT, CARD_DET_PIN)));
+    return !gpio_read(CARD_DET_PIN);
 }
 
 /*******************************************************************************
@@ -103,7 +66,7 @@ uint8_t msata_pci_card_detection(void)
   * @param      None.
   * @retval     1 - mSATA card inserted, 0 - miniPCIe card inserted.
   *****************************************************************************/
-uint8_t msata_pci_type_card_detection(void)
+bool msata_pci_type_card_detection(void)
 {
-    return GPIO_ReadInputDataBit(MSATAIND_PIN_PORT, MSATAIND_PIN);
+    return gpio_read(MSATAIND_PIN);
 }

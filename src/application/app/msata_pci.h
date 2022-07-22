@@ -10,26 +10,11 @@
 #ifndef MSATA_PCI_H
 #define MSATA_PCI_H
 
-#define CARD_DET_PIN_PERIPH_CLOCK           RCC_AHBPeriph_GPIOA
-#define CARD_DET_PIN_PORT                   GPIOA
-#define CARD_DET_PIN                        GPIO_Pin_9
-#define CARD_DET_PIN_EXTIPORT               EXTI_PortSourceGPIOA
-#define CARD_DET_PIN_EXTIPINSOURCE          EXTI_PinSource9
-#define CARD_DET_PIN_EXTILINE               EXTI_Line9
+#include "gpio.h"
 
-#define MSATALED_PIN_PERIPH_CLOCK           RCC_AHBPeriph_GPIOA
-#define MSATALED_PIN_PORT                   GPIOA
-#define MSATALED_PIN                        GPIO_Pin_15
-#define MSATALED_PIN_EXTIPORT               EXTI_PortSourceGPIOA
-#define MSATALED_PIN_EXTIPINSOURCE          EXTI_PinSource15
-#define MSATALED_PIN_EXTILINE               EXTI_Line15
-
-#define MSATAIND_PIN_PERIPH_CLOCK           RCC_AHBPeriph_GPIOC
-#define MSATAIND_PIN_PORT                   GPIOC
-#define MSATAIND_PIN                        GPIO_Pin_14
-#define MSATAIND_PIN_EXTIPORT               EXTI_PortSourceGPIOC
-#define MSATAIND_PIN_EXTIPINSOURCE          EXTI_PinSource14
-#define MSATAIND_PIN_EXTILINE               EXTI_Line14
+#define CARD_DET_PIN		(DBG_ENABLE ? PIN_INVALID : PIN(A, 9))
+#define MSATALED_PIN		PIN(A, 15)
+#define MSATAIND_PIN		PIN(C, 14)
 
 /*******************************************************************************
   * @function   msata_pci_indication_config
@@ -53,7 +38,7 @@ void msata_pci_activity(void);
   * @param      None.
   * @retval     1 - a card inserted, 0 - no card inserted.
   *****************************************************************************/
-uint8_t msata_pci_card_detection(void);
+bool msata_pci_card_detection(void);
 
 /*******************************************************************************
   * @function   msata_pci_type_card_detection
@@ -61,7 +46,7 @@ uint8_t msata_pci_card_detection(void);
   * @param      None.
   * @retval     1 - mSATA card inserted, 0 - miniPCIe card inserted.
   *****************************************************************************/
-uint8_t msata_pci_type_card_detection(void);
+bool msata_pci_type_card_detection(void);
 
 #endif // MSATA_PCI_H
 
