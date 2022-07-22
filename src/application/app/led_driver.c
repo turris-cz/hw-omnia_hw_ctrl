@@ -12,25 +12,18 @@
 #include "led_driver.h"
 #include "delay.h"
 #include "power_control.h"
+#include "gpio.h"
 
 /* Private define ------------------------------------------------------------*/
 #define LED_SPI                     SPI1
 
-#define LED_SPI_MOSI_PIN            GPIO_Pin_7
-#define LED_SPI_MOSI_PIN_PORT       GPIOA
-#define LED_SPI_MOSI_PIN_CLOCK      RCC_AHBPeriph_GPIOA
-#define LED_SPI_MOSI_AF             GPIO_AF_0
-#define LED_SPI_MOSI_SOURCE         GPIO_PinSource7
+#define LED_SPI_ALT_FN		0
+#define LED_SPI_MOSI_PIN	PIN(A, 7)
+#define LED_SPI_SCK_PIN		PIN(A, 5)
+#define LED_SPI_SS_PIN		PIN(A, 4)
 
-#define LED_SPI_SCK_PIN             GPIO_Pin_5
-#define LED_SPI_SCK_PIN_PORT        GPIOA
-#define LED_SPI_SCK_PIN_CLOCK       RCC_AHBPeriph_GPIOA
-#define LED_SPI_SCK_AF              GPIO_AF_0
-#define LED_SPI_SCK_SOURCE          GPIO_PinSource5
-
-#define LED_SPI_SS_PIN              GPIO_Pin_4
-#define LED_SPI_SS_PIN_PORT         GPIOA
-#define LED_SPI_SS_PIN_CLOCK        RCC_AHBPeriph_GPIOA
+#define LED_PWM_ALT_FN		0
+#define LED_PWM_PIN		PIN(A, 3)
 
 #define COLOUR_LEVELS               64
 #define COLOUR_DECIMATION           2
@@ -61,10 +54,6 @@
 #define PWM_TIM_POLARITY            TIM_OCPolarity_Low
 
 #define PWM_TIMER                   TIM15
-
-/* Private macro -------------------------------------------------------------*/
-#define LATCH_HIGH                  GPIO_SetBits(LED_SPI_SS_PIN_PORT, LED_SPI_SS_PIN)
-#define LATCH_LOW                   GPIO_ResetBits(LED_SPI_SS_PIN_PORT, LED_SPI_SS_PIN)
 
 /* Private typedef -----------------------------------------------------------*/
 typedef enum rgb_colour {
@@ -130,38 +119,12 @@ static void led_driver_spi_config(void)
   *****************************************************************************/
 static void led_driver_io_config(void)
 {
-    GPIO_InitTypeDef GPIO_InitStructure;
+    /* Configure SCK and MOSI pins */
+    gpio_init_alts(LED_SPI_ALT_FN, pin_pushpull, pin_spd_3, pin_pulldown,
+                   LED_SPI_SCK_PIN, LED_SPI_MOSI_PIN);
 
-    /* Enable SCK, MOSI, and NSS GPIO clocks */
-    RCC_AHBPeriphClockCmd(LED_SPI_SCK_PIN_CLOCK | LED_SPI_MOSI_PIN_CLOCK |
-                           LED_SPI_SS_PIN_CLOCK, ENABLE);
-
-    GPIO_PinAFConfig(LED_SPI_SCK_PIN_PORT, LED_SPI_SCK_SOURCE, LED_SPI_SCK_AF);
-    GPIO_PinAFConfig(LED_SPI_MOSI_PIN_PORT, LED_SPI_MOSI_SOURCE, LED_SPI_MOSI_AF);
-
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_3;
-
-    /* SPI SCK pin configuration */
-    GPIO_InitStructure.GPIO_Pin = LED_SPI_SCK_PIN;
-    GPIO_Init(LED_SPI_SCK_PIN_PORT, &GPIO_InitStructure);
-
-    /* SPI MOSI pin configuration */
-    GPIO_InitStructure.GPIO_Pin =  LED_SPI_MOSI_PIN;
-    GPIO_Init(LED_SPI_MOSI_PIN_PORT, &GPIO_InitStructure);
-
-    /* NSS pin configuration */
-    GPIO_InitStructure.GPIO_Pin = LED_SPI_SS_PIN;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_3;
-    GPIO_Init(LED_SPI_SS_PIN_PORT, &GPIO_InitStructure);
-
-    /* init state - latch holds previous data */
-    LATCH_LOW;
+    /* Configure NSS pin (start with low value to hold previous data) */
+    gpio_init_outputs(pin_pushpull, pin_spd_3, 0, LED_SPI_SS_PIN);
 }
 
 /*******************************************************************************
@@ -390,10 +353,10 @@ void led_driver_send_frame(void)
     /* blue colour were sent to driver -> enable latch to write to LEDs */
     if (colour == RED)
     {
-         /* latch enable pulse */
-        LATCH_HIGH;
+        /* latch enable pulse */
+        gpio_write(LED_SPI_SS_PIN, 1);
         __NOP();
-        LATCH_LOW;
+        gpio_write(LED_SPI_SS_PIN, 0);
 
         level++;
 
@@ -411,19 +374,8 @@ void led_driver_send_frame(void)
   *****************************************************************************/
 static void led_driver_pwm_io_config(void)
 {
-    GPIO_InitTypeDef GPIO_InitStructure;
-
-    /* Clock Enable */
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
-
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_1;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
-
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource3, GPIO_AF_0);
+    gpio_init_alts(LED_PWM_ALT_FN, pin_pushpull, pin_spd_1, pin_pullup,
+                   LED_PWM_PIN);
 }
 
 /*******************************************************************************
