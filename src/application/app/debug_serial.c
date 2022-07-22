@@ -10,8 +10,13 @@
 #include "string.h"
 #include "stm32f0xx_conf.h"
 #include "debug_serial.h"
+#include "gpio.h"
 
 #define SERIAL_PORT      USART1
+
+#define USART_PINS_ALT_FN	1
+#define USART_PIN_TX		PIN(A, 9)
+#define USART_PIN_RX		PIN(A, 10)
 
 #if DBG_ENABLE && !defined(DBG_BAUDRATE)
 #error build system did not define DBG_BAUDRATE macro
@@ -27,24 +32,14 @@ void debug_serial_config(void)
 {
 #if DBG_ENABLE
     USART_InitTypeDef USART_InitStructure;
-    GPIO_InitTypeDef GPIO_InitStructure;
 
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, DISABLE);
     USART_DeInit(SERIAL_PORT);
 
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
-
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
 
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_1);
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_1);
-
-    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_9 | GPIO_Pin_10;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
+    gpio_init_alts(USART_PINS_ALT_FN, pin_pushpull, pin_spd_3, pin_pullup,
+                   USART_PIN_RX, USART_PIN_TX);
 
     USART_InitStructure.USART_BaudRate = DBG_BAUDRATE;
     USART_InitStructure.USART_WordLength = USART_WordLength_8b;
