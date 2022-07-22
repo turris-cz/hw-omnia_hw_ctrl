@@ -30,8 +30,8 @@
 /* Private define ------------------------------------------------------------*/
 
 /* programming pin for user regulator */
-#define PRG_PIN_HIGH            PRG_4V5_PIN_PORT->BSRR = PRG_4V5_PIN
-#define PRG_PIN_LOW             PRG_4V5_PIN_PORT->BRR = PRG_4V5_PIN
+#define PRG_PIN_HIGH		gpio_write(PRG_4V5_PIN, 1)
+#define PRG_PIN_LOW		gpio_write(PRG_4V5_PIN, 0)
 
 /* timing for logic '1' and '0' consists of only NOPs, because it must be very
 precise. Pulse for logic '1' or '0' takes only 1 us */
@@ -149,19 +149,7 @@ typedef enum reset_states {
  *****************************************************************************/
 static void power_control_prog4v5_config(void)
 {
-    GPIO_InitTypeDef GPIO_InitStructure;
-
-    /* pin config for programming */
-    RCC_AHBPeriphClockCmd(PRG_4V5_PIN_PERIPH_CLOCK, ENABLE);
-
-    GPIO_InitStructure.GPIO_Pin = PRG_4V5_PIN;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_2;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-    GPIO_Init(PRG_4V5_PIN_PORT, &GPIO_InitStructure);
-
-    PRG_PIN_LOW;
+    gpio_init_outputs(pin_pushpull, pin_spd_2, 0, PRG_4V5_PIN);
 }
 #endif
 
@@ -173,159 +161,23 @@ static void power_control_prog4v5_config(void)
   *****************************************************************************/
 void power_control_io_config(void)
 {
-    GPIO_InitTypeDef GPIO_InitStructure;
-    uint32_t periph_clks;
-
-    periph_clks =
-        ENABLE_5V_PIN_PERIPH_CLOCK | ENABLE_3V3_PIN_PERIPH_CLOCK |
-        ENABLE_1V35_PIN_PERIPH_CLOCK | ENABLE_1V8_PIN_PERIPH_CLOCK |
-        ENABLE_1V5_PIN_PERIPH_CLOCK | ENABLE_1V2_PIN_PERIPH_CLOCK |
-        ENABLE_VTT_PIN_PERIPH_CLOCK | USB30_PWRON_PIN_PERIPH_CLOCK |
-        USB31_PWRON_PIN_PERIPH_CLOCK | SYSRES_OUT_PIN_PERIPH_CLOCK |
-        INT_MCU_PIN_PERIPH_CLOCK | MANRES_PIN_PERIPH_CLOCK;
-
-    if (OMNIA_BOARD_REVISION < 32)
-        periph_clks |= RES_RAM_PIN_PERIPH_CLOCK;
-
-    if (USER_REGULATOR_ENABLED)
-        periph_clks |= ENABLE_4V5_PIN_PERIPH_CLOCK;
-
-    /* GPIO Periph clock enable */
-    RCC_AHBPeriphClockCmd(periph_clks, ENABLE);
-
     /* Output signals */
-    GPIO_InitStructure.GPIO_Pin = INT_MCU_PIN;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_2;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-    GPIO_Init(INT_MCU_PIN_PORT, &GPIO_InitStructure);
+    gpio_init_outputs(pin_pushpull, pin_spd_2, 0,
+                      RES_RAM_PIN, ENABLE_5V_PIN, ENABLE_3V3_PIN,
+                      ENABLE_1V35_PIN, ENABLE_4V5_PIN, ENABLE_1V8_PIN,
+                      ENABLE_1V5_PIN, ENABLE_1V2_PIN, ENABLE_VTT_PIN,
+                      USB30_PWRON_PIN, USB31_PWRON_PIN, CFG_CTRL_PIN);
+    gpio_init_outputs(pin_pushpull, pin_spd_2, 1, INT_MCU_PIN);
 
-    if (OMNIA_BOARD_REVISION < 32) {
-        GPIO_InitStructure.GPIO_Pin = RES_RAM_PIN;
-        GPIO_Init(RES_RAM_PIN_PORT, &GPIO_InitStructure);
-    }
-
-    GPIO_InitStructure.GPIO_Pin = ENABLE_5V_PIN;
-    GPIO_Init(ENABLE_5V_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = ENABLE_3V3_PIN;
-    GPIO_Init(ENABLE_3V3_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = ENABLE_1V35_PIN;
-    GPIO_Init(ENABLE_1V35_PIN_PORT, &GPIO_InitStructure);
-
-    if (USER_REGULATOR_ENABLED) {
-        GPIO_InitStructure.GPIO_Pin = ENABLE_4V5_PIN;
-        GPIO_Init(ENABLE_4V5_PIN_PORT, &GPIO_InitStructure);
-    }
-
-    GPIO_InitStructure.GPIO_Pin = ENABLE_1V8_PIN;
-    GPIO_Init(ENABLE_1V8_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = ENABLE_1V5_PIN;
-    GPIO_Init(ENABLE_1V5_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = ENABLE_1V2_PIN;
-    GPIO_Init(ENABLE_1V2_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = ENABLE_VTT_PIN;
-    GPIO_Init(ENABLE_VTT_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = USB30_PWRON_PIN;
-    GPIO_Init(USB30_PWRON_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = USB31_PWRON_PIN;
-    GPIO_Init(USB31_PWRON_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = CFG_CTRL_PIN;
-    GPIO_Init(CFG_CTRL_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = SYSRES_OUT_PIN;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_2;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-    GPIO_Init(SYSRES_OUT_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = MANRES_PIN;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_2;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-    GPIO_Init(MANRES_PIN_PORT, &GPIO_InitStructure);
-
+    gpio_init_outputs(pin_opendrain, pin_spd_2, 0, MANRES_PIN);
+    gpio_init_outputs(pin_opendrain, pin_spd_2, 1, SYSRES_OUT_PIN); /* dont control this ! */
 
     /* Input signals */
-
-    periph_clks =
-        PG_5V_PIN_PERIPH_CLOCK | PG_3V3_PIN_PERIPH_CLOCK |
-        PG_1V35_PIN_PERIPH_CLOCK | PG_1V8_PIN_PERIPH_CLOCK |
-        PG_1V5_PIN_PERIPH_CLOCK | PG_1V2_PIN_PERIPH_CLOCK |
-        PG_VTT_PIN_PERIPH_CLOCK | USB30_OVC_PIN_PERIPH_CLOCK |
-        USB31_OVC_PIN_PERIPH_CLOCK | LED_BRT_PIN_PERIPH_CLOCK;
-
-    if (OMNIA_BOARD_REVISION < 32)
-        periph_clks |=
-            DBGRES_PIN_PERIPH_CLOCK | RTC_ALARM_PIN_PERIPH_CLOCK |
-            MRES_PIN_PERIPH_CLOCK;
-
-    if (USER_REGULATOR_ENABLED)
-        periph_clks |= PG_4V5_PIN_PERIPH_CLOCK;
-
-    /* GPIO Periph clock enable */
-    RCC_AHBPeriphClockCmd(periph_clks, ENABLE);
-
-    GPIO_InitStructure.GPIO_Pin = PG_5V_PIN;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-    GPIO_Init(PG_5V_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = PG_3V3_PIN;
-    GPIO_Init(PG_3V3_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = PG_1V35_PIN;
-    GPIO_Init(PG_1V35_PIN_PORT, &GPIO_InitStructure);
-
-    if (OMNIA_BOARD_REVISION < 32) {
-        GPIO_InitStructure.GPIO_Pin = DBGRES_PIN;
-        GPIO_Init(DBGRES_PIN_PORT, &GPIO_InitStructure);
-
-        GPIO_InitStructure.GPIO_Pin = MRES_PIN;
-        GPIO_Init(MRES_PIN_PORT, &GPIO_InitStructure);
-
-        GPIO_InitStructure.GPIO_Pin = RTC_ALARM_PIN;
-        GPIO_Init(RTC_ALARM_PIN_PORT, &GPIO_InitStructure);
-    }
-
-    if (USER_REGULATOR_ENABLED) {
-        GPIO_InitStructure.GPIO_Pin = PG_4V5_PIN;
-        GPIO_Init(PG_4V5_PIN_PORT, &GPIO_InitStructure);
-    }
-
-    GPIO_InitStructure.GPIO_Pin = PG_1V8_PIN;
-    GPIO_Init(PG_1V8_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = PG_1V5_PIN;
-    GPIO_Init(PG_1V5_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = PG_1V2_PIN;
-    GPIO_Init(PG_1V2_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = PG_VTT_PIN;
-    GPIO_Init(PG_VTT_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = USB30_OVC_PIN;
-    GPIO_Init(USB30_OVC_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = USB31_OVC_PIN;
-    GPIO_Init(USB31_OVC_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = LED_BRT_PIN;
-    GPIO_Init(LED_BRT_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_SetBits(SYSRES_OUT_PIN_PORT, SYSRES_OUT_PIN); /* dont control this ! */
-    GPIO_SetBits(INT_MCU_PIN_PORT, INT_MCU_PIN);
+    gpio_init_inputs(pin_pullup,
+                     PG_5V_PIN, PG_3V3_PIN, PG_1V35_PIN, PG_4V5_PIN,
+                     PG_1V8_PIN, PG_1V5_PIN, PG_1V2_PIN, PG_VTT_PIN,
+                     USB30_OVC_PIN, USB31_OVC_PIN, LED_BRT_PIN,
+                     DBGRES_PIN, MRES_PIN, RTC_ALARM_PIN);
 
 #if USER_REGULATOR_ENABLED
     power_control_prog4v5_config();
@@ -340,8 +192,8 @@ void power_control_io_config(void)
   *****************************************************************************/
 void power_control_set_startup_condition(void)
 {
-    GPIO_SetBits(CFG_CTRL_PIN_PORT, CFG_CTRL_PIN); //disconnect switches
-    GPIO_ResetBits(MANRES_PIN_PORT, MANRES_PIN); //board reset activated
+    gpio_write(CFG_CTRL_PIN, 1); /* disconnect switches */
+    gpio_write(MANRES_PIN, 0); /* board reset activated */
     power_control_usb(USB3_PORT0, USB_ON);
     power_control_usb(USB3_PORT1, USB_ON);
 }
@@ -361,10 +213,10 @@ error_type_t power_control_start_regulator(reg_type_t regulator)
     {
         case REG_5V:
         {
-            GPIO_SetBits(ENABLE_5V_PIN_PORT, ENABLE_5V_PIN);
+            gpio_write(ENABLE_5V_PIN, 1);
             delay(DELAY_AFTER_ENABLE);
 
-            while(!(GPIO_ReadInputDataBit(PG_5V_PIN_PORT, PG_5V_PIN)))
+            while(!gpio_read(PG_5V_PIN))
             {
                 delay(DELAY_BETWEEN_READINGS);
                 counter++;
@@ -378,10 +230,10 @@ error_type_t power_control_start_regulator(reg_type_t regulator)
 
         case REG_3V3:
         {
-            GPIO_SetBits(ENABLE_3V3_PIN_PORT, ENABLE_3V3_PIN);
+            gpio_write(ENABLE_3V3_PIN, 1);
             delay(DELAY_AFTER_ENABLE);
 
-            while(!(GPIO_ReadInputDataBit(PG_3V3_PIN_PORT, PG_3V3_PIN)))
+            while(!gpio_read(PG_3V3_PIN))
             {
                 delay(DELAY_BETWEEN_READINGS);
                 counter++;
@@ -396,9 +248,9 @@ error_type_t power_control_start_regulator(reg_type_t regulator)
 
         case REG_1V35:
         {
-            GPIO_SetBits(ENABLE_1V35_PIN_PORT, ENABLE_1V35_PIN);
+            gpio_write(ENABLE_1V35_PIN, 1);
             delay(DELAY_AFTER_ENABLE);
-            while(!(GPIO_ReadInputDataBit(PG_1V35_PIN_PORT, PG_1V35_PIN)))
+            while(!gpio_read(PG_1V35_PIN))
             {
                 delay(DELAY_BETWEEN_READINGS);
                 counter++;
@@ -413,9 +265,9 @@ error_type_t power_control_start_regulator(reg_type_t regulator)
 #if USER_REGULATOR_ENABLED
         case REG_4V5:
         {
-            GPIO_SetBits(ENABLE_4V5_PIN_PORT, ENABLE_4V5_PIN);
+            gpio_write(ENABLE_4V5_PIN, 1);
             delay(DELAY_AFTER_ENABLE);
-            while(!(GPIO_ReadInputDataBit(PG_4V5_PIN_PORT, PG_4V5_PIN)))
+            while(!gpio_read(PG_4V5_PIN))
             {
                 delay(DELAY_BETWEEN_READINGS);
                 counter++;
@@ -430,9 +282,9 @@ error_type_t power_control_start_regulator(reg_type_t regulator)
 
         case REG_1V8:
         {
-            GPIO_SetBits(ENABLE_1V8_PIN_PORT, ENABLE_1V8_PIN);
+            gpio_write(ENABLE_1V8_PIN, 1);
             delay(DELAY_AFTER_ENABLE);
-            while(!(GPIO_ReadInputDataBit(PG_1V8_PIN_PORT, PG_1V8_PIN)))
+            while(!gpio_read(PG_1V8_PIN))
             {
                 delay(DELAY_BETWEEN_READINGS);
                 counter++;
@@ -446,9 +298,9 @@ error_type_t power_control_start_regulator(reg_type_t regulator)
 
         case REG_1V5:
         {
-            GPIO_SetBits(ENABLE_1V5_PIN_PORT, ENABLE_1V5_PIN);
+            gpio_write(ENABLE_1V5_PIN, 1);
             delay(DELAY_AFTER_ENABLE);
-            while(!(GPIO_ReadInputDataBit(PG_1V5_PIN_PORT, PG_1V5_PIN)))
+            while(!gpio_read(PG_1V5_PIN))
             {
                 delay(DELAY_BETWEEN_READINGS);
                 counter++;
@@ -462,9 +314,9 @@ error_type_t power_control_start_regulator(reg_type_t regulator)
 
         case REG_1V2:
         {
-            GPIO_SetBits(ENABLE_1V2_PIN_PORT, ENABLE_1V2_PIN);
+            gpio_write(ENABLE_1V2_PIN, 1);
             delay(DELAY_AFTER_ENABLE);
-            while(!(GPIO_ReadInputDataBit(PG_1V2_PIN_PORT, PG_1V2_PIN)))
+            while(!gpio_read(PG_1V2_PIN))
             {
                 delay(DELAY_BETWEEN_READINGS);
                 counter++;
@@ -478,9 +330,9 @@ error_type_t power_control_start_regulator(reg_type_t regulator)
 
         case REG_VTT:
         {
-            GPIO_SetBits(ENABLE_VTT_PIN_PORT, ENABLE_VTT_PIN);
+            gpio_write(ENABLE_VTT_PIN, 1);
             delay(DELAY_AFTER_ENABLE);
-            while(!(GPIO_ReadInputDataBit(PG_VTT_PIN_PORT, PG_VTT_PIN)))
+            while(!gpio_read(PG_VTT_PIN))
             {
                 delay(DELAY_BETWEEN_READINGS);
                 counter++;
@@ -568,16 +420,16 @@ error_type_t power_control_enable_regulators(void)
   *****************************************************************************/
 void power_control_disable_regulators(void)
 {
-    GPIO_ResetBits(ENABLE_1V2_PIN_PORT, ENABLE_1V2_PIN);
-    GPIO_ResetBits(ENABLE_1V35_PIN_PORT, ENABLE_1V35_PIN);
-    GPIO_ResetBits(ENABLE_VTT_PIN_PORT, ENABLE_VTT_PIN);
-    if (OMNIA_BOARD_REVISION < 32)
-        GPIO_ResetBits(ENABLE_1V5_PIN_PORT, ENABLE_1V5_PIN);
-    GPIO_ResetBits(ENABLE_1V8_PIN_PORT, ENABLE_1V8_PIN);
-    GPIO_ResetBits(ENABLE_3V3_PIN_PORT, ENABLE_3V3_PIN);
-    if (USER_REGULATOR_ENABLED)
-        GPIO_ResetBits(ENABLE_4V5_PIN_PORT, ENABLE_4V5_PIN);
-    GPIO_ResetBits(ENABLE_5V_PIN_PORT, ENABLE_5V_PIN);
+    /* don't collapse this into one call of gpio_write_multi(), since these
+     * should be disabled in the given order */
+    gpio_write(ENABLE_1V2_PIN, 0);
+    gpio_write(ENABLE_1V35_PIN, 0);
+    gpio_write(ENABLE_VTT_PIN, 0);
+    gpio_write(ENABLE_1V5_PIN, 0);
+    gpio_write(ENABLE_1V8_PIN, 0);
+    gpio_write(ENABLE_3V3_PIN, 0);
+    gpio_write(ENABLE_4V5_PIN, 0);
+    gpio_write(ENABLE_5V_PIN, 0);
 }
 
 /*******************************************************************************
@@ -589,20 +441,8 @@ void power_control_disable_regulators(void)
   *****************************************************************************/
 void power_control_usb(usb_ports_t usb_port, usb_state_t usb_state)
 {
-    if (usb_port == USB3_PORT0)
-    {
-        if (usb_state == USB_ON)
-            GPIO_ResetBits(USB30_PWRON_PIN_PORT, USB30_PWRON_PIN);
-        else
-            GPIO_SetBits(USB30_PWRON_PIN_PORT, USB30_PWRON_PIN);
-    }
-    else //USB3_PORT1
-    {
-        if (usb_state == USB_ON)
-            GPIO_ResetBits(USB31_PWRON_PIN_PORT, USB31_PWRON_PIN);
-        else
-            GPIO_SetBits(USB31_PWRON_PIN_PORT, USB31_PWRON_PIN);
-    }
+    gpio_write(usb_port == USB3_PORT0 ? USB30_PWRON_PIN : USB31_PWRON_PIN,
+               usb_state != USB_ON);
 }
 
 /*******************************************************************************
@@ -611,12 +451,9 @@ void power_control_usb(usb_ports_t usb_port, usb_state_t usb_state)
   * @param      usb_port: USB3_PORT0 or USB3_PORT1.
   * @retval     1 - USB overcurrent ocurred; 0 - no USB overcurrent
   *****************************************************************************/
-uint8_t power_control_get_usb_overcurrent(usb_ports_t usb_port)
+bool power_control_get_usb_overcurrent(usb_ports_t usb_port)
 {
-    if (usb_port == USB3_PORT0)
-        return (!(GPIO_ReadInputDataBit(USB30_OVC_PIN_PORT, USB30_OVC_PIN)));
-    else //USB3_PORT1
-        return (!(GPIO_ReadInputDataBit(USB31_OVC_PIN_PORT, USB31_OVC_PIN)));
+    return !gpio_read(usb_port == USB3_PORT0 ? USB30_OVC_PIN : USB31_OVC_PIN);
 }
 
 /*******************************************************************************
@@ -625,12 +462,9 @@ uint8_t power_control_get_usb_overcurrent(usb_ports_t usb_port)
   * @param      usb_port: USB3_PORT0 or USB3_PORT1.
   * @retval     1 - USB power ON; 0 - USB power OFF
   *****************************************************************************/
-uint8_t power_control_get_usb_poweron(usb_ports_t usb_port)
+bool power_control_get_usb_poweron(usb_ports_t usb_port)
 {
-    if (usb_port == USB3_PORT0)
-        return (!(GPIO_ReadInputDataBit(USB30_PWRON_PIN_PORT, USB30_PWRON_PIN)));
-    else //USB3_PORT1
-        return (!(GPIO_ReadInputDataBit(USB31_PWRON_PIN_PORT, USB31_PWRON_PIN)));
+    return !gpio_read(usb_port == USB3_PORT0 ? USB30_PWRON_PIN : USB31_PWRON_PIN);
 }
 
 /*******************************************************************************
@@ -708,15 +542,15 @@ reset_type_t power_control_first_startup(void)
     uint32_t colour = 0;
     uint16_t user_brightness;
 
-    GPIO_SetBits(CFG_CTRL_PIN_PORT, CFG_CTRL_PIN);
+    gpio_write(CFG_CTRL_PIN, 1);
     delay(50);
-    GPIO_SetBits(MANRES_PIN_PORT, MANRES_PIN);
+    gpio_write(MANRES_PIN, 1);
 
     /* save brightness value to restore it */
     user_brightness = led_driver_pwm_get_brightness();
 
     /* wait for main board reset signal */
-    while (!GPIO_ReadInputDataBit(SYSRES_OUT_PIN_PORT, SYSRES_OUT_PIN))
+    while (!gpio_read(SYSRES_OUT_PIN))
     {
         /* handle factory reset timeouts */
         delay(RESET_STATE_READING);
@@ -1059,7 +893,7 @@ reset_type_t power_control_first_startup(void)
     }
 
     delay(10); /* 10 + 5ms (in while loop) delay after releasing of reset signal */
-    GPIO_ResetBits(CFG_CTRL_PIN_PORT, CFG_CTRL_PIN);
+    gpio_write(CFG_CTRL_PIN, 0);
 
     if (reset_type != NORMAL_RESET)
     {
@@ -1293,72 +1127,13 @@ void power_control_set_voltage(voltage_value_t voltage)
   *****************************************************************************/
 void periph_control_io_config(void)
 {
-    GPIO_InitTypeDef GPIO_InitStructure;
+    gpio_init_inputs(pin_pullup, SFP_NDET_PIN);
+    gpio_init_outputs(pin_opendrain, pin_spd_2, 0,
+                      RES_MMC_PIN, RES_LAN_PIN, RES_PHY_PIN,
+                      PERST0_PIN, PERST1_PIN, PERST2_PIN,
+                      VHV_CTRL_PIN, PHY_SFP_PIN);
 
-    RCC_AHBPeriphClockCmd(PERST0_PIN_PERIPH_CLOCK | PERST1_PIN_PERIPH_CLOCK
-                          | PERST2_PIN_PERIPH_CLOCK | SFP_NDET_PIN_PERIPH_CLOCK
-                          | PHY_SFP_PIN_PERIPH_CLOCK | VHV_CTRL_PIN_PERIPH_CLOCK
-                          | RES_PHY_PIN_PERIPH_CLOCK | RES_LAN_PERIPH_CLOCK
-                          | RES_MMC_PIN_PERIPH_CLOCK, ENABLE);
-
-    GPIO_InitStructure.GPIO_Pin = SFP_NDET_PIN;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-    GPIO_Init(SFP_NDET_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = RES_MMC_PIN;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_2;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-    GPIO_Init(RES_MMC_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = PERST0_PIN;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_2;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-    GPIO_Init(PERST0_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = PERST1_PIN;
-    /*
-     * PERST1 pin is also used as MCU's UART RX pin, so only configure it as
-     * GPIO if debugging is disabled
-     */
-    if (!DBG_ENABLE)
-        GPIO_Init(PERST1_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = PERST2_PIN;
-    GPIO_Init(PERST2_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = RES_LAN_PIN;
-    GPIO_Init(RES_LAN_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = RES_PHY_PIN;
-    GPIO_Init(RES_PHY_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = VHV_CTRL_PIN;
-    GPIO_Init(VHV_CTRL_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = PHY_SFP_PIN;
-    GPIO_Init(PHY_SFP_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_ResetBits(RES_MMC_PIN_PORT, RES_MMC_PIN);
-    GPIO_ResetBits(RES_LAN_PIN_PORT, RES_LAN_PIN);
-    GPIO_ResetBits(RES_PHY_PIN_PORT, RES_PHY_PIN);
-
-    GPIO_ResetBits(PERST0_PIN_PORT, PERST0_PIN);
-    /*
-     * PERST1 pin is also used as MCU's UART RX pin, so only configure it as
-     * GPIO if debugging is disabled
-     */
-    if (!DBG_ENABLE)
-        GPIO_ResetBits(PERST1_PIN_PORT, PERST1_PIN);
-
-    GPIO_ResetBits(PERST2_PIN_PORT, PERST2_PIN);
-
-    GPIO_SetBits(VHV_CTRL_PIN_PORT, VHV_CTRL_PIN);
-    GPIO_SetBits(PHY_SFP_PIN_PORT, PHY_SFP_PIN);
+    gpio_write_multi(1, VHV_CTRL_PIN, PHY_SFP_PIN);
 }
 
 /*******************************************************************************
@@ -1369,22 +1144,10 @@ void periph_control_io_config(void)
   *****************************************************************************/
 uint16_t periph_control_rst_init(void)
 {
-    GPIO_ResetBits(RES_MMC_PIN_PORT, RES_MMC_PIN);
-    GPIO_ResetBits(RES_LAN_PIN_PORT, RES_LAN_PIN);
-    GPIO_ResetBits(RES_PHY_PIN_PORT, RES_PHY_PIN);
+    gpio_write_multi(0, RES_MMC_PIN, RES_LAN_PIN, RES_PHY_PIN, PERST0_PIN,
+                     PERST1_PIN, PERST2_PIN, VHV_CTRL_PIN, PHY_SFP_PIN);
 
-    GPIO_ResetBits(PERST0_PIN_PORT, PERST0_PIN);
-    /*
-     * PERST1 pin is also used as MCU's UART RX pin, so only configure it as
-     * GPIO if debugging is disabled
-     */
-    if (!DBG_ENABLE)
-        GPIO_ResetBits(PERST1_PIN_PORT, PERST1_PIN);
-
-    GPIO_ResetBits(PERST2_PIN_PORT, PERST2_PIN);
-
-    GPIO_SetBits(VHV_CTRL_PIN_PORT, VHV_CTRL_PIN);
-    GPIO_SetBits(PHY_SFP_PIN_PORT, PHY_SFP_PIN);
+    gpio_write_multi(1, VHV_CTRL_PIN, PHY_SFP_PIN);
 
     return EXT_CTL_RES_MMC | EXT_CTL_RES_LAN | EXT_CTL_RES_PHY |
            EXT_CTL_PERST0 | EXT_CTL_PERST1 | EXT_CTL_PERST2 | EXT_CTL_PHY_SFP;

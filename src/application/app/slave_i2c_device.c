@@ -215,9 +215,9 @@ static void slave_i2c_check_control_byte(uint8_t control_byte, uint8_t bit_mask)
         /* release SCL line */
         I2C_NumberOfBytesConfig(I2C_PERIPH_NAME, ONE_BYTE_EXPECTED);
         /* set CFG_CTRL pin to high state ASAP */
-        GPIO_SetBits(CFG_CTRL_PIN_PORT, CFG_CTRL_PIN);
+        gpio_write(CFG_CTRL_PIN, 1);
         /* reset of CPU */
-        GPIO_ResetBits(MANRES_PIN_PORT, MANRES_PIN);
+        gpio_write(MANRES_PIN, 0);
         return;
     }
 
@@ -264,7 +264,7 @@ static void slave_i2c_check_control_byte(uint8_t control_byte, uint8_t bit_mask)
         }
         else
         {
-            GPIO_ResetBits(ENABLE_4V5_PIN_PORT, ENABLE_4V5_PIN);
+            gpio_write(ENABLE_4V5_PIN, 0);
             i2c_control->status_word &= (~STS_ENABLE_4V5);
         }
     }
@@ -306,13 +306,12 @@ static void slave_i2c_check_control_byte(uint8_t control_byte, uint8_t bit_mask)
 }
 
 static const struct {
-    GPIO_TypeDef *port;
-    uint16_t pin;
-    uint16_t mask;
+    gpio_t pin;
     bool inv;
+    uint16_t mask;
 } ext_control_pins[] = {
 #define ECTRL(n, i) \
-    { n ## _PIN_PORT, n ## _PIN, EXT_CTL_ ## n, i }
+    { n ## _PIN, i, EXT_CTL_ ## n }
     ECTRL(RES_MMC, 1),
     ECTRL(RES_LAN, 1),
     ECTRL(RES_PHY, 1),
@@ -356,8 +355,7 @@ void slave_i2c_ext_control(uint16_t ext_control_word, uint16_t bit_mask)
 
     for_each_const(pin, ext_control_pins)
         if (bit_mask & pin->mask)
-            GPIO_WriteBit(pin->port, pin->pin,
-                          !!(ext_control_word & pin->mask) ^ pin->inv);
+            gpio_write(pin->pin, !!(ext_control_word & pin->mask) ^ pin->inv);
 }
 
 /*******************************************************************************
@@ -372,7 +370,7 @@ static uint16_t slave_i2c_get_ext_control_status(void)
 
     if (OMNIA_BOARD_REVISION >= 32) {
         for_each_const(pin, ext_control_pins)
-            if (GPIO_ReadInputDataBit(pin->port, pin->pin) ^ pin->inv)
+            if (gpio_read(pin->pin) ^ pin->inv)
                 ext_control_status |= pin->mask;
     }
 

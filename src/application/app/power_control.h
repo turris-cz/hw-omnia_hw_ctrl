@@ -10,168 +10,55 @@
 #ifndef POWER_CONTROL_H
 #define POWER_CONTROL_H
 
-#include "stm32f0xx.h"
+#include "stm32f0xx_tim.h"
+#include "gpio.h"
 
-#define USB_TIMEOUT_TIMER                   TIM17
+#define USB_TIMEOUT_TIMER	TIM17
 
 /* Outputs */
-#define INT_MCU_PIN_PERIPH_CLOCK            RCC_AHBPeriph_GPIOC
-#define INT_MCU_PIN_PORT                    GPIOC
-#define INT_MCU_PIN                         GPIO_Pin_0
-
-#define RES_RAM_PIN_PERIPH_CLOCK            RCC_AHBPeriph_GPIOC
-#define RES_RAM_PIN_PORT                    GPIOC
-#define RES_RAM_PIN                         GPIO_Pin_3
-
-#define ENABLE_5V_PIN_PERIPH_CLOCK          RCC_AHBPeriph_GPIOC
-#define ENABLE_5V_PIN_PORT                  GPIOC
-#define ENABLE_5V_PIN                       GPIO_Pin_4
-
-#define ENABLE_3V3_PIN_PERIPH_CLOCK         RCC_AHBPeriph_GPIOC
-#define ENABLE_3V3_PIN_PORT                 GPIOC
-#define ENABLE_3V3_PIN                      GPIO_Pin_5
-
-#define ENABLE_1V35_PIN_PERIPH_CLOCK        RCC_AHBPeriph_GPIOC
-#define ENABLE_1V35_PIN_PORT                GPIOC
-#define ENABLE_1V35_PIN                     GPIO_Pin_6
-
-#define ENABLE_4V5_PIN_PERIPH_CLOCK         RCC_AHBPeriph_GPIOC
-#define ENABLE_4V5_PIN_PORT                 GPIOC
-#define ENABLE_4V5_PIN                      GPIO_Pin_7
-
-#define ENABLE_1V8_PIN_PERIPH_CLOCK         RCC_AHBPeriph_GPIOC
-#define ENABLE_1V8_PIN_PORT                 GPIOC
-#define ENABLE_1V8_PIN                      GPIO_Pin_8
-
-#define ENABLE_1V5_PIN_PERIPH_CLOCK         RCC_AHBPeriph_GPIOC
-#define ENABLE_1V5_PIN_PORT                 GPIOC
-#define ENABLE_1V5_PIN                      GPIO_Pin_9
-
-#define ENABLE_1V2_PIN_PERIPH_CLOCK         RCC_AHBPeriph_GPIOC
-#define ENABLE_1V2_PIN_PORT                 GPIOC
-#define ENABLE_1V2_PIN                      GPIO_Pin_10
-
-#define ENABLE_VTT_PIN_PERIPH_CLOCK         RCC_AHBPeriph_GPIOC
-#define ENABLE_VTT_PIN_PORT                 GPIOC
-#define ENABLE_VTT_PIN                      GPIO_Pin_11
-
-#define USB30_PWRON_PIN_PERIPH_CLOCK        RCC_AHBPeriph_GPIOC
-#define USB30_PWRON_PIN_PORT                GPIOC
-#define USB30_PWRON_PIN                     GPIO_Pin_12
-
-#define USB31_PWRON_PIN_PERIPH_CLOCK        RCC_AHBPeriph_GPIOC
-#define USB31_PWRON_PIN_PORT                GPIOC
-#define USB31_PWRON_PIN                     GPIO_Pin_13
-
-#define CFG_CTRL_PIN_PERIPH_CLOCK           RCC_AHBPeriph_GPIOC
-#define CFG_CTRL_PIN_PORT                   GPIOC
-#define CFG_CTRL_PIN                        GPIO_Pin_15
-
-#define PRG_4V5_PIN_PERIPH_CLOCK            RCC_AHBPeriph_GPIOF
-#define PRG_4V5_PIN_PORT                    GPIOF
-#define PRG_4V5_PIN                         GPIO_Pin_1
+#define INT_MCU_PIN		PIN(C, 0)
+#define RES_RAM_PIN		(OMNIA_BOARD_REVISION < 32 ? PIN(C, 3) : PIN_INVALID)
+#define ENABLE_5V_PIN		PIN(C, 4)
+#define ENABLE_3V3_PIN		PIN(C, 5)
+#define ENABLE_1V35_PIN		PIN(C, 6)
+#define ENABLE_4V5_PIN		(USER_REGULATOR_ENABLED ? PIN(C, 7) : PIN_INVALID)
+#define ENABLE_1V8_PIN		PIN(C, 8)
+#define ENABLE_1V5_PIN		(OMNIA_BOARD_REVISION < 32 ? PIN(C, 9) : PIN_INVALID)
+#define ENABLE_1V2_PIN		PIN(C, 10)
+#define ENABLE_VTT_PIN		PIN(C, 11)
+#define USB30_PWRON_PIN		PIN(C, 12)
+#define USB31_PWRON_PIN		PIN(C, 13)
+#define CFG_CTRL_PIN		PIN(C, 15)
+#define PRG_4V5_PIN		(USER_REGULATOR_ENABLED ? PIN(F, 1) : PIN_INVALID)
+/* v32 specific outputs */
+#define PERST1_PIN		(DBG_ENABLE ? PIN_INVALID : PIN(A, 10))
+#define RES_MMC_PIN		PIN(B, 2)
+#define RES_LAN_PIN		PIN(B, 3)
+#define RES_PHY_PIN		PIN(B, 7)
+#define VHV_CTRL_PIN		PIN(B, 14)
+#define PHY_SFP_PIN		PIN(C, 3)
+#define PERST2_PIN		PIN(F, 4)
+#define PERST0_PIN		PIN(F, 5)
 
 /* Inputs */
-#define MANRES_PIN_PERIPH_CLOCK             RCC_AHBPeriph_GPIOB
-#define MANRES_PIN_PORT                     GPIOB
-#define MANRES_PIN                          GPIO_Pin_0
-
-#define SYSRES_OUT_PIN_PERIPH_CLOCK         RCC_AHBPeriph_GPIOB
-#define SYSRES_OUT_PIN_PORT                 GPIOB
-#define SYSRES_OUT_PIN                      GPIO_Pin_1
-
-#define DBGRES_PIN_PERIPH_CLOCK             RCC_AHBPeriph_GPIOB
-#define DBGRES_PIN_PORT                     GPIOB
-#define DBGRES_PIN                          GPIO_Pin_2
-
-#define MRES_PIN_PERIPH_CLOCK               RCC_AHBPeriph_GPIOB
-#define MRES_PIN_PORT                       GPIOB
-#define MRES_PIN                            GPIO_Pin_3
-
-#define PG_5V_PIN_PERIPH_CLOCK              RCC_AHBPeriph_GPIOB
-#define PG_5V_PIN_PORT                      GPIOB
-#define PG_5V_PIN                           GPIO_Pin_4
-
-#define PG_3V3_PIN_PERIPH_CLOCK             RCC_AHBPeriph_GPIOB
-#define PG_3V3_PIN_PORT                     GPIOB
-#define PG_3V3_PIN                          GPIO_Pin_5
-
-#define PG_1V35_PIN_PERIPH_CLOCK            RCC_AHBPeriph_GPIOB
-#define PG_1V35_PIN_PORT                    GPIOB
-#define PG_1V35_PIN                         GPIO_Pin_6
-
-#define PG_4V5_PIN_PERIPH_CLOCK             RCC_AHBPeriph_GPIOB
-#define PG_4V5_PIN_PORT                     GPIOB
-#define PG_4V5_PIN                          GPIO_Pin_7
-
-#define PG_1V8_PIN_PERIPH_CLOCK             RCC_AHBPeriph_GPIOB
-#define PG_1V8_PIN_PORT                     GPIOB
-#define PG_1V8_PIN                          GPIO_Pin_8
-
-#define PG_1V5_PIN_PERIPH_CLOCK             RCC_AHBPeriph_GPIOB
-#define PG_1V5_PIN_PORT                     GPIOB
-#define PG_1V5_PIN                          GPIO_Pin_9
-
-#define PG_1V2_PIN_PERIPH_CLOCK             RCC_AHBPeriph_GPIOB
-#define PG_1V2_PIN_PORT                     GPIOB
-#define PG_1V2_PIN                          GPIO_Pin_10
-
-#define PG_VTT_PIN_PERIPH_CLOCK             RCC_AHBPeriph_GPIOB
-#define PG_VTT_PIN_PORT                     GPIOB
-#define PG_VTT_PIN                          GPIO_Pin_11
-
-#define USB30_OVC_PIN_PERIPH_CLOCK          RCC_AHBPeriph_GPIOB
-#define USB30_OVC_PIN_PORT                  GPIOB
-#define USB30_OVC_PIN                       GPIO_Pin_12
-
-#define USB31_OVC_PIN_PERIPH_CLOCK          RCC_AHBPeriph_GPIOB
-#define USB31_OVC_PIN_PORT                  GPIOB
-#define USB31_OVC_PIN                       GPIO_Pin_13
-
-#define RTC_ALARM_PIN_PERIPH_CLOCK          RCC_AHBPeriph_GPIOB
-#define RTC_ALARM_PIN_PORT                  GPIOB
-#define RTC_ALARM_PIN                       GPIO_Pin_14
-
-#define LED_BRT_PIN_PERIPH_CLOCK            RCC_AHBPeriph_GPIOB
-#define LED_BRT_PIN_PORT                    GPIOB
-#define LED_BRT_PIN                         GPIO_Pin_15
-
-/* Omnia v32 changes --------------------------------------- */
-#define PERST1_PIN_PERIPH_CLOCK             RCC_AHBPeriph_GPIOA
-#define PERST1_PIN_PORT                     GPIOA
-#define PERST1_PIN                          GPIO_Pin_10
-
-#define RES_MMC_PIN_PERIPH_CLOCK            RCC_AHBPeriph_GPIOB
-#define RES_MMC_PIN_PORT                    GPIOB
-#define RES_MMC_PIN                         GPIO_Pin_2
-
-#define RES_LAN_PERIPH_CLOCK                RCC_AHBPeriph_GPIOB
-#define RES_LAN_PIN_PORT                    GPIOB
-#define RES_LAN_PIN                         GPIO_Pin_3
-
-#define RES_PHY_PIN_PERIPH_CLOCK            RCC_AHBPeriph_GPIOB
-#define RES_PHY_PIN_PORT                    GPIOB
-#define RES_PHY_PIN                         GPIO_Pin_7
-
-#define VHV_CTRL_PIN_PERIPH_CLOCK           RCC_AHBPeriph_GPIOB
-#define VHV_CTRL_PIN_PORT                   GPIOB
-#define VHV_CTRL_PIN                        GPIO_Pin_14
-
-#define PHY_SFP_PIN_PERIPH_CLOCK            RCC_AHBPeriph_GPIOC
-#define PHY_SFP_PIN_PORT                    GPIOC
-#define PHY_SFP_PIN                         GPIO_Pin_3
-
-#define SFP_NDET_PIN_PERIPH_CLOCK           RCC_AHBPeriph_GPIOD
-#define SFP_NDET_PIN_PORT                   GPIOD
-#define SFP_NDET_PIN                        GPIO_Pin_2
-
-#define PERST2_PIN_PERIPH_CLOCK             RCC_AHBPeriph_GPIOF
-#define PERST2_PIN_PORT                     GPIOF
-#define PERST2_PIN                          GPIO_Pin_4
-
-#define PERST0_PIN_PERIPH_CLOCK             RCC_AHBPeriph_GPIOF
-#define PERST0_PIN_PORT                     GPIOF
-#define PERST0_PIN                          GPIO_Pin_5
+#define MANRES_PIN		PIN(B, 0)
+#define SYSRES_OUT_PIN		PIN(B, 1)
+#define DBGRES_PIN		(OMNIA_BOARD_REVISION < 32 ? PIN(B, 2) : PIN_INVALID)
+#define MRES_PIN		(OMNIA_BOARD_REVISION < 32 ? PIN(B, 3) : PIN_INVALID)
+#define PG_5V_PIN		PIN(B, 4)
+#define PG_3V3_PIN		PIN(B, 5)
+#define PG_1V35_PIN		PIN(B, 6)
+#define PG_4V5_PIN		PIN(B, 7)
+#define PG_1V8_PIN		PIN(B, 8)
+#define PG_1V5_PIN		PIN(B, 9)
+#define PG_1V2_PIN		PIN(B, 10)
+#define PG_VTT_PIN		PIN(B, 11)
+#define USB30_OVC_PIN		PIN(B, 12)
+#define USB31_OVC_PIN		PIN(B, 13)
+#define RTC_ALARM_PIN		(OMNIA_BOARD_REVISION < 32 ? PIN(B, 14) : PIN_INVALID)
+#define LED_BRT_PIN		PIN(B, 15)
+/* v32 specific inputs */
+#define SFP_NDET_PIN		PIN(D, 2)
 
 typedef enum voltages {
     VOLTAGE_33 = 1,
@@ -283,7 +170,7 @@ void power_control_usb_timeout_config(void);
   * @param      usb_port: USB3_PORT0 or USB3_PORT1.
   * @retval     1 - USB overcurrent ocurred; 0 - no USB overcurrent
   *****************************************************************************/
-uint8_t power_control_get_usb_overcurrent(usb_ports_t usb_port);
+bool power_control_get_usb_overcurrent(usb_ports_t usb_port);
 
 /*******************************************************************************
   * @function   power_control_get_usb_poweron
@@ -291,7 +178,7 @@ uint8_t power_control_get_usb_overcurrent(usb_ports_t usb_port);
   * @param      usb_port: USB3_PORT0 or USB3_PORT1.
   * @retval     1 - USB power ON; 0 - USB power OFF
   *****************************************************************************/
-uint8_t power_control_get_usb_poweron(usb_ports_t usb_port);
+bool power_control_get_usb_poweron(usb_ports_t usb_port);
 
 /*******************************************************************************
   * @function   power_control_set_startup_condition

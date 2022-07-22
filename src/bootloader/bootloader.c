@@ -16,6 +16,7 @@
 #include "boot_led_driver.h"
 #include "flash.h"
 #include "debounce.h"
+#include "gpio.h"
 
 typedef enum bootloader_states {
     POWER_ON,
@@ -44,9 +45,7 @@ typedef void (*pFunction)(void);
   *****************************************************************************/
 void bootloader_init(void)
 {
-    GPIO_InitTypeDef GPIO_InitStructure;
-
-     /* system initialization */
+    /* system initialization */
     SystemInit();
     SystemCoreClockUpdate(); /* set HSI and PLL */
 
@@ -66,17 +65,7 @@ void bootloader_init(void)
     led_driver_reset_effect(ENABLE);
     debug_serial_config();
 
-    /* pin settings for SYSRES_OUT signal */
-    RCC_AHBPeriphClockCmd(SYSRES_OUT_PIN_PERIPH_CLOCK, ENABLE);
-
-    GPIO_InitStructure.GPIO_Pin = SYSRES_OUT_PIN;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_2;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-    GPIO_Init(SYSRES_OUT_PIN_PORT, &GPIO_InitStructure);
-
-    GPIO_SetBits(SYSRES_OUT_PIN_PORT, SYSRES_OUT_PIN); /* dont control this ! */
+    gpio_init_outputs(pin_opendrain, pin_spd_2, 1, SYSRES_OUT_PIN); /* dont control this ! */
 
     DBG("Init\r\n");
 }
@@ -273,7 +262,7 @@ void bootloader(void)
 
         case RESET_MANAGER:
         {
-            system_reset = GPIO_ReadInputDataBit(SYSRES_OUT_PIN_PORT, SYSRES_OUT_PIN);
+            system_reset = gpio_read(SYSRES_OUT_PIN);
 
             if(system_reset == 0) /* reset is active in low level */
             {

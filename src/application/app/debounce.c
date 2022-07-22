@@ -171,7 +171,7 @@ void debounce_input_timer_handler(void)
 
     /* port B, pins 0-14 debounced by general function debounce_check_inputs() */
     /* only button on PB15 is debounced here, but read the whole port */
-    button->button_pin_state[idx] = ~(GPIO_ReadInputData(GPIOB));
+    button->button_pin_state[idx] = ~gpio_read_port(PORT_B);
     idx++;
 
     if (idx >= MAX_BUTTON_DEBOUNCE_STATE)
@@ -199,7 +199,8 @@ void debounce_check_inputs(void)
     /* PB0-14 ----------------------------------------------------------------
      * No debounce is used now (we need a reaction immediately) */
 
-    port_changed = ~(GPIO_ReadInputData(GPIOB)); /* read the whole port */
+    /* read the whole port */
+    port_changed = ~gpio_read_port(PORT_B);
 
     /* PB15 ------------------------------------------------------------------
      * button debounce */
@@ -218,7 +219,7 @@ void debounce_check_inputs(void)
     {
         input_state->man_res = ACTIVATED;
         /* set CFG_CTRL pin to high state ASAP */
-        GPIO_SetBits(CFG_CTRL_PIN_PORT, CFG_CTRL_PIN);
+        gpio_write(CFG_CTRL_PIN, 1);
     }
 
     if (port_changed & SYSRES_OUT_MASK)
@@ -233,14 +234,7 @@ void debounce_check_inputs(void)
         }
 
         /* reaction: follow MRES signal */
-        if (port_changed & MRES_MASK)
-        {
-            GPIO_ResetBits(RES_RAM_PIN_PORT, RES_RAM_PIN);
-        }
-        else
-        {
-            GPIO_SetBits(RES_RAM_PIN_PORT, RES_RAM_PIN);
-        }
+        gpio_write(RES_RAM_PIN, !(port_changed & MRES_MASK));
     }
 
     if ((port_changed & PG_5V_MASK) || (port_changed & PG_3V3_MASK) ||

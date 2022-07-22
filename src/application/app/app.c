@@ -20,8 +20,8 @@
 #include "eeprom.h"
 
 #define MAX_ERROR_COUNT            5
-#define SET_INTERRUPT_TO_CPU       GPIO_ResetBits(INT_MCU_PIN_PORT, INT_MCU_PIN)
-#define RESET_INTERRUPT_TO_CPU     GPIO_SetBits(INT_MCU_PIN_PORT, INT_MCU_PIN)
+#define SET_INTERRUPT_TO_CPU       gpio_write(INT_MCU_PIN, 0)
+#define RESET_INTERRUPT_TO_CPU     gpio_write(INT_MCU_PIN, 1)
 
 extern void start_bootloader(void);
 
@@ -98,7 +98,7 @@ static uint16_t app_get_status_word(void)
     status_word |= STS_FEATURES_SUPPORTED;
 
     #if USER_REGULATOR_ENABLED
-        if(GPIO_ReadOutputDataBit(ENABLE_4V5_PIN_PORT, ENABLE_4V5_PIN))
+        if(gpio_read_output(ENABLE_4V5_PIN))
             status_word |= STS_ENABLE_4V5;
     #else
         status_word |= STS_USER_REGULATOR_NOT_SUPPORTED;
@@ -136,7 +136,7 @@ static uint32_t app_get_ext_status_dword(void)
     uint32_t ext_status_dword = 0;
 
     if (OMNIA_BOARD_REVISION >= 32) {
-        if (GPIO_ReadInputDataBit(SFP_NDET_PIN_PORT, SFP_NDET_PIN))
+        if (gpio_read(SFP_NDET_PIN))
             ext_status_dword |= EXT_STS_SFP_NDET;
     }
 
@@ -341,15 +341,15 @@ static ret_value_t input_manager(void)
 
 
     if (OMNIA_BOARD_REVISION >= 32) {
-        if(GPIO_ReadInputDataBit(SFP_NDET_PIN_PORT, SFP_NDET_PIN))
+        if (gpio_read(SFP_NDET_PIN))
             i2c_control->ext_status_dword |= EXT_STS_SFP_NDET;
         else
             i2c_control->ext_status_dword &= (~(EXT_STS_SFP_NDET));
 
         __disable_irq();
         if (i2c_control->ext_control_word & EXT_CTL_PHY_SFP_AUTO)
-            GPIO_WriteBit(PHY_SFP_PIN_PORT, PHY_SFP_PIN,
-                          !!(i2c_control->ext_status_dword & EXT_STS_SFP_NDET));
+            gpio_write(PHY_SFP_PIN,
+                       !!(i2c_control->ext_status_dword & EXT_STS_SFP_NDET));
         __enable_irq();
     }
 
