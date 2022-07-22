@@ -17,23 +17,20 @@
 #include "flash.h"
 #include "boot_i2c.h"
 #include "bootloader.h"
+#include "gpio.h"
 #include <string.h>
 
 
 __attribute__((section(".boot_version"))) uint8_t version[20] = VERSION;
 
-#define I2C_SDA_SOURCE                  GPIO_PinSource7
-#define I2C_SCL_SOURCE                  GPIO_PinSource6
+#define I2C_PINS_ALT_FN		1
+#define I2C_SCL_PIN		PIN(F, 6)
+#define I2C_SDA_PIN		PIN(F, 7)
 
-#define I2C_ALTERNATE_FUNCTION          GPIO_AF_1
 #define I2C_TIMING                      0x10800000 /* 100kHz for 48MHz system clock */
 
-#define I2C_GPIO_CLOCK                  RCC_AHBPeriph_GPIOF
 #define I2C_PERIPH_NAME                 I2C2
 #define I2C_PERIPH_CLOCK                RCC_APB1Periph_I2C2
-#define I2C_DATA_PIN                    GPIO_Pin_7 /* I2C2_SDA - GPIOF */
-#define I2C_CLK_PIN                     GPIO_Pin_6 /* I2C2_SCL - GPIOF */
-#define I2C_GPIO_PORT                   GPIOF
 
 #define I2C_SLAVE_ADDRESS               0x58  /* address in linux: 0x2C */
 
@@ -59,33 +56,14 @@ static uint8_t flash_erase_sts; /* indicates start of flashing */
   *****************************************************************************/
 static void boot_i2c_io_config(void)
 {
-    GPIO_InitTypeDef  GPIO_InitStructure;
-
     /* I2C Peripheral Disable */
     RCC_APB1PeriphClockCmd(I2C_PERIPH_CLOCK, DISABLE);
 
     /* I2C Periph clock enable */
     RCC_APB1PeriphClockCmd(I2C_PERIPH_CLOCK, ENABLE);
 
-    RCC_AHBPeriphClockCmd(I2C_GPIO_CLOCK, ENABLE);
-
-    /* Connect PXx to I2C_SCL */
-    GPIO_PinAFConfig(I2C_GPIO_PORT, I2C_SCL_SOURCE, I2C_ALTERNATE_FUNCTION);
-
-    /* Connect PXx to I2C_SDA */
-    GPIO_PinAFConfig(I2C_GPIO_PORT, I2C_SDA_SOURCE, I2C_ALTERNATE_FUNCTION);
-
-    /* Configure I2C pins: SCL */
-    GPIO_InitStructure.GPIO_Pin = I2C_CLK_PIN;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
-    GPIO_Init(I2C_GPIO_PORT, &GPIO_InitStructure);
-
-    /* Configure I2C pins: SDA */
-    GPIO_InitStructure.GPIO_Pin = I2C_DATA_PIN;
-    GPIO_Init(I2C_GPIO_PORT, &GPIO_InitStructure);
+    gpio_init_alts(I2C_PINS_ALT_FN, pin_opendrain, pin_spd_1, pin_nopull,
+                   I2C_SCL_PIN, I2C_SDA_PIN);
 }
 
 /*******************************************************************************
