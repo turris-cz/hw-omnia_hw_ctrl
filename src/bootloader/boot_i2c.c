@@ -10,7 +10,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_conf.h"
 #include "debug_serial.h"
-#include "boot_led_driver.h"
+#include "led_driver.h"
 #include "power_control.h"
 #include "delay.h"
 #include "eeprom.h"

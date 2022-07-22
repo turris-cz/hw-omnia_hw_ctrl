@@ -13,7 +13,7 @@
 #include "eeprom.h"
 #include "debug_serial.h"
 #include "bootloader.h"
-#include "boot_led_driver.h"
+#include "led_driver.h"
 #include "flash.h"
 #include "debounce.h"
 #include "gpio.h"
