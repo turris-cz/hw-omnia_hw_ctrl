@@ -245,9 +245,13 @@ app: $(APP_NAME).hex $(APP_NAME).bin $(APP_NAME).dis app_buildsize
 boot: $(BOOT_NAME).hex $(BOOT_NAME).bin $(BOOT_NAME).dis boot_buildsize
 	$(DEBUG_INFO_PRINT)
 
+$(APP_NAME).elf: CFLAGS += -DBOOTLOADER_BUILD=0
+
 $(APP_NAME).elf: $(OBJS)
 	@echo "[Linking    ]  $@"
 	@$(CC) $(CFLAGS) $(LFLAGS) $(INCLUDE) $^ -o $@
+
+$(BOOT_NAME).elf: CFLAGS += -DBOOTLOADER_BUILD=1
 
 $(BOOT_NAME).elf: $(BOOT_OBJS)
 	@echo "[Linking    ]  $@"
