@@ -10,7 +10,6 @@
 #ifndef POWER_CONTROL_H
 #define POWER_CONTROL_H
 
-#include "stm32f0xx_tim.h"
 #include "gpio.h"
 
 /* Outputs */
