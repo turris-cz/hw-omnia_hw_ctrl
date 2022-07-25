@@ -10,7 +10,6 @@
 #ifndef __DEBOUNCE_H
 #define __DEBOUNCE_H
 
-#define DEBOUNCE_TIMER                  TIM16
 #define MAX_BUTTON_PRESSED_COUNTER      7
 #define MAX_BUTTON_DEBOUNCE_STATE       3
 

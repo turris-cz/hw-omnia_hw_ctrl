@@ -22,12 +22,13 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx.h"
-#include "led_driver.h"
 #include "stm32f0xx_conf.h"
+#include "led_driver.h"
 #include "debounce.h"
 #include "delay.h"
 #include "power_control.h"
 #include "debug_serial.h"
+#include "timer.h"
 
 #include "boot_i2c.h"
 
@@ -151,10 +152,7 @@ void SysTick_Handler(void)
   */
 void TIM16_IRQHandler(void)
 {
-    if (TIM_GetITStatus(DEBOUNCE_TIMER, TIM_IT_Update) != RESET)
-    {
-        TIM_ClearITPendingBit(DEBOUNCE_TIMER, TIM_IT_Update);
-    }
+    timer_irq_clear(DEBOUNCE_TIMER);
 }
 
 /**
@@ -164,13 +162,9 @@ void TIM16_IRQHandler(void)
   */
 void TIM3_IRQHandler(void)
 {
-    if (TIM_GetITStatus(LED_TIMER, TIM_IT_Update) != RESET)
-    {
-        led_driver_send_frame();
-        TIM_ClearITPendingBit(LED_TIMER, TIM_IT_Update);
-    }
+    led_driver_send_frame();
+    timer_irq_clear(LED_TIMER);
 }
-
 
 /**
   * @brief  This function handles TIM17 global interrupt request.
@@ -179,8 +173,7 @@ void TIM3_IRQHandler(void)
   */
 void TIM17_IRQHandler(void)
 {
-    if (TIM_GetITStatus(USB_TIMEOUT_TIMER, TIM_IT_Update) != RESET)
-        TIM_ClearITPendingBit(USB_TIMEOUT_TIMER, TIM_IT_Update);
+    timer_irq_clear(USB_TIMEOUT_TIMER);
 }
 
 /**
@@ -193,51 +186,15 @@ void I2C2_IRQHandler(void)
     boot_i2c_handler();
 }
 
-#define LED_BLINK_TIMEOUT   8
 /**
-  * @brief  This function handles TIM3 global interrupt request.
+  * @brief  This function handles TIM6 global interrupt request.
   * @param  None
   * @retval None
   */
 void TIM6_IRQHandler(void)
 {
-    static uint8_t led_blink;
-    static uint8_t timeout;
-
-    if (TIM_GetITStatus(LED_EFFECT_TIMER, TIM_IT_Update) != RESET)
-    {
-        timeout++;
-
-        if (timeout >= LED_BLINK_TIMEOUT)
-        {
-            timeout = 0;
-
-            switch(led_blink)
-            {
-                case 0:
-                {
-                    led_driver_set_led_state(LED_COUNT, LED_ON);
-                    led_blink++;
-                } break;
-
-                case 1:
-                {
-                    led_driver_set_led_state(LED_COUNT, LED_OFF);
-                    led_blink = 0;
-                }break;
-            }
-        }
-
-        TIM_ClearITPendingBit(LED_EFFECT_TIMER, TIM_IT_Update);
-    }
+    led_driver_bootloader_effect_handler();
+    timer_irq_clear(LED_EFFECT_TIMER);
 }
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
 
 /******************* (C) COPYRIGHT 2010 STMicroelectronics *****END OF FILE****/

@@ -12,10 +12,7 @@
 #ifndef __LED_DRIVER_H
 #define __LED_DRIVER_H
 
-#define LED_TIMER                 TIM3
-#define LED_EFFECT_TIMER          TIM6
-
-#define LED_COUNT                 12
+#define LED_COUNT		12
 
 enum colours {
     WHITE_COLOUR        = 0xFFFFFF,
@@ -193,6 +190,14 @@ void led_driver_double_knight_rider_effect(void);
   * @retval     None.
   *****************************************************************************/
 void led_driver_knight_rider_effect_handler(void);
+
+/*******************************************************************************
+  * @function   led_driver_bootloader_effect_handler
+  * @brief      Display bootloader effect.
+  * @param      None.
+  * @retval     None.
+  *****************************************************************************/
+void led_driver_bootloader_effect_handler(void);
 
 /*******************************************************************************
   * @function   led_driver_reset_effect

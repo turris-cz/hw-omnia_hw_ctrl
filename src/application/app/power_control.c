@@ -14,6 +14,7 @@
 #include "led_driver.h"
 #include "slave_i2c_device.h"
 #include "debug_serial.h"
+#include "timer.h"
 
 #if !defined(OMNIA_BOARD_REVISION)
 #error build system did not define OMNIA_BOARD_REVISION macro
@@ -475,30 +476,7 @@ bool power_control_get_usb_poweron(usb_ports_t usb_port)
   *****************************************************************************/
 void power_control_usb_timeout_config(void)
 {
-    TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-    NVIC_InitTypeDef NVIC_InitStructure;
-
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM17, DISABLE);
-    TIM_DeInit(USB_TIMEOUT_TIMER);
-
-    /* Clock enable */
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM17, ENABLE);
-
-    /* Time base configuration - 1sec interrupt */
-    TIM_TimeBaseStructure.TIM_Period = 8000 - 1;
-    TIM_TimeBaseStructure.TIM_Prescaler = 6000 - 1;
-    TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-    TIM_TimeBaseInit(USB_TIMEOUT_TIMER, &TIM_TimeBaseStructure);
-
-    TIM_ARRPreloadConfig(USB_TIMEOUT_TIMER, ENABLE);
-    /* TIM Interrupts enable */
-    TIM_ITConfig(USB_TIMEOUT_TIMER, TIM_IT_Update, ENABLE);
-
-    NVIC_InitStructure.NVIC_IRQChannel = TIM17_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPriority = 0x05;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
+    timer_init(USB_TIMEOUT_TIMER, timer_interrupt, 8000, 6000, 5);
 }
 
 /*******************************************************************************
@@ -509,8 +487,7 @@ void power_control_usb_timeout_config(void)
   *****************************************************************************/
 void power_control_usb_timeout_enable(void)
 {
-    /* TIM enable counter */
-    TIM_Cmd(USB_TIMEOUT_TIMER, ENABLE);
+    timer_enable(USB_TIMEOUT_TIMER, 1);
 }
 
 /*******************************************************************************
@@ -522,8 +499,26 @@ void power_control_usb_timeout_enable(void)
 void power_control_usb_timeout_disable(void)
 {
     /* disable timer and set initial condition */
-    TIM_Cmd(USB_TIMEOUT_TIMER, DISABLE);
-    USB_TIMEOUT_TIMER->CNT = 0;
+    timer_enable(USB_TIMEOUT_TIMER, 0);
+    timer_set_counter(USB_TIMEOUT_TIMER, 0);
+}
+
+/*******************************************************************************
+  * @function   power_control_usb_timeout_handler
+  * @brief      Handle USB timeout.
+  * @param      None.
+  * @retval     None.
+  *****************************************************************************/
+void power_control_usb_timeout_handler(void)
+{
+    struct st_i2c_status *i2c_control = &i2c_status;
+
+    power_control_usb(USB3_PORT0, USB_ON);
+    power_control_usb(USB3_PORT1, USB_ON);
+
+    i2c_control->status_word |= STS_USB30_PWRON | STS_USB31_PWRON;
+
+    power_control_usb_timeout_disable();
 }
 
 /*******************************************************************************

@@ -17,6 +17,7 @@
 #include "msata_pci.h"
 #include "debug_serial.h"
 #include "slave_i2c_device.h"
+#include "timer.h"
 
 enum input_mask {
     MAN_RES_MASK                    = 0x0001,
@@ -44,8 +45,8 @@ enum input_mask {
 struct input_sig debounce_input_signal;
 struct button_def button_front;
 
-#define  DEBOUNCE_TIM_PERIODE       (300 - 1)//300 -> 5ms; 600 -> 10ms
-#define  DEBOUNCE_TIM_PRESCALER     (800 - 1)
+#define DEBOUNCE_PERIOD		300
+#define DEBOUNCE_PRESC		800
 
 /*******************************************************************************
   * @function   debounce_timer_config
@@ -55,33 +56,9 @@ struct button_def button_front;
   *****************************************************************************/
 static void debounce_timer_config(void)
 {
-    TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-    NVIC_InitTypeDef NVIC_InitStructure;
-
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM16, DISABLE);
-    TIM_DeInit(DEBOUNCE_TIMER);
-
-    /* Clock enable */
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM16, ENABLE);
-
-    /* Time base configuration */
-    TIM_TimeBaseStructure.TIM_Period = DEBOUNCE_TIM_PERIODE;
-    TIM_TimeBaseStructure.TIM_Prescaler = DEBOUNCE_TIM_PRESCALER;
-    TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-    TIM_TimeBaseInit(DEBOUNCE_TIMER, &TIM_TimeBaseStructure);
-
-    TIM_ARRPreloadConfig(DEBOUNCE_TIMER, ENABLE);
-    /* TIM Interrupts enable */
-    TIM_ITConfig(DEBOUNCE_TIMER, TIM_IT_Update, ENABLE);
-
-    /* TIM enable counter */
-    TIM_Cmd(DEBOUNCE_TIMER, ENABLE);
-
-    NVIC_InitStructure.NVIC_IRQChannel = TIM16_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPriority = 0x03;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
+    timer_init(DEBOUNCE_TIMER, timer_interrupt,
+               DEBOUNCE_PERIOD, DEBOUNCE_PRESC, 3);
+    timer_enable(DEBOUNCE_TIMER, 1);
 }
 
 /*******************************************************************************

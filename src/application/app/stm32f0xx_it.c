@@ -31,6 +31,7 @@
 #include "slave_i2c_device.h"
 #include "power_control.h"
 #include "debug_serial.h"
+#include "timer.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -152,11 +153,8 @@ void SysTick_Handler(void)
   */
 void TIM16_IRQHandler(void)
 {
-    if (TIM_GetITStatus(DEBOUNCE_TIMER, TIM_IT_Update) != RESET)
-    {
-        debounce_input_timer_handler();
-        TIM_ClearITPendingBit(DEBOUNCE_TIMER, TIM_IT_Update);
-    }
+    debounce_input_timer_handler();
+    timer_irq_clear(DEBOUNCE_TIMER);
 }
 
 /**
@@ -166,13 +164,9 @@ void TIM16_IRQHandler(void)
   */
 void TIM3_IRQHandler(void)
 {
-    if (TIM_GetITStatus(LED_TIMER, TIM_IT_Update) != RESET)
-    {
-        led_driver_send_frame();
-        TIM_ClearITPendingBit(LED_TIMER, TIM_IT_Update);
-    }
+    led_driver_send_frame();
+    timer_irq_clear(LED_TIMER);
 }
-
 
 /**
   * @brief  This function handles TIM17 global interrupt request.
@@ -181,19 +175,8 @@ void TIM3_IRQHandler(void)
   */
 void TIM17_IRQHandler(void)
 {
-    struct st_i2c_status *i2c_control = &i2c_status;
-
-    if (TIM_GetITStatus(USB_TIMEOUT_TIMER, TIM_IT_Update) != RESET)
-    {
-        power_control_usb(USB3_PORT0, USB_ON);
-        power_control_usb(USB3_PORT1, USB_ON);
-
-        i2c_control->status_word |= STS_USB30_PWRON | STS_USB31_PWRON;
-
-        power_control_usb_timeout_disable();
-
-        TIM_ClearITPendingBit(USB_TIMEOUT_TIMER, TIM_IT_Update);
-    }
+    power_control_usb_timeout_handler();
+    timer_irq_clear(USB_TIMEOUT_TIMER);
 }
 
 /**
@@ -207,25 +190,14 @@ void I2C2_IRQHandler(void)
 }
 
 /**
-  * @brief  This function handles TIM3 global interrupt request.
+  * @brief  This function handles TIM6 global interrupt request.
   * @param  None
   * @retval None
   */
 void TIM6_IRQHandler(void)
 {
-    if (TIM_GetITStatus(LED_EFFECT_TIMER, TIM_IT_Update) != RESET)
-    {
-        led_driver_knight_rider_effect_handler();
-        TIM_ClearITPendingBit(LED_EFFECT_TIMER, TIM_IT_Update);
-    }
+    led_driver_knight_rider_effect_handler();
+    timer_irq_clear(LED_EFFECT_TIMER);
 }
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
 
 /******************* (C) COPYRIGHT 2010 STMicroelectronics *****END OF FILE****/

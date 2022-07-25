@@ -13,8 +13,6 @@
 #include "stm32f0xx_tim.h"
 #include "gpio.h"
 
-#define USB_TIMEOUT_TIMER	TIM17
-
 /* Outputs */
 #define INT_MCU_PIN		PIN(C, 0)
 #define RES_RAM_PIN		(OMNIA_BOARD_REVISION < 32 ? PIN(C, 3) : PIN_INVALID)
@@ -227,6 +225,14 @@ void power_control_usb_timeout_enable(void);
   * @retval     None.
   *****************************************************************************/
 void power_control_usb_timeout_disable(void);
+
+/*******************************************************************************
+  * @function   power_control_usb_timeout_handler
+  * @brief      Handle USB timeout.
+  * @param      None.
+  * @retval     None.
+  *****************************************************************************/
+void power_control_usb_timeout_handler(void);
 
 /*******************************************************************************
   * @function   power_control_set_voltage

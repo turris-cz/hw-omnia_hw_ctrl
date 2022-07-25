@@ -17,6 +17,7 @@
 #include "flash.h"
 #include "debounce.h"
 #include "gpio.h"
+#include "timer.h"
 
 typedef enum bootloader_states {
     POWER_ON,
@@ -57,8 +58,8 @@ void bootloader_init(void)
     FLASH_Unlock(); /* Unlock the Flash Program Erase controller */
     EE_Init(); /* EEPROM Init */
     flash_config();
-    TIM_DeInit(DEBOUNCE_TIMER);
-    TIM_DeInit(USB_TIMEOUT_TIMER);
+    timer_deinit(DEBOUNCE_TIMER);
+    timer_deinit(USB_TIMEOUT_TIMER);
     __enable_irq();
 
     led_driver_set_colour(LED_COUNT, GREEN_COLOUR);
