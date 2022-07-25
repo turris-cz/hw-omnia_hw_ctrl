@@ -108,7 +108,6 @@ APP_ROOT_DIR	= $(PROJ_ROOT_DIR)/application
 
 
 STM_ROOT_LIB    = $(APP_ROOT_DIR)/stm_lib/stm32f0xx_stdperiph_driver
-APP_SRC_DIR		= $(APP_ROOT_DIR)/app
 STM_SRC_DIR     = $(STM_ROOT_LIB)/src
 STM_CMSIS_DIR 	= $(APP_ROOT_DIR)/stm_lib/cmsis_boot
 STM_STARTUP_DIR = $(STM_CMSIS_DIR)/startup
@@ -116,7 +115,6 @@ STM_STARTUP_DIR = $(STM_CMSIS_DIR)/startup
 LINKER_DIR = $(APP_ROOT_DIR)/linker
 
 vpath %.c $(APP_ROOT_DIR)
-vpath %.c $(APP_SRC_DIR)
 vpath %.c $(STM_SRC_DIR)
 vpath %.c $(STM_CMSIS_DIR)
 vpath %.s $(STM_STARTUP_DIR)
@@ -128,7 +126,7 @@ vpath %.s $(STM_STARTUP_DIR)
 # The header files we use are located here
 INC_DIRS += $(STM_ROOT_LIB)/inc
 INC_DIRS += $(STM_CMSIS_DIR)
-INC_DIRS += $(APP_SRC_DIR)
+INC_DIRS += $(APP_ROOT_DIR)
 INC_DIRS += $(APP_ROOT_DIR)/stm_lib/cmsis_core
 
 ################################################################################
@@ -288,7 +286,7 @@ cleanboot:
 #********************************
 # generating of the dependencies
 dep:	
-	$(CC) $(DEFS) $(CFLAGS) $(INCLUDE) -MM $(APP_ROOT_DIR)/*.c $(APP_SRC_DIR)/*.c > dep.list
+	$(CC) $(DEFS) $(CFLAGS) $(INCLUDE) -MM $(APP_ROOT_DIR)/*.c > dep.list
 
 ## insert generated dependencies
 -include dep.list 
