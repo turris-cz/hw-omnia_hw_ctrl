@@ -13,11 +13,10 @@
 #include "delay.h"
 #include "power_control.h"
 #include "gpio.h"
+#include "spi.h"
 #include "timer.h"
 
 /* Private define ------------------------------------------------------------*/
-#define LED_SPI                     SPI1
-
 #define LED_SPI_ALT_FN		0
 #define LED_SPI_MOSI_PIN	PIN(A, 7)
 #define LED_SPI_SCK_PIN		PIN(A, 5)
@@ -79,26 +78,7 @@ static void led_driver_timer_config_knight_rider(void);
   *****************************************************************************/
 static void led_driver_spi_config(void)
 {
-    SPI_InitTypeDef  SPI_InitStructure;
-
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, DISABLE);
-    SPI_I2S_DeInit(LED_SPI);
-
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
-
-    SPI_I2S_DeInit(LED_SPI);
-    SPI_InitStructure.SPI_Direction = SPI_Direction_1Line_Tx;
-    SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
-    SPI_InitStructure.SPI_DataSize = SPI_DataSize_16b;
-    SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
-    SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
-    SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
-    SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2;
-    SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-    SPI_Init(LED_SPI, &SPI_InitStructure);
-
-    /* Enable the SPI peripheral */
-    SPI_Cmd(LED_SPI, ENABLE);
+    spi_init(LED_SPI);
 }
 
 /*******************************************************************************
@@ -168,9 +148,8 @@ void led_driver_set_colour(const uint8_t led_index, const uint32_t colour)
   *****************************************************************************/
 static void led_driver_send_data16b(const uint16_t data)
 {
-    SPI_I2S_SendData16(LED_SPI, data);
-    /* wait for flag */
-    while(SPI_I2S_GetFlagStatus(LED_SPI, SPI_I2S_FLAG_BSY));
+    spi_send16(LED_SPI, data);
+    while (spi_is_busy(LED_SPI));
 }
 
 /*******************************************************************************
