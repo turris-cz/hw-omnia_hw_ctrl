@@ -12,7 +12,7 @@
 
 #include "gpio.h"
 
-#define CARD_DET_PIN		(DBG_ENABLE ? PIN_INVALID : PIN(A, 9))
+#define CARD_DET_PIN		PIN(A, 9, !DBG_ENABLE)
 #define MSATALED_PIN		PIN(A, 15)
 #define MSATAIND_PIN		PIN(C, 14)
 

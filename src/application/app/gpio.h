@@ -43,7 +43,10 @@ typedef uint8_t gpio_t;
 
 static const uint8_t PIN_INVALID = 0xff;
 
-#define PIN(_port, _pin)	((gpio_t)((PORT_ ## _port) << 4) | ((_pin) & 0xf))
+#define _PIN(_port, _pin)		((gpio_t)((PORT_ ## _port) << 4) | ((_pin) & 0xf))
+#define _PIN_3(_port, _pin, _cond)	((_cond) ? _PIN(_port, _pin) : PIN_INVALID)
+#define _PIN_2(_port, _pin)		_PIN(_port, _pin)
+#define PIN(...)			VARIADIC(_PIN_, __VA_ARGS__)
 
 static __force_inline port_t pin_port(gpio_t pin)
 {
