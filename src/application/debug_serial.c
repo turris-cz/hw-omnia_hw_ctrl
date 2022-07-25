@@ -11,8 +11,7 @@
 #include "stm32f0xx_conf.h"
 #include "debug_serial.h"
 #include "gpio.h"
-
-#define SERIAL_PORT      USART1
+#include "usart.h"
 
 #define USART_PINS_ALT_FN	1
 #define USART_PIN_TX		PIN(A, 9)
@@ -31,25 +30,10 @@
 void debug_serial_config(void)
 {
 #if DBG_ENABLE
-    USART_InitTypeDef USART_InitStructure;
-
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, DISABLE);
-    USART_DeInit(SERIAL_PORT);
-
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
-
     gpio_init_alts(USART_PINS_ALT_FN, pin_pushpull, pin_spd_3, pin_pullup,
                    USART_PIN_RX, USART_PIN_TX);
 
-    USART_InitStructure.USART_BaudRate = DBG_BAUDRATE;
-    USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-    USART_InitStructure.USART_StopBits = USART_StopBits_1;
-    USART_InitStructure.USART_Parity = USART_Parity_No;
-    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-    USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-    USART_Init(SERIAL_PORT, &USART_InitStructure);
-
-    USART_Cmd(SERIAL_PORT, ENABLE);
+    usart_init(DEBUG_USART, DBG_BAUDRATE);
 #endif
 }
 
@@ -62,15 +46,10 @@ void debug_serial_config(void)
   *****************************************************************************/
 static void debug_send_data(const char *buffer, uint16_t count)
 {
-    while(count--)
-    {
-        /* Loop until the end of transmission */
-        while(USART_GetFlagStatus(SERIAL_PORT, USART_FLAG_TXE) == RESET)
-            ;
-        USART_SendData(SERIAL_PORT, *buffer++);
-    }
-    while(USART_GetFlagStatus(SERIAL_PORT, USART_FLAG_TC) == RESET)
-        ;
+    while (count--)
+        usart_tx(DEBUG_USART, *buffer++);
+
+    while (!usart_is_tx_complete(DEBUG_USART));
 }
 
 /*******************************************************************************
