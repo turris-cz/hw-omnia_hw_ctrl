@@ -50,7 +50,6 @@ static inline void spi_init(spi_nr_t spi_nr)
 	SPI_I2S_DeInit(spi);
 	spi_rcc_config(spi_nr, 1);
 
-	SPI_I2S_DeInit(spi);
 	SPI_Init(spi, &init);
 	SPI_Cmd(spi, ENABLE);
 }
