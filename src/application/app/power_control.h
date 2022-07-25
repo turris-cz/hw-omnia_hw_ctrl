@@ -29,14 +29,14 @@
 #define CFG_CTRL_PIN		PIN(C, 15)
 #define PRG_4V5_PIN		PIN(F, 1, USER_REGULATOR_ENABLED)
 /* v32 specific outputs */
-#define PERST1_PIN		PIN(A, 10, !DBG_ENABLE)
-#define RES_MMC_PIN		PIN(B, 2)
-#define RES_LAN_PIN		PIN(B, 3)
-#define RES_PHY_PIN		PIN(B, 7)
-#define VHV_CTRL_PIN		PIN(B, 14)
-#define PHY_SFP_PIN		PIN(C, 3)
-#define PERST2_PIN		PIN(F, 4)
-#define PERST0_PIN		PIN(F, 5)
+#define PERST1_PIN		PIN(A, 10, OMNIA_BOARD_REVISION >= 32 && !DBG_ENABLE)
+#define RES_MMC_PIN		PIN(B, 2, OMNIA_BOARD_REVISION >= 32)
+#define RES_LAN_PIN		PIN(B, 3, OMNIA_BOARD_REVISION >= 32)
+#define RES_PHY_PIN		PIN(B, 7, OMNIA_BOARD_REVISION >= 32)
+#define VHV_CTRL_PIN		PIN(B, 14, OMNIA_BOARD_REVISION >= 32)
+#define PHY_SFP_PIN		PIN(C, 3, OMNIA_BOARD_REVISION >= 32)
+#define PERST2_PIN		PIN(F, 4, OMNIA_BOARD_REVISION >= 32)
+#define PERST0_PIN		PIN(F, 5, OMNIA_BOARD_REVISION >= 32)
 
 /* Inputs */
 #define MANRES_PIN		PIN(B, 0)
@@ -56,7 +56,7 @@
 #define RTC_ALARM_PIN		PIN(B, 14, OMNIA_BOARD_REVISION < 32)
 #define LED_BRT_PIN		PIN(B, 15)
 /* v32 specific inputs */
-#define SFP_NDET_PIN		PIN(D, 2)
+#define SFP_NDET_PIN		PIN(D, 2, OMNIA_BOARD_REVISION >= 32)
 
 typedef enum voltages {
     VOLTAGE_33 = 1,
