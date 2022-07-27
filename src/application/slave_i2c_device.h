@@ -13,9 +13,6 @@
 
 #include "bits.h"
 
-#define MAX_RX_BUFFER_SIZE                 10
-#define MAX_TX_BUFFER_SIZE                 20
-
 typedef enum slave_i2c_states {
     SLAVE_I2C_OK,
     SLAVE_I2C_LIGHT_RST,
@@ -30,11 +27,6 @@ struct st_i2c_status {
     uint32_t ext_status_dword;
     uint8_t reset_type;
     slave_i2c_states_t state;             // reported in main state machine
-    uint8_t rx_data_ctr;                  // RX data counter
-    uint8_t tx_data_ctr;                  // TX data counter
-    uint8_t rx_buf[MAX_RX_BUFFER_SIZE];   // RX buffer
-    uint8_t tx_buf[MAX_TX_BUFFER_SIZE];   // TX buffer
-    uint8_t data_tx_complete         : 1; // stop flag detected - all data sent
 };
 
 extern struct st_i2c_status i2c_status;
@@ -311,14 +303,6 @@ enum ext_ctl_e {
   * @retval     None.
   *****************************************************************************/
 void slave_i2c_config(void);
-
-/*******************************************************************************
-  * @function   slave_i2c_handler
-  * @brief      Interrupt handler for I2C communication.
-  * @param      None.
-  * @retval     None.
-  *****************************************************************************/
-void slave_i2c_handler(void);
 
 #endif /* SLAVE_I2C_DEVICE_H */
 

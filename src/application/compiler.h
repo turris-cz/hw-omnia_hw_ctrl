@@ -22,6 +22,7 @@
 	      ++(__m))
 
 #define unreachable() __builtin_unreachable()
+#define fallthrough __attribute__((__fallthrough__))
 
 #define __force_inline inline __attribute__((__always_inline__))
 
