@@ -197,6 +197,7 @@ BOOTSRCS  += power_control.c
 BOOTSRCS  += debug_serial.c
 BOOTSRCS  += eeprom.c
 BOOTSRCS  += bootloader.c
+BOOTSRCS  += i2c_slave.c
 
 BOOTSRCS  += stm32f0xx_rcc.c
 BOOTSRCS  += stm32f0xx_gpio.c

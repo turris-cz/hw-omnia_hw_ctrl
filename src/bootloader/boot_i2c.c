@@ -15,11 +15,11 @@
 #include "delay.h"
 #include "eeprom.h"
 #include "flash.h"
+#include "i2c_slave.h"
 #include "boot_i2c.h"
 #include "bootloader.h"
 #include "gpio.h"
 #include <string.h>
-
 
 __attribute__((section(".boot_version"))) uint8_t version[20] = VERSION;
 
@@ -27,85 +27,117 @@ __attribute__((section(".boot_version"))) uint8_t version[20] = VERSION;
 #define I2C_SCL_PIN		PIN(F, 6)
 #define I2C_SDA_PIN		PIN(F, 7)
 
-#define I2C_TIMING                      0x10800000 /* 100kHz for 48MHz system clock */
+#define PKT_SIZE		128
 
-#define I2C_PERIPH_NAME                 I2C2
-#define I2C_PERIPH_CLOCK                RCC_APB1Periph_I2C2
+#define I2C_SLAVE_ADDRESS	0x2c
 
-#define I2C_SLAVE_ADDRESS               0x58  /* address in linux: 0x2C */
+#define FILE_CMP_OK		0xBB
+#define FILE_CMP_ERROR		0xDD
+#define ADDR_CMP		0xFFFF
 
-#define LOW_ADDR_BYTE_IDX               1
-#define HIGH_ADDR_BYTE_IDX              0
-#define DATA_START_BYTE_IDX             2
+typedef struct {
+	uint8_t cmd[2 + PKT_SIZE];
+	uint8_t cmd_len;
+	uint8_t tx_idx;
+	uint16_t tx_addr;
+	bool flash_erased;
+	bool rx_complete;
+	bool receiving;
+	bool cmd_valid;
+} boot_i2c_state_t;
 
-#define FILE_CMP_OK                     0xBB
-#define FILE_CMP_ERROR                  0xDD
-#define ADDR_CMP                        0xFFFF
-
-#define ONE_BYTE_EXPECTED               1
-
-struct st_i2c_status i2c_status;
-
-static uint8_t flash_erase_sts; /* indicates start of flashing */
-
-/*******************************************************************************
-  * @function   boot_i2c_config
-  * @brief      Configuration of pins for I2C.
-  * @param      None.
-  * @retval     None.
-  *****************************************************************************/
-static void boot_i2c_io_config(void)
+static uint16_t get_addr(const boot_i2c_state_t *state)
 {
-    /* I2C Peripheral Disable */
-    RCC_APB1PeriphClockCmd(I2C_PERIPH_CLOCK, DISABLE);
-
-    /* I2C Periph clock enable */
-    RCC_APB1PeriphClockCmd(I2C_PERIPH_CLOCK, ENABLE);
-
-    gpio_init_alts(I2C_PINS_ALT_FN, pin_opendrain, pin_spd_1, pin_nopull,
-                   I2C_SCL_PIN, I2C_SDA_PIN);
+	return (state->cmd[0] << 8) | state->cmd[1];
 }
 
-/*******************************************************************************
-  * @function   boot_i2c_periph_config
-  * @brief      Configuration of I2C peripheral as a slave.
-  * @param      None.
-  * @retval     None.
-  *****************************************************************************/
-static void boot_i2c_periph_config(void)
+static bool has_valid_addr(const boot_i2c_state_t *state)
 {
-    I2C_InitTypeDef  I2C_InitStructure;
-    NVIC_InitTypeDef NVIC_InitStructure;
+	uint16_t addr = get_addr(state);
 
-    I2C_DeInit(I2C_PERIPH_NAME);
-    I2C_Cmd(I2C_PERIPH_NAME, DISABLE);
-
-    /* I2C configuration */
-    I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
-    I2C_InitStructure.I2C_AnalogFilter = I2C_AnalogFilter_Enable;
-    I2C_InitStructure.I2C_DigitalFilter = 0x00;
-    I2C_InitStructure.I2C_OwnAddress1 = I2C_SLAVE_ADDRESS;
-    I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
-    I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-    I2C_InitStructure.I2C_Timing = I2C_TIMING;
-
-    /* Apply I2C configuration after enabling it */
-    I2C_Init(I2C_PERIPH_NAME, &I2C_InitStructure);
-
-    I2C_SlaveByteControlCmd(I2C_PERIPH_NAME, ENABLE);
-    I2C_ReloadCmd(I2C_PERIPH_NAME, ENABLE);
-
-    /* Address match, transfer complete, stop and transmit interrupt */
-    I2C_ITConfig(I2C_PERIPH_NAME, I2C_IT_ADDRI | I2C_IT_TCI | I2C_IT_STOPI | I2C_IT_TXI, ENABLE);
-
-    /* I2C Peripheral Enable */
-    I2C_Cmd(I2C_PERIPH_NAME, ENABLE);
-
-    NVIC_InitStructure.NVIC_IRQChannel = I2C2_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPriority = 0x01;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
+	return (addr & (PKT_SIZE - 1)) == 0 &&
+	       ((uint32_t)addr + PKT_SIZE) <= APPLICATION_MAX_SIZE;
 }
+
+static int boot_i2c_event_cb(void *priv, uint8_t addr,
+			     i2c_slave_event_t event, uint8_t *val)
+{
+	boot_i2c_state_t *state = priv;
+
+	if (addr != I2C_SLAVE_ADDRESS)
+		return -1;
+
+	switch (event) {
+	case I2C_SLAVE_READ_REQUESTED:
+		state->receiving = 0;
+		state->tx_idx = 0;
+		if (state->cmd_len == 2 && has_valid_addr(state)) {
+			state->tx_addr = get_addr(state);
+			state->cmd_len = 0;
+		}
+		fallthrough;
+
+	case I2C_SLAVE_READ_PROCESSED:
+		if (state->tx_idx >= PKT_SIZE ||
+		    state->tx_addr >= APPLICATION_MAX_SIZE)
+			return -1;
+
+		*val = *(uint8_t *)(APPLICATION_ADDRESS + state->tx_addr);
+		state->tx_addr++;
+		state->tx_idx++;
+
+		break;
+
+	case I2C_SLAVE_WRITE_REQUESTED:
+		state->cmd_len = 0;
+		state->cmd_valid = 0;
+		state->receiving = 1;
+		break;
+
+	case I2C_SLAVE_WRITE_RECEIVED:
+		state->cmd_valid = 1;
+
+		if (state->cmd_len < sizeof(state->cmd))
+			state->cmd[state->cmd_len++] = *val;
+		else
+			state->cmd_valid = 0;
+
+		/* check address validity */
+		if (state->cmd_len == 2 && get_addr(state) != ADDR_CMP &&
+		    !has_valid_addr(state))
+			state->cmd_valid = 0;
+
+		/* ADDR_CMP command may contain only one data byte */
+		if (state->cmd_len > 3 && get_addr(state) == ADDR_CMP)
+			state->cmd_valid = 0;
+
+		if (!state->cmd_valid)
+			return -1;
+
+		break;
+
+	case I2C_SLAVE_STOP:
+		/* trigger flashing/comparing in boot_i2c_flash_data() */
+		if (state->receiving && state->cmd_valid &&
+		    state->cmd_len > 2) {
+			state->rx_complete = 1;
+			i2c_slave_pause(SLAVE_I2C);
+		} else if (!state->receiving) {
+			state->cmd_len = 0;
+			state->cmd_valid = 0;
+		}
+		break;
+	}
+
+	return 0;
+}
+
+static boot_i2c_state_t boot_i2c_state;
+
+static i2c_slave_t i2c_slave = {
+	.cb = boot_i2c_event_cb,
+	.priv = &boot_i2c_state,
+};
 
 /*******************************************************************************
   * @function   boot_i2c_config
@@ -115,111 +147,10 @@ static void boot_i2c_periph_config(void)
   *****************************************************************************/
 void boot_i2c_config(void)
 {
-    boot_i2c_io_config();
-    boot_i2c_periph_config();
-}
+	gpio_init_alts(I2C_PINS_ALT_FN, pin_opendrain, pin_spd_1, pin_nopull,
+		       I2C_SCL_PIN, I2C_SDA_PIN);
 
-/*******************************************************************************
-  * @function   boot_i2c_handler
-  * @brief      Interrupt handler for I2C communication.
-  * @param      None.
-  * @retval     None.
-  *****************************************************************************/
-void boot_i2c_handler(void)
-{
-    struct st_i2c_status *i2c_state = &i2c_status;
-    static uint16_t direction;
-    static uint32_t flash_address = APPLICATION_ADDRESS;
-    static uint8_t data;
-
-    if (!flash_erase_sts) /* we are at the beginning again */
-    {
-        flash_address = APPLICATION_ADDRESS;
-    }
-
-    /* address match interrupt */
-    if(I2C_GetITStatus(I2C_PERIPH_NAME, I2C_IT_ADDR) == SET)
-    {
-        /* Clear IT pending bit */
-        I2C_ClearITPendingBit(I2C_PERIPH_NAME, I2C_IT_ADDR);
-
-        /* Check if transfer direction is read (slave transmitter) */
-        if ((I2C_PERIPH_NAME->ISR & I2C_ISR_DIR) == I2C_ISR_DIR)
-        {
-            direction = I2C_Direction_Transmitter;
-
-            DBG("S.TX\r\n");
-        }
-        else
-        {
-            direction = I2C_Direction_Receiver;
-
-            I2C_NumberOfBytesConfig(I2C_PERIPH_NAME, ONE_BYTE_EXPECTED);
-            DBG("S.RX\r\n");
-        }
-    }
-    /* transmit interrupt */
-    else if (I2C_GetITStatus(I2C_PERIPH_NAME, I2C_IT_TXIS) == SET)
-    {
-        flash_read(&flash_address, &data);
-        I2C_SendData(I2C_PERIPH_NAME, data);
-        i2c_state->tx_data_ctr++;
-
-        if (i2c_state->tx_data_ctr >= I2C_DATA_PACKET_SIZE)
-        {
-            i2c_state->tx_data_ctr = 0;
-        }
-        DBG("send\r\n");
-    }
-    /* transfer complet interrupt (TX and RX) */
-    else if (I2C_GetITStatus(I2C_PERIPH_NAME, I2C_IT_TCR) == SET)
-    {
-        if(direction == I2C_Direction_Receiver)
-        {
-            i2c_state->rx_buf[i2c_state->rx_data_ctr++] = I2C_ReceiveData(I2C_PERIPH_NAME);
-
-            DBG("ACK\r\n");
-            I2C_AcknowledgeConfig(I2C_PERIPH_NAME, ENABLE);
-            I2C_NumberOfBytesConfig(I2C_PERIPH_NAME, ONE_BYTE_EXPECTED);
-
-        }
-        else /* I2C_Direction_Transmitter - MCU & EMULATOR */
-        {
-            DBG("ACKtx\r\n");
-            I2C_NumberOfBytesConfig(I2C_PERIPH_NAME, ONE_BYTE_EXPECTED);
-        }
-    }
-
-    /* stop flag */
-    else if (I2C_GetITStatus(I2C_PERIPH_NAME, I2C_IT_STOPF) == SET)
-    {
-        I2C_ClearITPendingBit(I2C_PERIPH_NAME, I2C_IT_STOPF);
-
-        if (direction == I2C_Direction_Receiver)
-        {
-            i2c_state->data_rx_complete = 1;
-            I2C_ITConfig(I2C_PERIPH_NAME, I2C_IT_ADDRI | I2C_IT_TCI | I2C_IT_STOPI | I2C_IT_TXI, DISABLE);
-        }
-
-        DBG("STOP\r\n");
-    }
-}
-
-/*******************************************************************************
-  * @function   clear_rxbuf
-  * @brief      Delete RX buffer.
-  * @param      None.
-  * @retval     None.
-  *****************************************************************************/
-static void clear_rxbuf(void)
-{
-    struct st_i2c_status *i2c_state = &i2c_status;
-    uint16_t idx;
-
-    for (idx = 0; idx < I2C_DATA_PACKET_SIZE; idx++)
-    {
-        i2c_state->rx_buf[idx + DATA_START_BYTE_IDX] = 0;
-    }
+	i2c_slave_init(SLAVE_I2C, &i2c_slave, I2C_SLAVE_ADDRESS, 0, 1);
 }
 
 /*******************************************************************************
@@ -228,65 +159,38 @@ static void clear_rxbuf(void)
   * @param      None.
   * @retval     None.
   *****************************************************************************/
-flash_i2c_states_t boot_i2c_flash_data(void)
+flash_i2c_state_t boot_i2c_flash_data(void)
 {
-    struct st_i2c_status *i2c_state = &i2c_status;
-    uint16_t rx_cmd, idx, data_length = I2C_DATA_PACKET_SIZE / 4;
-    uint8_t data[I2C_DATA_PACKET_SIZE];
-    static flash_i2c_states_t flash_status = FLASH_CMD_NOT_RECEIVED;
-    static uint32_t flash_address = APPLICATION_ADDRESS;
+	boot_i2c_state_t *state = &boot_i2c_state;
+	flash_i2c_state_t ret;
 
-    if (i2c_state->data_rx_complete)
-    {
-        memset(data, 0, sizeof(data));
+	if (!state->rx_complete)
+		return FLASH_CMD_NOT_RECEIVED;
 
-        flash_status = FLASH_CMD_RECEIVED;
+	if (!state->flash_erased) {
+		flash_erase(APPLICATION_ADDRESS);
+		state->flash_erased = 1;
+	}
 
-        rx_cmd = (i2c_state->rx_buf[HIGH_ADDR_BYTE_IDX] << 8) | \
-                            (i2c_state->rx_buf[LOW_ADDR_BYTE_IDX]);
+	if (get_addr(state) == ADDR_CMP) {
+		if (state->cmd[2] == FILE_CMP_OK)
+			ret = FLASH_WRITE_OK;
+		else
+			ret = FLASH_WRITE_ERROR;
 
-        /* copy data */
-        for(idx = 0; idx < I2C_DATA_PACKET_SIZE; idx++)
-        {
-            data[idx] = i2c_state->rx_buf[idx + DATA_START_BYTE_IDX];
-        }
+		state->flash_erased = 0;
+		state->tx_addr = 0;
+	} else {
+		flash_write(APPLICATION_ADDRESS + get_addr(state),
+			    &state->cmd[2], PKT_SIZE);
+		ret = FLASH_CMD_RECEIVED;
+	}
 
-        if (!flash_erase_sts) /* enter the flash sequence, erase pages */
-        {
-            flash_erase(flash_address);
-            flash_erase_sts = 1;
-            DBG("FL_NOT_CONF\r\n");
-        }
+	state->cmd_len = 0;
+	state->cmd_valid = 0;
+	state->rx_complete = 0;
 
-        if (rx_cmd == ADDR_CMP) /* flashing is complete, linux send result of comparison */
-        {
-            if (data[0] == FILE_CMP_OK)
-            {
-                flash_status = FLASH_WRITE_OK;
-                DBG("WRITE_OK\n\r");
-            }
-            else
-            {
-                flash_status = FLASH_WRITE_ERROR;
-                DBG("WRITE ERR\n\r");
-            }
+	i2c_slave_resume(SLAVE_I2C);
 
-            flash_address = APPLICATION_ADDRESS;
-            flash_erase_sts = 0;
-            i2c_state->tx_data_ctr = 0;
-        }
-        else /* write incoming data */
-        {
-            flash_write(&flash_address, (uint32_t*)data, data_length);
-        }
-
-        clear_rxbuf();
-
-        i2c_state->data_rx_complete = 0;
-        i2c_state->rx_data_ctr = 0;
-
-        I2C_ITConfig(I2C_PERIPH_NAME, I2C_IT_ADDRI | I2C_IT_TCI | I2C_IT_STOPI | I2C_IT_TXI, ENABLE);
-    }
-
-    return flash_status;
+	return ret;
 }

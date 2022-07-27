@@ -16,6 +16,8 @@
 /* define the address from where user application will be loaded,
    the application address should be a start sector address */
 #define APPLICATION_ADDRESS     (uint32_t)0x08005000
+#define APPLICATION_END         (uint32_t)(USER_FLASH_LAST_PAGE_ADDRESS + FLASH_PAGE_SIZE)
+#define APPLICATION_MAX_SIZE    (APPLICATION_END - APPLICATION_ADDRESS)
 
 /* Get the number of Sector from where the user program will be loaded */
 #define  FLASH_PAGE_NUMBER      (uint32_t)((APPLICATION_ADDRESS - 0x08000000) >> 12)
@@ -43,16 +45,16 @@ void flash_config(void);
 uint32_t flash_erase(uint32_t start_sector);
 
 /*******************************************************************************
-  * @brief  This function writes a data buffer in flash (data are 32-bit aligned).
+  * @brief  This function writes a data buffer in flash.
   * @note   After writing data buffer, the flash content is checked.
   * @param  FlashAddress: start address for writing data buffer
   * @param  Data: pointer on data buffer
-  * @param  DataLength: length of data buffer (unit is 32-bit word)
+  * @param  DataLength: length of data buffer (unit is 8-bit word)
   * @retval 0: Data successfully written to Flash memory
   *         1: Error occurred while writing data in Flash memory
   *         2: Written Data in flash memory is different from expected one
   *****************************************************************************/
-uint32_t flash_write(volatile uint32_t* flash_address, uint32_t* data ,uint16_t data_length);
+uint32_t flash_write(uint32_t flash_address, uint8_t *data, uint16_t data_length);
 
 /*******************************************************************************
   * @brief  This function reads data from flash, byte after byte

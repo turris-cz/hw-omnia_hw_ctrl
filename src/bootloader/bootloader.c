@@ -180,7 +180,7 @@ void bootloader(void)
 {
     static boot_state_t next_state = STARTUP_MANAGER;
     static boot_value_t val = GO_TO_RESET_MANAGER;
-    static flash_i2c_states_t flash_sts = FLASH_CMD_NOT_RECEIVED;
+    static flash_i2c_state_t flash_sts = FLASH_CMD_NOT_RECEIVED;
     static uint8_t flash_confirmed;
     static uint8_t power_supply_failure; /* if power supply disconnection occurred */
     uint8_t system_reset;

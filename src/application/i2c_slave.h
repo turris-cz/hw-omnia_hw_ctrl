@@ -22,6 +22,7 @@ typedef struct {
 	i2c_slave_event_t state;
 	uint8_t addr;
 	uint8_t val;
+	bool paused;
 	void *priv;
 	int (*cb)(void *priv, uint8_t addr, i2c_slave_event_t event, uint8_t *val);
 } i2c_slave_t;
@@ -101,6 +102,20 @@ static inline void i2c_slave_init(i2c_nr_t i2c_nr, i2c_slave_t *slave,
 
 	I2C_Cmd(i2c, ENABLE);
 	NVIC_Init(&nvinit);
+}
+
+/* should be called only from slave callback, disable I2C interrupts
+ * after end of transaction */
+static __force_inline void i2c_slave_pause(i2c_nr_t i2c_nr)
+{
+	i2c_slave_ptr[i2c_nr - 1]->paused = 1;
+}
+
+static __force_inline void i2c_slave_resume(i2c_nr_t i2c_nr)
+{
+	i2c_slave_ptr[i2c_nr - 1]->paused = 0;
+	i2c_to_plat(i2c_nr)->CR1 |= I2C_CR1_ADDRIE | I2C_CR1_ERRIE |
+				    I2C_CR1_STOPIE;
 }
 
 static __force_inline void i2c_slave_ack(i2c_nr_t i2c_nr, bool ack)

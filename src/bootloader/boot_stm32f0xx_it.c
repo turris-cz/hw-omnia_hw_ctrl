@@ -29,6 +29,7 @@
 #include "power_control.h"
 #include "debug_serial.h"
 #include "timer.h"
+#include "i2c_slave.h"
 
 #include "boot_i2c.h"
 
@@ -183,7 +184,7 @@ void TIM17_IRQHandler(void)
   */
 void I2C2_IRQHandler(void)
 {
-    boot_i2c_handler();
+    i2c_slave_handler(2);
 }
 
 /**

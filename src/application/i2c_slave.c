@@ -78,6 +78,11 @@ void i2c_slave_handler(i2c_nr_t i2c_nr)
 		/* disable RX & TX interrupts */
 		i2c->CR1 &= ~(I2C_CR1_RXIE | I2C_CR1_TXIE);
 
+		/* disable all interrupts if pause requested */
+		if (slave->paused)
+			i2c->CR1 &= ~(I2C_CR1_ADDRIE | I2C_CR1_ERRIE |
+				      I2C_CR1_STOPIE);
+
 		/* clear */
 		i2c->ICR = I2C_ICR_STOPCF;
 	}
