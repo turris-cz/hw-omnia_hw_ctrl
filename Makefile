@@ -143,7 +143,7 @@ SRCS  += msata_pci.c
 SRCS  += wan_lan_pci_status.c
 SRCS  += slave_i2c_device.c
 ifeq ($(DBG_ENABLE), 1)
-	SRCS  += debug_serial.c
+	SRCS  += debug.c
 endif
 SRCS  += app.c
 SRCS  += eeprom.c
@@ -197,7 +197,7 @@ BOOTSRCS  += led_driver.c
 BOOTSRCS  += delay.c
 BOOTSRCS  += power_control.c
 ifeq ($(DBG_ENABLE), 1)
-	BOOTSRCS  += debug_serial.c
+	BOOTSRCS  += debug.c
 endif
 BOOTSRCS  += eeprom.c
 BOOTSRCS  += bootloader.c

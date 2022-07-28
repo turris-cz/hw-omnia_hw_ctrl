@@ -27,7 +27,7 @@
 #include "debounce.h"
 #include "delay.h"
 #include "power_control.h"
-#include "debug_serial.h"
+#include "debug.h"
 #include "timer.h"
 #include "i2c_slave.h"
 

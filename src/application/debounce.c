@@ -15,7 +15,7 @@
 #include "led_driver.h"
 #include "wan_lan_pci_status.h"
 #include "msata_pci.h"
-#include "debug_serial.h"
+#include "debug.h"
 #include "slave_i2c_device.h"
 #include "timer.h"
 

@@ -11,7 +11,7 @@
 #include "power_control.h"
 #include "delay.h"
 #include "eeprom.h"
-#include "debug_serial.h"
+#include "debug.h"
 #include "bootloader.h"
 #include "led_driver.h"
 #include "flash.h"

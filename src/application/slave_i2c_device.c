@@ -11,7 +11,7 @@
 #include "compiler.h"
 #include "stm32f0xx_conf.h"
 #include "slave_i2c_device.h"
-#include "debug_serial.h"
+#include "debug.h"
 #include "led_driver.h"
 #include "wan_lan_pci_status.h"
 #include "power_control.h"

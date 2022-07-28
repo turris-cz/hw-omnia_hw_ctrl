@@ -13,7 +13,7 @@
 #include "delay.h"
 #include "led_driver.h"
 #include "slave_i2c_device.h"
-#include "debug_serial.h"
+#include "debug.h"
 #include "timer.h"
 
 #if !defined(OMNIA_BOARD_REVISION)

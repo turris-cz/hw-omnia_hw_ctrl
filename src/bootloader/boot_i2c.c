@@ -9,7 +9,7 @@
  **/
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_conf.h"
-#include "debug_serial.h"
+#include "debug.h"
 #include "led_driver.h"
 #include "power_control.h"
 #include "delay.h"

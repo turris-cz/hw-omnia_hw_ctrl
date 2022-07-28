@@ -16,7 +16,7 @@
 #include "msata_pci.h"
 #include "slave_i2c_device.h"
 #include "wan_lan_pci_status.h"
-#include "debug_serial.h"
+#include "debug.h"
 #include "eeprom.h"
 
 #define MAX_ERROR_COUNT            5

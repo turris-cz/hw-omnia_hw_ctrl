@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
- * @file    debug_serial.c
+ * @file    debug.c
  * @author  CZ.NIC, z.s.p.o.
  * @date    25-August-2015
  * @brief   Debug prints on serial port.
@@ -9,7 +9,7 @@
  **/
 #include "string.h"
 #include "stm32f0xx_conf.h"
-#include "debug_serial.h"
+#include "debug.h"
 #include "gpio.h"
 #include "usart.h"
 

@@ -30,7 +30,7 @@
 #include "wan_lan_pci_status.h"
 #include "slave_i2c_device.h"
 #include "power_control.h"
-#include "debug_serial.h"
+#include "debug.h"
 #include "timer.h"
 #include "i2c_slave.h"
 

@@ -9,7 +9,7 @@
  **/
 #include "wan_lan_pci_status.h"
 #include "led_driver.h"
-#include "debug_serial.h"
+#include "debug.h"
 
 enum lan_led_masks {
     LAN_LED_MASK        = 0x1947,
