@@ -19,6 +19,7 @@
 #include "boot_i2c.h"
 #include "bootloader.h"
 #include "gpio.h"
+#include "flash_defs.h"
 #include <string.h>
 
 __attribute__((section(".boot_version"))) uint8_t version[20] = VERSION;
@@ -78,7 +79,7 @@ static int boot_i2c_event_cb(void *priv, uint8_t addr,
 		    state->tx_addr >= APPLICATION_MAX_SIZE)
 			return -1;
 
-		*val = *(uint8_t *)(APPLICATION_ADDRESS + state->tx_addr);
+		*val = *(uint8_t *)(APPLICATION_BEGIN + state->tx_addr);
 		state->tx_addr++;
 		state->tx_idx++;
 
@@ -161,7 +162,7 @@ flash_i2c_state_t boot_i2c_flash_data(void)
 		return FLASH_CMD_NOT_RECEIVED;
 
 	if (!state->flash_erased) {
-		flash_erase(APPLICATION_ADDRESS);
+		flash_erase(APPLICATION_BEGIN, APPLICATION_MAX_SIZE);
 		state->flash_erased = 1;
 	}
 
@@ -174,7 +175,7 @@ flash_i2c_state_t boot_i2c_flash_data(void)
 		state->flash_erased = 0;
 		state->tx_addr = 0;
 	} else {
-		flash_write(APPLICATION_ADDRESS + get_addr(state),
+		flash_write(APPLICATION_BEGIN + get_addr(state),
 			    &state->cmd[2], PKT_SIZE);
 		ret = FLASH_CMD_RECEIVED;
 	}

@@ -15,6 +15,7 @@
 #include "bootloader.h"
 #include "led_driver.h"
 #include "flash.h"
+#include "flash_defs.h"
 #include "debounce.h"
 #include "gpio.h"
 #include "timer.h"
@@ -85,10 +86,10 @@ static void start_application(void)
     __disable_irq();
 
     /* Get the application stack pointer (First entry in the application vector table) */
-    app_stack = (uint32_t) *((volatile uint32_t*)APPLICATION_ADDRESS);
+    app_stack = (uint32_t) *((volatile uint32_t*)APPLICATION_BEGIN);
 
     /* Get the application entry point (Second entry in the application vector table) */
-    app_entry = (pFunction) *(volatile uint32_t*) (APPLICATION_ADDRESS + 4);
+    app_entry = (pFunction) *(volatile uint32_t*) (APPLICATION_BEGIN + 4);
 
     /* Set the application stack pointer */
     __set_MSP(app_stack);
