@@ -544,7 +544,7 @@ static uint16_t EE_PageTransfer(uint16_t VirtAddress, uint16_t Data)
 
     /* Old page address where variable will be taken from */
     OldPageAddress = PAGE1_BASE_ADDRESS;
-    DBG("PAGE1 VALID\n");
+    debug("PAGE1 VALID\n");
   }
   else if (ValidPage == PAGE0)  /* Page0 valid */
   {
@@ -553,11 +553,11 @@ static uint16_t EE_PageTransfer(uint16_t VirtAddress, uint16_t Data)
 
     /* Old page address where variable will be taken from */
     OldPageAddress = PAGE0_BASE_ADDRESS;
-    DBG("PAGE0 VALID\n");
+    debug("PAGE0 VALID\n");
   }
   else
   {
-    DBG("NO VALID PAGE\n");
+    debug("NO VALID PAGE\n");
     return NO_VALID_PAGE;       /* No valid Page */
   }
 

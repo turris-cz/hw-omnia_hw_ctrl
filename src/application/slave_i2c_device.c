@@ -174,9 +174,9 @@ static void slave_i2c_check_control_byte(uint8_t control_byte, uint8_t bit_mask)
 
             switch(ee_var)
             {
-                case VAR_FLASH_COMPLETE:    DBG("RST: OK\n"); break;
-                case VAR_PAGE_FULL:         DBG("RST: Pg full\n"); break;
-                case VAR_NO_VALID_PAGE:     DBG("RST: No Pg\n"); break;
+                case VAR_FLASH_COMPLETE:    debug("RST: OK\n"); break;
+                case VAR_PAGE_FULL:         debug("RST: Pg full\n"); break;
+                case VAR_NO_VALID_PAGE:     debug("RST: No Pg\n"); break;
                 default:
                     break;
             }
@@ -273,7 +273,7 @@ typedef struct {
 
 static int cmd_get_features(slave_i2c_state_t *state)
 {
-	DBG("get_features\n");
+	debug("get_features\n");
 	set_reply(slave_features_supported);
 
 	return 0;
@@ -281,7 +281,7 @@ static int cmd_get_features(slave_i2c_state_t *state)
 
 static int cmd_get_status(slave_i2c_state_t *state)
 {
-	DBG("get_status\n");
+	debug("get_status\n");
 	set_reply(i2c_status.status_word);
 
 	return 0;
@@ -289,7 +289,7 @@ static int cmd_get_status(slave_i2c_state_t *state)
 
 static int cmd_general_control(slave_i2c_state_t *state)
 {
-	DBG("general_control\n");
+	debug("general_control\n");
 	slave_i2c_check_control_byte(state->cmd[1], state->cmd[2]);
 
 	return 0;
@@ -297,7 +297,7 @@ static int cmd_general_control(slave_i2c_state_t *state)
 
 static int cmd_get_ext_status(slave_i2c_state_t *state)
 {
-	DBG("get_ext_status\n");
+	debug("get_ext_status\n");
 	set_reply(i2c_status.ext_status_dword);
 
 	return 0;
@@ -307,7 +307,7 @@ static int cmd_ext_control(slave_i2c_state_t *state)
 {
 	uint8_t *args = &state->cmd[1];
 
-	DBG("ext_control\n");
+	debug("ext_control\n");
 	slave_i2c_ext_control(args[0] | (args[1] << 8),
 			      args[2] | (args[3] << 8));
 
@@ -318,7 +318,7 @@ static int cmd_get_ext_control_status(slave_i2c_state_t *state)
 {
 	uint16_t ext_ctrl = slave_i2c_get_ext_control_status();
 
-	DBG("get_ext_control_status\n");
+	debug("get_ext_control_status\n");
 	set_reply(ext_ctrl);
 
 	return 0;
@@ -326,7 +326,7 @@ static int cmd_get_ext_control_status(slave_i2c_state_t *state)
 
 static int cmd_get_reset(slave_i2c_state_t *state)
 {
-	DBG("get_reset\n");
+	debug("get_reset\n");
 	set_reply(i2c_status.reset_type);
 
 	return 0;
@@ -335,7 +335,7 @@ static int cmd_get_reset(slave_i2c_state_t *state)
 #if USER_REGULATOR_ENABLED
 static int cmd_user_voltage(slave_i2c_state_t *state)
 {
-	DBG("user_voltage\n");
+	debug("user_voltage\n");
 	power_control_set_voltage(state->cmd[1]);
 
 	return 0;
@@ -346,7 +346,7 @@ static int cmd_led_mode(slave_i2c_state_t *state)
 {
 	uint8_t *args = &state->cmd[1];
 
-	DBG("led_mode\n");
+	debug("led_mode\n");
 	led_driver_set_led_mode(args[0] & 0x0F, !!(args[0] & 0x10));
 
 	return 0;
@@ -356,7 +356,7 @@ static int cmd_led_state(slave_i2c_state_t *state)
 {
 	uint8_t *args = &state->cmd[1];
 
-	DBG("led_state\n");
+	debug("led_state\n");
 	led_driver_set_led_state_user(args[0] & 0x0F, !!(args[0] & 0x10));
 
 	return 0;
@@ -366,7 +366,7 @@ static int cmd_led_color(slave_i2c_state_t *state)
 {
 	uint8_t *args = &state->cmd[1];
 
-	DBG("led_color\n");
+	debug("led_color\n");
 	led_driver_set_colour(args[0] & 0x0F,
 			      (args[1] << 16) | (args[2] << 8) | args[3]);
 
@@ -375,7 +375,7 @@ static int cmd_led_color(slave_i2c_state_t *state)
 
 static int cmd_set_brightness(slave_i2c_state_t *state)
 {
-	DBG("set_brightness\n");
+	debug("set_brightness\n");
 	led_driver_pwm_set_brightness(state->cmd[1]);
 
 	return 0;
@@ -385,7 +385,7 @@ static int cmd_get_brightness(slave_i2c_state_t *state)
 {
 	uint8_t brightness = leds->brightness;
 
-	DBG("get_brightness\n");
+	debug("get_brightness\n");
 	set_reply(brightness);
 
 	return 0;
@@ -396,9 +396,9 @@ static int cmd_watchdog_state(slave_i2c_state_t *state)
 	watchdog.watchdog_state = state->cmd[1];
 
 	if (watchdog.watchdog_state) {
-		DBG("watchdog_state RUN\n");
+		debug("watchdog_state RUN\n");
 	} else {
-		DBG("watchdog_state STOP\n");
+		debug("watchdog_state STOP\n");
 	}
 
 	return 0;
@@ -408,16 +408,16 @@ static int cmd_watchdog_status(slave_i2c_state_t *state)
 {
 	watchdog.watchdog_sts = state->cmd[1];
 
-	DBG("watchdog_status\n");
+	debug("watchdog_status\n");
 	switch (EE_WriteVariable(WDG_VIRT_ADDR, watchdog.watchdog_sts)) {
 	case VAR_FLASH_COMPLETE:
-		DBG("WDT: OK\n");
+		debug("WDT: OK\n");
 		break;
 	case VAR_PAGE_FULL:
-		DBG("WDT: Pg full\n");
+		debug("WDT: Pg full\n");
 		break;
 	case VAR_NO_VALID_PAGE:
-		DBG("WDT: No Pg\n");
+		debug("WDT: No Pg\n");
 		break;
 	default:
 		break;
@@ -430,7 +430,7 @@ static int cmd_get_watchdog_state(slave_i2c_state_t *state)
 {
 	uint8_t wdt_state = watchdog.watchdog_state;
 
-	DBG("get_watchdog_state\n");
+	debug("get_watchdog_state\n");
 	set_reply(wdt_state);
 
 	return 0;
@@ -440,7 +440,7 @@ static int cmd_get_version(slave_i2c_state_t *state)
 {
 	state->reply_len = 20;
 
-	DBG("get_version\n");
+	debug("get_version\n");
 	if (state->cmd[0] == CMD_GET_FW_VERSION_BOOT)
 		read_bootloader_version(state->reply);
 	else

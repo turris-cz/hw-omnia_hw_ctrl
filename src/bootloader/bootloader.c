@@ -68,7 +68,7 @@ void bootloader_init(void)
 
     gpio_init_outputs(pin_opendrain, pin_spd_2, 1, SYSRES_OUT_PIN); /* dont control this ! */
 
-    DBG("Init\n");
+    debug("Init\n");
 }
 
 /*******************************************************************************
@@ -126,7 +126,7 @@ static boot_value_t startup_manager(void)
         {
             retval = GO_TO_APPLICATION;
 
-            DBG("R1\n");
+            debug("R1\n");
         } break;
 
         case VAR_FOUND:
@@ -136,19 +136,19 @@ static boot_value_t startup_manager(void)
                 case BOOTLOADER_REQ:
                 {
                     retval = GO_TO_FLASH;
-                    DBG("req\n");
+                    debug("req\n");
                 } break;
 
                 case FLASH_NOT_CONFIRMED: /* error */
                 {
                     retval = GO_TO_POWER_ON;
-                    DBG("ERR\n");
+                    debug("ERR\n");
                 } break;
 
                 case FLASH_CONFIRMED: /* application was flashed correctly */
                 {
                     retval = GO_TO_APPLICATION;
-                    DBG("R2\n");
+                    debug("R2\n");
                 } break;
 
                 /* flag has not been saved correctly */
@@ -159,7 +159,7 @@ static boot_value_t startup_manager(void)
         case VAR_NO_VALID_PAGE :
         {
             retval = GO_TO_POWER_ON;
-            DBG("Boot-No valid page\n");
+            debug("Boot-No valid page\n");
         }
             break;
 
@@ -250,7 +250,7 @@ void bootloader(void)
                     }
 
                     next_state = RESET_MANAGER;
-                    DBG("F_CONF\n");
+                    debug("F_CONF\n");
                 } break;
 
                 case FLASH_WRITE_ERROR: /* flashing was corrupted */

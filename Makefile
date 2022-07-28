@@ -142,7 +142,9 @@ SRCS  += power_control.c
 SRCS  += msata_pci.c
 SRCS  += wan_lan_pci_status.c
 SRCS  += slave_i2c_device.c
-SRCS  += debug_serial.c
+ifeq ($(DBG_ENABLE), 1)
+	SRCS  += debug_serial.c
+endif
 SRCS  += app.c
 SRCS  += eeprom.c
 SRCS  += i2c_slave.c
@@ -194,7 +196,9 @@ BOOTSRCS  += system_stm32f0xx.c
 BOOTSRCS  += led_driver.c
 BOOTSRCS  += delay.c
 BOOTSRCS  += power_control.c
-BOOTSRCS  += debug_serial.c
+ifeq ($(DBG_ENABLE), 1)
+	BOOTSRCS  += debug_serial.c
+endif
 BOOTSRCS  += eeprom.c
 BOOTSRCS  += bootloader.c
 BOOTSRCS  += i2c_slave.c

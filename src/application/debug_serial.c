@@ -17,7 +17,7 @@
 #define USART_PIN_TX		PIN(A, 9)
 #define USART_PIN_RX		PIN(A, 10)
 
-#if DBG_ENABLE && !defined(DBG_BAUDRATE)
+#if !defined(DBG_BAUDRATE)
 #error build system did not define DBG_BAUDRATE macro
 #endif
 
@@ -29,12 +29,10 @@
   *****************************************************************************/
 void debug_serial_config(void)
 {
-#if DBG_ENABLE
     gpio_init_alts(USART_PINS_ALT_FN, pin_pushpull, pin_spd_3, pin_pullup,
                    USART_PIN_RX, USART_PIN_TX);
 
     usart_init(DEBUG_USART, DBG_BAUDRATE);
-#endif
 }
 
 /*******************************************************************************
@@ -55,13 +53,7 @@ static void debug_send_data(const char *buffer, uint16_t count)
     while (!usart_is_tx_complete(DEBUG_USART));
 }
 
-/*******************************************************************************
-  * @function   debug_print
-  * @brief      Send buffer over the serial port.
-  * @param      buffer: pointer to data buffer.
-  * @retval     None.
-  *****************************************************************************/
-void debug_print(const char *buffer)
+void debug(const char *buffer)
 {
     uint16_t count = strlen(buffer);
     debug_send_data(buffer, count);
