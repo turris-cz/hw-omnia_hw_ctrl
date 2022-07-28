@@ -28,10 +28,10 @@
   *****************************************************************************/
 void debug_init(void)
 {
-    gpio_init_alts(USART_PINS_ALT_FN, pin_pushpull, pin_spd_3, pin_pullup,
-                   USART_PIN_RX, USART_PIN_TX);
+	gpio_init_alts(USART_PINS_ALT_FN, pin_pushpull, pin_spd_3, pin_pullup,
+		       USART_PIN_RX, USART_PIN_TX);
 
-    usart_init(DEBUG_USART, DBG_BAUDRATE);
+	usart_init(DEBUG_USART, DBG_BAUDRATE);
 }
 
 void debug(const char *buffer)
