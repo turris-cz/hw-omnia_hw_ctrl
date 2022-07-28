@@ -38,7 +38,7 @@
   * @param  None
   * @retval None
   *****************************************************************************/
-static __force_inline void flash_config(void)
+static __force_inline void flash_init(void)
 {
 	/* Unlock the Program memory */
 	FLASH_Unlock();

@@ -57,7 +57,7 @@ void bootloader_init(void)
 
     FLASH_Unlock(); /* Unlock the Flash Program Erase controller */
     EE_Init(); /* EEPROM Init */
-    flash_config();
+    flash_init();
     timer_deinit(DEBOUNCE_TIMER);
     timer_deinit(USB_TIMEOUT_TIMER);
     __enable_irq();
