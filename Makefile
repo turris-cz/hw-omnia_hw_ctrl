@@ -107,9 +107,9 @@ PROJ_ROOT_DIR	= src
 APP_ROOT_DIR	= $(PROJ_ROOT_DIR)/application
 
 
-STM_ROOT_LIB    = $(PROJ_ROOT_DIR)/stm_lib/stm32f0xx_stdperiph_driver
+STM_ROOT_LIB    = $(PROJ_ROOT_DIR)/platform/stm_lib/stm32f0xx_stdperiph_driver
 STM_SRC_DIR     = $(STM_ROOT_LIB)/src
-STM_CMSIS_DIR 	= $(PROJ_ROOT_DIR)/stm_lib/cmsis_boot
+STM_CMSIS_DIR 	= $(PROJ_ROOT_DIR)/platform/stm_lib/cmsis_boot
 STM_STARTUP_DIR = $(STM_CMSIS_DIR)/startup
 
 LINKER_DIR = $(APP_ROOT_DIR)/linker
@@ -118,6 +118,7 @@ vpath %.c $(APP_ROOT_DIR)
 vpath %.c $(STM_SRC_DIR)
 vpath %.c $(STM_CMSIS_DIR)
 vpath %.s $(STM_STARTUP_DIR)
+vpath %.c $(PROJ_ROOT_DIR)/platform
 
 ################################################################################
 #                   HEADER FILES DIRECTORIES                                   #
@@ -127,7 +128,8 @@ vpath %.s $(STM_STARTUP_DIR)
 INC_DIRS += $(STM_ROOT_LIB)/inc
 INC_DIRS += $(STM_CMSIS_DIR)
 INC_DIRS += $(APP_ROOT_DIR)
-INC_DIRS += $(PROJ_ROOT_DIR)/stm_lib/cmsis_core
+INC_DIRS += $(PROJ_ROOT_DIR)/platform
+INC_DIRS += $(PROJ_ROOT_DIR)/platform/stm_lib/cmsis_core
 
 ################################################################################
 #                   SOURCE FILES TO COMPILE                                    #
@@ -173,9 +175,9 @@ OBJS += $(ASRC:.s=.o)
 BOOT_ROOT_DIR		= $(PROJ_ROOT_DIR)/bootloader
 BOOT_LINKER_DIR		= $(BOOT_ROOT_DIR)/linker
 
-BOOT_STM_ROOT_LIB  	= $(PROJ_ROOT_DIR)/stm_lib/stm32f0xx_stdperiph_driver
+BOOT_STM_ROOT_LIB  	= $(PROJ_ROOT_DIR)/platform/stm_lib/stm32f0xx_stdperiph_driver
 BOOT_STM_SRC_DIR    = $(BOOT_STM_ROOT_LIB)/src
-BOOT_STM_CMSIS_DIR 	= $(PROJ_ROOT_DIR)/stm_lib/cmsis_boot
+BOOT_STM_CMSIS_DIR 	= $(PROJ_ROOT_DIR)/platform/stm_lib/cmsis_boot
 
 BOOT_STARTUP_DIR = $(BOOT_ROOT_DIR)/startup
 
@@ -186,7 +188,8 @@ vpath %.c $(BOOT_STM_CMSIS_DIR)
 BOOT_INC_DIRS += $(BOOT_STM_ROOT_LIB)/inc
 BOOT_INC_DIRS += $(BOOT_STM_CMSIS_DIR)
 BOOT_INC_DIRS += $(BOOT_ROOT_DIR)
-BOOT_INC_DIRS += $(PROJ_ROOT_DIR)/stm_lib/cmsis_core
+BOOT_INC_DIRS += $(PROJ_ROOT_DIR)/platform
+BOOT_INC_DIRS += $(PROJ_ROOT_DIR)/platform/stm_lib/cmsis_core
 
 BOOTSRCS  += boot_main.c
 BOOTSRCS  += boot_i2c.c
