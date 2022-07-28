@@ -4,8 +4,13 @@
 #include "stm32f0xx_usart.h"
 #include "stm32f0xx_usart.h"
 #include "compiler.h"
+#include "gpio.h"
 
 typedef uint8_t usart_nr_t;
+
+#define USART1_PINS_ALT_FN	1
+#define USART1_PIN_TX		PIN(A, 9)
+#define USART1_PIN_RX		PIN(A, 10)
 
 #define DEBUG_USART		1
 
@@ -32,6 +37,15 @@ static __force_inline void usart_rcc_config(usart_nr_t usart_nr, bool on)
 	}
 }
 
+static __force_inline void usart_init_pins(usart_nr_t usart_nr)
+{
+	compiletime_assert(usart_nr == DEBUG_USART,
+			   "Invalid USART peripheral used");
+
+	gpio_init_alts(USART1_PINS_ALT_FN, pin_pushpull, pin_spd_3, pin_pullup,
+		       USART1_PIN_RX, USART1_PIN_TX);
+}
+
 static inline void usart_init(usart_nr_t usart_nr, uint32_t baud_rate)
 {
 	USART_TypeDef *usart = usart_to_plat(usart_nr);
@@ -47,6 +61,8 @@ static inline void usart_init(usart_nr_t usart_nr, uint32_t baud_rate)
 	usart_rcc_config(usart_nr, 0);
 	USART_DeInit(usart);
 	usart_rcc_config(usart_nr, 1);
+
+	usart_init_pins(usart_nr);
 
 	USART_Init(usart, &init);
 	USART_Cmd(usart, ENABLE);
