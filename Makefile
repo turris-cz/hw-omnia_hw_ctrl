@@ -190,7 +190,6 @@ BOOT_INC_DIRS += $(PROJ_ROOT_DIR)/stm_lib/cmsis_core
 
 BOOTSRCS  += boot_main.c
 BOOTSRCS  += boot_i2c.c
-BOOTSRCS  += flash.c
 BOOTSRCS  += boot_stm32f0xx_it.c
 BOOTSRCS  += system_stm32f0xx.c
 BOOTSRCS  += led_driver.c
