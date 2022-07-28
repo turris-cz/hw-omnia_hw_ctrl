@@ -119,6 +119,7 @@ vpath %.c $(STM_SRC_DIR)
 vpath %.c $(STM_CMSIS_DIR)
 vpath %.s $(STM_STARTUP_DIR)
 vpath %.c $(PROJ_ROOT_DIR)/platform
+vpath %.c $(PROJ_ROOT_DIR)/drivers
 
 ################################################################################
 #                   HEADER FILES DIRECTORIES                                   #
@@ -129,6 +130,7 @@ INC_DIRS += $(STM_ROOT_LIB)/inc
 INC_DIRS += $(STM_CMSIS_DIR)
 INC_DIRS += $(APP_ROOT_DIR)
 INC_DIRS += $(PROJ_ROOT_DIR)/platform
+INC_DIRS += $(PROJ_ROOT_DIR)/drivers
 INC_DIRS += $(PROJ_ROOT_DIR)/platform/stm_lib/cmsis_core
 
 ################################################################################
@@ -189,6 +191,7 @@ BOOT_INC_DIRS += $(BOOT_STM_ROOT_LIB)/inc
 BOOT_INC_DIRS += $(BOOT_STM_CMSIS_DIR)
 BOOT_INC_DIRS += $(BOOT_ROOT_DIR)
 BOOT_INC_DIRS += $(PROJ_ROOT_DIR)/platform
+BOOT_INC_DIRS += $(PROJ_ROOT_DIR)/drivers
 BOOT_INC_DIRS += $(PROJ_ROOT_DIR)/platform/stm_lib/cmsis_core
 
 BOOTSRCS  += boot_main.c
