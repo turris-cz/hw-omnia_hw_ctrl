@@ -26,6 +26,18 @@
 
 #define __force_inline inline __attribute__((__always_inline__))
 
+#define compiletime_assert(condition, msg) \
+	_compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
+#define _compiletime_assert(condition, msg, prefix, suffix) \
+	__compiletime_assert(condition, msg, prefix, suffix)
+# define __compiletime_assert(condition, msg, prefix, suffix)			\
+	do {									\
+		extern void prefix ## suffix(void) __compiletime_error(msg);	\
+		if (!(condition))						\
+			prefix ## suffix();					\
+	} while (0)
+#define __compiletime_error(message) __attribute__((__error__(message)))
+
 typedef _Bool bool;
 
 #endif /* COMPILER_H */
