@@ -46,8 +46,11 @@ void debug_serial_config(void)
   *****************************************************************************/
 static void debug_send_data(const char *buffer, uint16_t count)
 {
-    while (count--)
+    while (count--) {
+        if (*buffer == '\n')
+            usart_tx(DEBUG_USART, '\r');
         usart_tx(DEBUG_USART, *buffer++);
+    }
 
     while (!usart_is_tx_complete(DEBUG_USART));
 }

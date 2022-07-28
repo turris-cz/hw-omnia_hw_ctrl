@@ -49,16 +49,16 @@ void app_mcu_init(void)
         {
             wdg->watchdog_sts = WDG_ENABLE;
             EE_WriteVariable(WDG_VIRT_ADDR, wdg->watchdog_sts);
-            DBG("Init - WDG var not found\r\n");
+            DBG("Init - WDG var not found\n");
         } break;
 
         case VAR_FOUND:
         {
             wdg->watchdog_sts = ee_data;
-            DBG("Init - WDG var found\r\n");
+            DBG("Init - WDG var found\n");
         } break;
 
-        case VAR_NO_VALID_PAGE : DBG("Init - WDG-No valid page\r\n");
+        case VAR_NO_VALID_PAGE : DBG("Init - WDG-No valid page\n");
             break;
 
         default:
@@ -81,7 +81,7 @@ void app_mcu_init(void)
     debug_serial_config();
 
 
-    DBG("\r\nInit completed.\r\n");
+    DBG("\nInit completed.\n");
 }
 
 /*******************************************************************************
@@ -207,12 +207,12 @@ static ret_value_t light_reset(void)
     if((wdg->watchdog_sts == WDG_ENABLE)&&(wdg->watchdog_state == INIT))
     {
         wdg->watchdog_state = RUN;
-        DBG("RST - WDG runs\r\n");
+        DBG("RST - WDG runs\n");
     }
     else
     {
         wdg->watchdog_state = STOP;
-        DBG("RST - WDG doesnt run\r\n")
+        DBG("RST - WDG doesnt run\n")
     }
 
     led_driver_reset_effect(ENABLE);
@@ -257,7 +257,7 @@ static ret_value_t input_manager(void)
     /* PG signals from all DC/DC regulator (except of 4.5V user regulator) */
     if(input_state->pg == ACTIVATED)
     {
-        DBG("PG all regulators\r\n");
+        DBG("PG all regulators\n");
         value = GO_TO_HARD_RESET;
         input_state->pg = DEACTIVATED;
     }
@@ -266,7 +266,7 @@ static ret_value_t input_manager(void)
     /* PG signal from 4.5V user controlled regulator */
     if(input_state->pg_4v5 == ACTIVATED)
     {
-        DBG("PG from 4V5\r\n");
+        DBG("PG from 4V5\n");
         value = GO_TO_HARD_RESET;
         input_state->pg_4v5 = DEACTIVATED;
     }
