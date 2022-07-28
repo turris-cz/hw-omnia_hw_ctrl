@@ -398,7 +398,7 @@ static int cmd_watchdog_state(slave_i2c_state_t *state)
 	if (watchdog.watchdog_state) {
 		DBG("watchdog_state RUN\n");
 	} else {
-		DBG("watchdog_state STOP\n")
+		DBG("watchdog_state STOP\n");
 	}
 
 	return 0;
