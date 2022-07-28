@@ -7,7 +7,6 @@
  ******************************************************************************
  ******************************************************************************
  **/
-#include "string.h"
 #include "stm32f0xx_conf.h"
 #include "debug.h"
 #include "gpio.h"
@@ -35,26 +34,13 @@ void debug_init(void)
     usart_init(DEBUG_USART, DBG_BAUDRATE);
 }
 
-/*******************************************************************************
-  * @function   debug_send_data
-  * @brief      Send data over the serial port.
-  * @param      buffer: pointer to data buffer.
-  * @param      count: number of bytes
-  * @retval     None.
-  *****************************************************************************/
-static void debug_send_data(const char *buffer, uint16_t count)
-{
-    while (count--) {
-        if (*buffer == '\n')
-            usart_tx(DEBUG_USART, '\r');
-        usart_tx(DEBUG_USART, *buffer++);
-    }
-
-    while (!usart_is_tx_complete(DEBUG_USART));
-}
-
 void debug(const char *buffer)
 {
-    uint16_t count = strlen(buffer);
-    debug_send_data(buffer, count);
+	while (*buffer) {
+		if (*buffer == '\n')
+			usart_tx(DEBUG_USART, '\r');
+		usart_tx(DEBUG_USART, *buffer++);
+	}
+
+	while (!usart_is_tx_complete(DEBUG_USART));
 }
