@@ -1140,9 +1140,9 @@ void periph_control_io_config(void)
 uint16_t periph_control_rst_init(void)
 {
     gpio_write_multi(0, nRES_MMC_PIN, nRES_LAN_PIN, nRES_PHY_PIN, nPERST0_PIN,
-                     nPERST1_PIN, nPERST2_PIN, nVHV_CTRL_PIN, PHY_SFP_PIN);
+                     nPERST1_PIN, nPERST2_PIN);
 
     gpio_write_multi(1, nVHV_CTRL_PIN, PHY_SFP_PIN);
 
-    return EXT_CTL_PHY_SFP;
+    return EXT_CTL_PHY_SFP | EXT_CTL_nVHV_CTRL;
 }
