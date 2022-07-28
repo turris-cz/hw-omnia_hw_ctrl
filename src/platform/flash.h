@@ -30,6 +30,21 @@ static __force_inline void flash_init(void)
 			FLASH_FLAG_BSY);
 }
 
+static __force_inline bool flash_erase_page(uint32_t page)
+{
+	return FLASH_ErasePage(page) == FLASH_COMPLETE;
+}
+
+static __force_inline bool flash_program_word(uint32_t addr, uint32_t data)
+{
+	return FLASH_ProgramWord(addr, data) == FLASH_COMPLETE;
+}
+
+static __force_inline bool flash_program_halfword(uint32_t addr, uint16_t data)
+{
+	return FLASH_ProgramHalfWord(addr, data) == FLASH_COMPLETE;
+}
+
 /*******************************************************************************
   * @brief  This function does an erase of all user flash area
   * @param  start_page: start of user flash area
@@ -42,7 +57,7 @@ static __force_inline int flash_erase(uint32_t start_page, uint16_t len)
 	for (uint32_t page = start_page;
 	     page < start_page + len;
 	     page += FLASH_PAGE_SIZE)
-		if (FLASH_ErasePage(page) != FLASH_COMPLETE)
+		if (!flash_erase_page(page))
 			return -1;
 
 	return 0;
@@ -66,7 +81,7 @@ static __force_inline int flash_write(uint32_t address, uint8_t *data, uint16_t 
 		uint32_t word = (data[3] << 24) | (data[2] << 16) |
 				(data[1] << 8) | data[0];
 
-		if (FLASH_ProgramWord(address, word) != FLASH_COMPLETE)
+		if (!flash_program_word(address, word))
 			return -1; /* error writing */
 
 		if (*(volatile uint32_t *)address != word)
