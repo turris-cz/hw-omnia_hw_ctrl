@@ -1124,11 +1124,11 @@ void periph_control_io_config(void)
 {
     gpio_init_inputs(pin_pullup, SFP_NDET_PIN);
     gpio_init_outputs(pin_opendrain, pin_spd_2, 0,
-                      RES_MMC_PIN, RES_LAN_PIN, RES_PHY_PIN,
-                      PERST0_PIN, PERST1_PIN, PERST2_PIN,
-                      VHV_CTRL_PIN, PHY_SFP_PIN);
+                      nRES_MMC_PIN, nRES_LAN_PIN, nRES_PHY_PIN,
+                      nPERST0_PIN, nPERST1_PIN, nPERST2_PIN,
+                      nVHV_CTRL_PIN, PHY_SFP_PIN);
 
-    gpio_write_multi(1, VHV_CTRL_PIN, PHY_SFP_PIN);
+    gpio_write_multi(1, nVHV_CTRL_PIN, PHY_SFP_PIN);
 }
 
 /*******************************************************************************
@@ -1139,11 +1139,10 @@ void periph_control_io_config(void)
   *****************************************************************************/
 uint16_t periph_control_rst_init(void)
 {
-    gpio_write_multi(0, RES_MMC_PIN, RES_LAN_PIN, RES_PHY_PIN, PERST0_PIN,
-                     PERST1_PIN, PERST2_PIN, VHV_CTRL_PIN, PHY_SFP_PIN);
+    gpio_write_multi(0, nRES_MMC_PIN, nRES_LAN_PIN, nRES_PHY_PIN, nPERST0_PIN,
+                     nPERST1_PIN, nPERST2_PIN, nVHV_CTRL_PIN, PHY_SFP_PIN);
 
-    gpio_write_multi(1, VHV_CTRL_PIN, PHY_SFP_PIN);
+    gpio_write_multi(1, nVHV_CTRL_PIN, PHY_SFP_PIN);
 
-    return EXT_CTL_RES_MMC | EXT_CTL_RES_LAN | EXT_CTL_RES_PHY |
-           EXT_CTL_PERST0 | EXT_CTL_PERST1 | EXT_CTL_PERST2 | EXT_CTL_PHY_SFP;
+    return EXT_CTL_PHY_SFP;
 }

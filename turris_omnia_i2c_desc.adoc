@@ -213,16 +213,16 @@ enum commands_e {
  * Bit meanings in extended control dword:
  *  Bit Nr. |   Meanings
  * -----------------
- *      0   |   RES_MMC   : 1 - reset of MMC, 0 - no reset
- *      1   |   RES_LAN   : 1 - reset of LAN switch, 0 - no reset
- *      2   |   RES_PHY   : 1 - reset of PHY WAN, 0 - no reset
- *      3   |   PERST0    : 1 - reset of PCIE0, 0 - no reset
- *      4   |   PERST1    : 1 - reset of PCIE1, 0 - no reset
- *      5   |   PERST2    : 1 - reset of PCIE2, 0 - no reset
- *      6   |   PHY_SFP   : 1 - PHY WAN mode, 0 - SFP WAN mode
+ *      0   |   nRES_MMC     : 0 - reset of MMC, 1 - no reset
+ *      1   |   nRES_LAN     : 0 - reset of LAN switch, 1 - no reset
+ *      2   |   nRES_PHY     : 0 - reset of PHY WAN, 1 - no reset
+ *      3   |   nPERST0      : 0 - reset of PCIE0, 1 - no reset
+ *      4   |   nPERST1      : 0 - reset of PCIE1, 1 - no reset
+ *      5   |   nPERST2      : 0 - reset of PCIE2, 1 - no reset
+ *      6   |   PHY_SFP      : 1 - PHY WAN mode, 0 - SFP WAN mode
  *      7   |   PHY_SFP_AUTO : 1 - automatically switch between PHY and SFP WAN modes
  *                             0 - PHY/SFP WAN mode determined by value written to PHY_SFP bit
- *      8   |   VHV_CTRL  : 1 - VHV control not active, 0 - VHV control voltage active
+ *      8   |   nVHV_CTRL    : 1 - VHV control not active, 0 - VHV control voltage active
  *  9..15   |   reserved
 */
 

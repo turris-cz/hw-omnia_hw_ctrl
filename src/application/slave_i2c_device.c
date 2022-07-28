@@ -184,19 +184,18 @@ static void slave_i2c_check_control_byte(uint8_t control_byte, uint8_t bit_mask)
 
 static const struct {
     gpio_t pin;
-    bool inv;
     uint16_t mask;
 } ext_control_pins[] = {
-#define ECTRL(n, i) \
-    { n ## _PIN, i, EXT_CTL_ ## n }
-    ECTRL(RES_MMC, 1),
-    ECTRL(RES_LAN, 1),
-    ECTRL(RES_PHY, 1),
-    ECTRL(PERST0, 1),
-    ECTRL(PERST1, 1),
-    ECTRL(PERST2, 1),
-    ECTRL(PHY_SFP, 0),
-    ECTRL(VHV_CTRL, 1),
+#define ECTRL(name) \
+    { name ## _PIN, EXT_CTL_ ## name }
+    ECTRL(nRES_MMC),
+    ECTRL(nRES_LAN),
+    ECTRL(nRES_PHY),
+    ECTRL(nPERST0),
+    ECTRL(nPERST1),
+    ECTRL(nPERST2),
+    ECTRL(PHY_SFP),
+    ECTRL(nVHV_CTRL),
 #undef ECTRL
 };
 
@@ -232,7 +231,7 @@ void slave_i2c_ext_control(uint16_t ext_control_word, uint16_t bit_mask)
 
     for_each_const(pin, ext_control_pins)
         if (bit_mask & pin->mask)
-            gpio_write(pin->pin, !!(ext_control_word & pin->mask) ^ pin->inv);
+            gpio_write(pin->pin, !!(ext_control_word & pin->mask));
 }
 
 /*******************************************************************************
@@ -247,7 +246,7 @@ static uint16_t slave_i2c_get_ext_control_status(void)
 
     if (OMNIA_BOARD_REVISION >= 32) {
         for_each_const(pin, ext_control_pins)
-            if (gpio_read(pin->pin) ^ pin->inv)
+            if (gpio_read(pin->pin))
                 ext_control_status |= pin->mask;
     }
 
