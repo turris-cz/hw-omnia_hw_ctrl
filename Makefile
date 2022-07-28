@@ -126,6 +126,7 @@ vpath %.c $(PROJ_ROOT_DIR)/drivers
 ################################################################################
 
 # The header files we use are located here
+INC_DIRS += $(PROJ_ROOT_DIR)/include
 INC_DIRS += $(STM_ROOT_LIB)/inc
 INC_DIRS += $(STM_CMSIS_DIR)
 INC_DIRS += $(APP_ROOT_DIR)
@@ -187,6 +188,7 @@ vpath %.c $(BOOT_ROOT_DIR)
 vpath %.c $(BOOT_STM_SRC_DIR)
 vpath %.c $(BOOT_STM_CMSIS_DIR)
 
+BOOT_INC_DIRS += $(PROJ_ROOT_DIR)/include
 BOOT_INC_DIRS += $(BOOT_STM_ROOT_LIB)/inc
 BOOT_INC_DIRS += $(BOOT_STM_CMSIS_DIR)
 BOOT_INC_DIRS += $(BOOT_ROOT_DIR)
