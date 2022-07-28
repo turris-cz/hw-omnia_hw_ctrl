@@ -78,7 +78,7 @@ void app_mcu_init(void)
     if (OMNIA_BOARD_REVISION >= 32)
         periph_control_io_config();
 
-    debug_serial_config();
+    debug_init();
 
 
     debug("\nInit completed.\n");

@@ -16,11 +16,11 @@
 #endif
 
 #if DBG_ENABLE
-void debug_serial_config(void);
+void debug_init(void);
 
 void debug(const char *buffer);
 #else
-static inline void debug_serial_config(void)
+static inline void debug_init(void)
 {
 }
 

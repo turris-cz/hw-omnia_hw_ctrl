@@ -22,12 +22,12 @@
 #endif
 
 /*******************************************************************************
-  * @function   debug_serial_config
+  * @function   debug_init
   * @brief      Configuration of UART peripheral.
   * @param      None.
   * @retval     None.
   *****************************************************************************/
-void debug_serial_config(void)
+void debug_init(void)
 {
     gpio_init_alts(USART_PINS_ALT_FN, pin_pushpull, pin_spd_3, pin_pullup,
                    USART_PIN_RX, USART_PIN_TX);
