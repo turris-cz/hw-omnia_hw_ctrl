@@ -23,10 +23,6 @@
 
 __attribute__((section(".boot_version"))) uint8_t version[20] = VERSION;
 
-#define I2C_PINS_ALT_FN		1
-#define I2C_SCL_PIN		PIN(F, 6)
-#define I2C_SDA_PIN		PIN(F, 7)
-
 #define PKT_SIZE		128
 
 #define I2C_SLAVE_ADDRESS	0x2c
@@ -147,9 +143,6 @@ static i2c_slave_t i2c_slave = {
   *****************************************************************************/
 void boot_i2c_config(void)
 {
-	gpio_init_alts(I2C_PINS_ALT_FN, pin_opendrain, pin_spd_1, pin_nopull,
-		       I2C_SCL_PIN, I2C_SDA_PIN);
-
 	i2c_slave_init(SLAVE_I2C, &i2c_slave, I2C_SLAVE_ADDRESS, 0, 1);
 }
 

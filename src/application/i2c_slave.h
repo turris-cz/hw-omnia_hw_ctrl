@@ -5,8 +5,13 @@
 #include "stm32f0xx_rcc.h"
 #include "compiler.h"
 #include "bits.h"
+#include "gpio.h"
 
 typedef uint8_t i2c_nr_t;
+
+#define I2C2_PINS_ALT_FN	1
+#define I2C2_SCL_PIN		PIN(F, 6)
+#define I2C2_SDA_PIN		PIN(F, 7)
 
 #define SLAVE_I2C		2
 
@@ -61,6 +66,14 @@ static __force_inline uint8_t i2c_irqn(i2c_nr_t i2c_nr)
 	}
 }
 
+static __force_inline void i2c_init_pins(i2c_nr_t i2c_nr)
+{
+	compiletime_assert(i2c_nr == SLAVE_I2C, "Invalid I2C peripheral used");
+
+	gpio_init_alts(I2C2_PINS_ALT_FN, pin_opendrain, pin_spd_1,
+		       pin_nopull, I2C2_SCL_PIN, I2C2_SDA_PIN);
+}
+
 static inline void i2c_slave_init(i2c_nr_t i2c_nr, i2c_slave_t *slave,
 				  uint8_t addr1, uint8_t addr2, uint8_t irq_prio)
 {
@@ -83,6 +96,8 @@ static inline void i2c_slave_init(i2c_nr_t i2c_nr, i2c_slave_t *slave,
 	i2c_rcc_config(i2c_nr, 0);
 	I2C_DeInit(i2c);
 	i2c_rcc_config(i2c_nr, 1);
+
+	i2c_init_pins(i2c_nr);
 
 	I2C_Init(i2c, &init);
 

@@ -23,10 +23,6 @@
 
 static const uint8_t version[] = VERSION;
 
-#define I2C_PINS_ALT_FN		1
-#define I2C_SCL_PIN		PIN(F, 6)
-#define I2C_SDA_PIN		PIN(F, 7)
-
 #define I2C_SLAVE_ADDRESS		0x2a
 #define I2C_SLAVE_ADDRESS_EMULATOR	0x2b
 
@@ -567,10 +563,6 @@ static i2c_slave_t i2c_slave = {
   *****************************************************************************/
 void slave_i2c_config(void)
 {
-	/* configure pins */
-	gpio_init_alts(I2C_PINS_ALT_FN, pin_opendrain, pin_spd_1, pin_nopull,
-		       I2C_SCL_PIN, I2C_SDA_PIN);
-
 	i2c_slave_init(SLAVE_I2C, &i2c_slave,
 		       I2C_SLAVE_ADDRESS, I2C_SLAVE_ADDRESS_EMULATOR, 1);
 }
