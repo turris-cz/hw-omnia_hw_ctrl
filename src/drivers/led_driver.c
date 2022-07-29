@@ -310,7 +310,7 @@ static void led_driver_send_frame(void)
     }
 }
 
-void led_driver_irq_handler(void)
+void __irq led_driver_irq_handler(void)
 {
 	led_driver_send_frame();
 	timer_irq_clear(LED_TIMER);
@@ -789,7 +789,7 @@ static void led_driver_bootloader_effect_handler(void)
     }
 }
 
-void led_driver_effect_irq_handler(void)
+void __irq led_driver_effect_irq_handler(void)
 {
 	if (BOOTLOADER_BUILD)
 		led_driver_bootloader_effect_handler();

@@ -56,7 +56,7 @@ void delay(volatile uint32_t nTime)
   * @param      None
   * @retval     None
   *****************************************************************************/
-void systick_irq_handler(void)
+void __irq systick_irq_handler(void)
 {
     static uint32_t wdg_cnt;
 

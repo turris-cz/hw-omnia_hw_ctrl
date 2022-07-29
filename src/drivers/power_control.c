@@ -510,7 +510,7 @@ void power_control_usb_timeout_disable(void)
   * @param      None.
   * @retval     None.
   *****************************************************************************/
-void power_control_usb_timeout_irq_handler(void)
+void __irq power_control_usb_timeout_irq_handler(void)
 {
     struct st_i2c_status *i2c_control = &i2c_status;
 

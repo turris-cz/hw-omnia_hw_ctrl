@@ -141,7 +141,7 @@ static void debounce_msata_ind(void)
   * @param      None.
   * @retval     None.
   *****************************************************************************/
-void debounce_timer_irq_handler(void)
+void __irq debounce_timer_irq_handler(void)
 {
     static uint16_t idx;
     struct button_def *button = &button_front;

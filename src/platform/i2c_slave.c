@@ -2,7 +2,7 @@
 
 i2c_slave_t *i2c_slave_ptr[2];
 
-void i2c_slave_irq_handler(void)
+void __irq i2c_slave_irq_handler(void)
 {
 	i2c_nr_t i2c_nr = i2c_nr_in_irq();
 	i2c_slave_t *slave = i2c_slave_ptr[i2c_nr - 1];
