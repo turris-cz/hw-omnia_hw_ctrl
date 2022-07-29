@@ -30,90 +30,6 @@
 
 /* Private define ------------------------------------------------------------*/
 
-/* programming pin for user regulator */
-#define PRG_PIN_HIGH		gpio_write(PRG_4V5_PIN, 1)
-#define PRG_PIN_LOW		gpio_write(PRG_4V5_PIN, 0)
-
-/* timing for logic '1' and '0' consists of only NOPs, because it must be very
-precise. Pulse for logic '1' or '0' takes only 1 us */
-#define SET_LOGIC_HIGH() ({PRG_PIN_HIGH; \
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    PRG_PIN_LOW;\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();})
-
-#define SET_LOGIC_LOW() ({PRG_PIN_HIGH; \
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    PRG_PIN_LOW;\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();\
-    nop();})
-
 /* defines for timeout handling during regulator startup */
 #define DELAY_AFTER_ENABLE      5
 #define DELAY_BETWEEN_READINGS  20
@@ -945,6 +861,92 @@ void power_led_activity(void)
 }
 
 #if USER_REGULATOR_ENABLED
+/* programming pin for user regulator */
+/* timing for logic '1' and '0' consists of only NOPs, because it must be very
+precise. Pulse for logic '1' or '0' takes only 1 us */
+static __force_inline void user_reg_prg_logic(bool val)
+{
+	if (val) {
+		gpio_write(PRG_4V5_PIN, 1);
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		gpio_write(PRG_4V5_PIN, 0);
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+	} else {
+		gpio_write(PRG_4V5_PIN, 1);
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		gpio_write(PRG_4V5_PIN, 0);
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+		nop();
+	}
+}
+
 /*******************************************************************************
   * @function   power_control_set_voltage33
   * @brief      Set 3.3V voltage to the user regulator.
@@ -954,33 +956,33 @@ void power_led_activity(void)
 static void power_control_set_voltage33(void)
 {
      /* start condition */
-     SET_LOGIC_HIGH();
+     user_reg_prg_logic(1);
 
      /* chip select */
-     SET_LOGIC_LOW();
-     SET_LOGIC_HIGH();
-     SET_LOGIC_LOW();
-     SET_LOGIC_HIGH();
+     user_reg_prg_logic(0);
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(0);
+     user_reg_prg_logic(1);
 
      /* register address */
-     SET_LOGIC_LOW();
-     SET_LOGIC_LOW();
-     SET_LOGIC_HIGH();
-     SET_LOGIC_LOW();
+     user_reg_prg_logic(0);
+     user_reg_prg_logic(0);
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(0);
 
      /* datafield - 0xDF */
-     SET_LOGIC_HIGH();
-     SET_LOGIC_HIGH();
-     SET_LOGIC_LOW();
-     SET_LOGIC_HIGH();
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(0);
+     user_reg_prg_logic(1);
 
-     SET_LOGIC_HIGH();
-     SET_LOGIC_HIGH();
-     SET_LOGIC_HIGH();
-     SET_LOGIC_HIGH();
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(1);
 
      /* stop condition */
-     SET_LOGIC_HIGH();
+     user_reg_prg_logic(1);
 }
 
 /*******************************************************************************
@@ -992,33 +994,33 @@ static void power_control_set_voltage33(void)
 static void power_control_set_voltage36(void)
 {
      /* start condition */
-     SET_LOGIC_HIGH();
+     user_reg_prg_logic(1);
 
      /* chip select */
-     SET_LOGIC_LOW();
-     SET_LOGIC_HIGH();
-     SET_LOGIC_LOW();
-     SET_LOGIC_HIGH();
+     user_reg_prg_logic(0);
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(0);
+     user_reg_prg_logic(1);
 
      /* register address */
-     SET_LOGIC_LOW();
-     SET_LOGIC_LOW();
-     SET_LOGIC_HIGH();
-     SET_LOGIC_LOW();
+     user_reg_prg_logic(0);
+     user_reg_prg_logic(0);
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(0);
 
      /* datafield - 0xEF */
-     SET_LOGIC_HIGH();
-     SET_LOGIC_HIGH();
-     SET_LOGIC_HIGH();
-     SET_LOGIC_LOW();
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(0);
 
-     SET_LOGIC_HIGH();
-     SET_LOGIC_HIGH();
-     SET_LOGIC_HIGH();
-     SET_LOGIC_HIGH();
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(1);
 
      /* stop condition */
-     SET_LOGIC_HIGH();
+     user_reg_prg_logic(1);
 }
 
 /*******************************************************************************
@@ -1030,33 +1032,33 @@ static void power_control_set_voltage36(void)
 static void power_control_set_voltage51(void)
 {
      /* start condition */
-     SET_LOGIC_HIGH();
+     user_reg_prg_logic(1);
 
      /* chip select */
-     SET_LOGIC_LOW();
-     SET_LOGIC_HIGH();
-     SET_LOGIC_LOW();
-     SET_LOGIC_HIGH();
+     user_reg_prg_logic(0);
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(0);
+     user_reg_prg_logic(1);
 
      /* register address */
-     SET_LOGIC_LOW();
-     SET_LOGIC_LOW();
-     SET_LOGIC_HIGH();
-     SET_LOGIC_LOW();
+     user_reg_prg_logic(0);
+     user_reg_prg_logic(0);
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(0);
 
      /* datafield - 0xFC */
-     SET_LOGIC_HIGH();
-     SET_LOGIC_HIGH();
-     SET_LOGIC_HIGH();
-     SET_LOGIC_HIGH();
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(1);
 
-     SET_LOGIC_HIGH();
-     SET_LOGIC_HIGH();
-     SET_LOGIC_LOW();
-     SET_LOGIC_LOW();
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(0);
+     user_reg_prg_logic(0);
 
      /* stop condition */
-     SET_LOGIC_HIGH();
+     user_reg_prg_logic(1);
 }
 
 /*******************************************************************************
@@ -1068,33 +1070,33 @@ static void power_control_set_voltage51(void)
 static void power_control_set_voltage45(void)
 {
      /* start condition */
-     SET_LOGIC_HIGH();
+     user_reg_prg_logic(1);
 
      /* chip select */
-     SET_LOGIC_LOW();
-     SET_LOGIC_HIGH();
-     SET_LOGIC_LOW();
-     SET_LOGIC_HIGH();
+     user_reg_prg_logic(0);
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(0);
+     user_reg_prg_logic(1);
 
      /* register address */
-     SET_LOGIC_LOW();
-     SET_LOGIC_LOW();
-     SET_LOGIC_HIGH();
-     SET_LOGIC_LOW();
+     user_reg_prg_logic(0);
+     user_reg_prg_logic(0);
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(0);
 
      /* datafield - 0xF8 */
-     SET_LOGIC_HIGH();
-     SET_LOGIC_HIGH();
-     SET_LOGIC_HIGH();
-     SET_LOGIC_HIGH();
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(1);
 
-     SET_LOGIC_HIGH();
-     SET_LOGIC_LOW();
-     SET_LOGIC_LOW();
-     SET_LOGIC_LOW();
+     user_reg_prg_logic(1);
+     user_reg_prg_logic(0);
+     user_reg_prg_logic(0);
+     user_reg_prg_logic(0);
 
      /* stop condition */
-     SET_LOGIC_HIGH();
+     user_reg_prg_logic(1);
 }
 
 /*******************************************************************************
