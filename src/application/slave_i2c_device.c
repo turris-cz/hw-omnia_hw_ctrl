@@ -21,6 +21,10 @@
 #include "i2c_slave.h"
 
 static const uint8_t version[] = VERSION;
+static struct {
+	uint32_t length;
+	uint32_t crcsum;
+} app_checksum __section(".crcsum");
 
 #define I2C_SLAVE_ADDRESS		0x2a
 #define I2C_SLAVE_ADDRESS_EMULATOR	0x2b
@@ -432,13 +436,27 @@ static int cmd_get_watchdog_state(slave_i2c_state_t *state)
 
 static int cmd_get_version(slave_i2c_state_t *state)
 {
-	state->reply_len = 20;
-
 	debug("get_version\n");
-	if (state->cmd[0] == CMD_GET_FW_VERSION_BOOT)
+
+	switch (state->cmd[0]) {
+	case CMD_GET_FW_VERSION_BOOT:
+		state->reply_len = 20;
 		read_bootloader_version(state->reply);
-	else
+		break;
+
+	case CMD_GET_FW_VERSION_APP:
+		state->reply_len = 20;
 		__builtin_memcpy(state->reply, version, 20);
+		break;
+
+	case CMD_GET_FW_CHECKSUM:
+		state->reply_len = 8;
+		__builtin_memcpy(state->reply, &app_checksum, 8);
+		break;
+
+	default:
+		unreachable();
+	}
 
 	return 0;
 }
@@ -477,6 +495,7 @@ static const cmdinfo_t commands[] = {
 	/* version info */
 	[CMD_GET_FW_VERSION_APP]	= { 1, cmd_get_version },
 	[CMD_GET_FW_VERSION_BOOT]	= { 1, cmd_get_version },
+	[CMD_GET_FW_CHECKSUM]		= { 1, cmd_get_version },
 };
 
 static int handle_cmd(uint8_t addr, slave_i2c_state_t *state)

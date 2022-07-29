@@ -46,6 +46,7 @@ enum commands_e {
     CMD_WATCHDOG_STATUS                 = 0x0C, /* 0 - DISABLE, 1 - ENABLE -> permanently */
     CMD_GET_WATCHDOG_STATE              = 0x0D,
     CMD_GET_FW_VERSION_BOOT             = 0x0E, /* 20B git hash number */
+    CMD_GET_FW_CHECKSUM                 = 0x0F, /* 4B length, 4B checksum */
 
     /* available if FEATURES_SUPPORTED bit set in status word */
     CMD_GET_FEATURES                    = 0x10,
