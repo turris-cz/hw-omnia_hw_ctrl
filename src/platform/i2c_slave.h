@@ -66,6 +66,15 @@ static __force_inline uint8_t i2c_irqn(i2c_nr_t i2c_nr)
 	}
 }
 
+static __force_inline i2c_nr_t i2c_nr_in_irq(void)
+{
+	switch ((__get_IPSR() & 0x3f) - 16) {
+	case I2C1_IRQn: return 1;
+	case I2C2_IRQn: return 2;
+	default: unreachable();
+	}
+}
+
 static __force_inline void i2c_init_pins(i2c_nr_t i2c_nr)
 {
 	compiletime_assert(i2c_nr == SLAVE_I2C, "Invalid I2C peripheral used");
@@ -146,7 +155,6 @@ static __force_inline void i2c_slave_ack(i2c_nr_t i2c_nr, bool ack)
 	i2c->CR2 = (i2c->CR2 & ~I2C_CR2_NBYTES) | FIELD_PREP(I2C_CR2_NBYTES, 1);
 }
 
-/* called from the interrupt handler */
-void i2c_slave_handler(i2c_nr_t i2c_nr);
+void i2c_slave_irq_handler(void);
 
 #endif /* I2C_H */

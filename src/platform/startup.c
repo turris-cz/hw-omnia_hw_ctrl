@@ -38,7 +38,7 @@ void svc_handler(void) __weak_alias(default_handler);
 void pendsv_handler(void) __weak_alias(default_handler);
 void external_irq(void) __weak_alias(default_handler);
 
-void SysTick_Handler(void) __weak_alias(default_handler);
+void systick_irq_handler(void) __weak_alias(default_handler);
 void WWDG_IRQHandler(void) __weak_alias(default_handler);
 void RTC_IRQHandler(void) __weak_alias(default_handler);
 void FLASH_IRQHandler(void) __weak_alias(default_handler);
@@ -52,14 +52,14 @@ void DMA1_Channel4_5_IRQHandler(void) __weak_alias(default_handler);
 void ADC1_IRQHandler(void) __weak_alias(default_handler);
 void TIM1_BRK_UP_TRG_COM_IRQHandler(void) __weak_alias(default_handler);
 void TIM1_CC_IRQHandler(void) __weak_alias(default_handler);
-void TIM3_IRQHandler(void) __weak_alias(default_handler);
-void TIM6_IRQHandler(void) __weak_alias(default_handler);
+void led_driver_irq_handler(void) __weak_alias(default_handler);
+void led_driver_effect_irq_handler(void) __weak_alias(default_handler);
 void TIM14_IRQHandler(void) __weak_alias(default_handler);
 void TIM15_IRQHandler(void) __weak_alias(default_handler);
-void TIM16_IRQHandler(void) __weak_alias(default_handler);
-void TIM17_IRQHandler(void) __weak_alias(default_handler);
+void debounce_timer_irq_handler(void) __weak_alias(default_handler);
+void power_control_usb_timeout_irq_handler(void) __weak_alias(default_handler);
 void I2C1_IRQHandler(void) __weak_alias(default_handler);
-void I2C2_IRQHandler(void) __weak_alias(default_handler);
+void i2c_slave_irq_handler(void) __weak_alias(default_handler);
 void SPI1_IRQHandler(void) __weak_alias(default_handler);
 void SPI2_IRQHandler(void) __weak_alias(default_handler);
 void USART1_IRQHandler(void) __weak_alias(default_handler);
@@ -81,7 +81,7 @@ static __used __section(".isr_vector") void *isr_vector[] = {
 	NULL,
 	NULL,
 	pendsv_handler,
-	SysTick_Handler,
+	systick_irq_handler,
 	WWDG_IRQHandler,		/* Window WatchDog */
 	NULL,				/* Reserved */
 	RTC_IRQHandler,			/* RTC through the EXTI line */
@@ -98,15 +98,15 @@ static __used __section(".isr_vector") void *isr_vector[] = {
 	TIM1_BRK_UP_TRG_COM_IRQHandler,	/* TIM1 Break, Update, Trigger and Commutation */
 	TIM1_CC_IRQHandler,		/* TIM1 Capture Compare */
 	NULL,				/* Reserved */
-	TIM3_IRQHandler,		/* TIM3 */
-	TIM6_IRQHandler,		/* TIM6 */
+	led_driver_irq_handler,		/* TIM3 */
+	led_driver_effect_irq_handler,	/* TIM6 */
 	NULL,				/* Reserved */
 	TIM14_IRQHandler,		/* TIM14 */
 	TIM15_IRQHandler,		/* TIM15 */
-	TIM16_IRQHandler,		/* TIM16 */
-	TIM17_IRQHandler,		/* TIM17 */
+	debounce_timer_irq_handler,	/* TIM16 */
+	power_control_usb_timeout_irq_handler, /* TIM17 */
 	I2C1_IRQHandler,		/* I2C1 */
-	I2C2_IRQHandler,		/* I2C2 */
+	i2c_slave_irq_handler,		/* I2C2 */
 	SPI1_IRQHandler,		/* SPI1 */
 	SPI2_IRQHandler,		/* SPI2 */
 	USART1_IRQHandler,		/* USART1 */

@@ -64,12 +64,12 @@ extern struct button_def button_front;
 void debounce_config(void);
 
 /*******************************************************************************
-  * @function   debounce_input_timer_handler
-  * @brief      Main debounce function. Called in timer interrupt handler.
+  * @function   debounce_timer_irq_handler
+  * @brief      Main debounce function. Called as timer interrupt handler.
   * @param      None.
   * @retval     None.
   *****************************************************************************/
-void debounce_input_timer_handler(void);
+void debounce_timer_irq_handler(void);
 
 /*******************************************************************************
   * @function   debounce_check_inputs

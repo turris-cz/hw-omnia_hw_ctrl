@@ -100,12 +100,12 @@ void led_driver_config(void);
 void led_driver_set_colour(const uint8_t led_index, const uint32_t colour);
 
 /*******************************************************************************
-  * @function   led_driver_send_frame
-  * @brief      Send frame to LED driver. It is called in timer interrupt.
+  * @function   led_driver_irq_handler
+  * @brief      Send RGB LEDs frame. Called as LED driver timer interrupt.
   * @param      None.
   * @retval     None.
   *****************************************************************************/
-void led_driver_send_frame(void);
+void led_driver_irq_handler(void);
 
 /*******************************************************************************
   * @function   led_driver_pwm_set_brightness
@@ -183,21 +183,12 @@ void led_driver_knight_rider_colour_effect(void);
 void led_driver_double_knight_rider_effect(void);
 
 /*******************************************************************************
-  * @function   led_driver_knight_rider_effect_handler
-  * @brief      Display knight rider effect on LEDs during startup (called in
-  *             timer interrupt).
+  * @function   led_driver_effect_irq_handler
+  * @brief      Display LED effect.
   * @param      None.
   * @retval     None.
   *****************************************************************************/
-void led_driver_knight_rider_effect_handler(void);
-
-/*******************************************************************************
-  * @function   led_driver_bootloader_effect_handler
-  * @brief      Display bootloader effect.
-  * @param      None.
-  * @retval     None.
-  *****************************************************************************/
-void led_driver_bootloader_effect_handler(void);
+void led_driver_effect_irq_handler(void);
 
 /*******************************************************************************
   * @function   led_driver_reset_effect

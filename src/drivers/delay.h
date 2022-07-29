@@ -47,12 +47,12 @@ void delay_systimer_config(void);
 void delay(volatile uint32_t nTime);
 
 /******************************************************************************
-  * @function   delay_timing_decrement
+  * @function   systick_irq_handler
   * @brief      Decrements the TimingDelay variable in System Timer and
   *             takes care of watchdog timeout.
   * @param      None
   * @retval     None
   *****************************************************************************/
-void delay_timing_decrement(void);
+void systick_irq_handler(void);
 
 #endif /* __DELAY_H */

@@ -261,7 +261,7 @@ static uint16_t led_driver_prepare_data(const rgb_colour_t colour, const uint8_t
   * @param      None.
   * @retval     None.
   *****************************************************************************/
-void led_driver_send_frame(void)
+static void led_driver_send_frame(void)
 {
     static uint8_t level;
     uint16_t data;
@@ -308,6 +308,12 @@ void led_driver_send_frame(void)
         if (level >= COLOUR_LEVELS)
             level = 0;
     }
+}
+
+void led_driver_irq_handler(void)
+{
+	led_driver_send_frame();
+	timer_irq_clear(LED_TIMER);
 }
 
 /*******************************************************************************
@@ -681,7 +687,7 @@ void led_driver_reset_effect(FunctionalState state)
   * @param      None.
   * @retval     None.
   *****************************************************************************/
-void led_driver_knight_rider_effect_handler(void)
+static void led_driver_knight_rider_effect_handler(void)
 {
     static int8_t led;
     static uint8_t state_timeout_cnt;
@@ -768,7 +774,7 @@ void led_driver_knight_rider_effect_handler(void)
   * @param      None.
   * @retval     None.
   *****************************************************************************/
-void led_driver_bootloader_effect_handler(void)
+static void led_driver_bootloader_effect_handler(void)
 {
     static uint8_t timeout;
     static bool on;
@@ -781,4 +787,14 @@ void led_driver_bootloader_effect_handler(void)
         on = !on;
         led_driver_set_led_state(LED_COUNT, on);
     }
+}
+
+void led_driver_effect_irq_handler(void)
+{
+	if (BOOTLOADER_BUILD)
+		led_driver_bootloader_effect_handler();
+	else
+		led_driver_knight_rider_effect_handler();
+
+	timer_irq_clear(LED_EFFECT_TIMER);
 }

@@ -2,9 +2,9 @@
 
 i2c_slave_t *i2c_slave_ptr[2];
 
-/* called from the interrupt handler */
-void i2c_slave_handler(i2c_nr_t i2c_nr)
+void i2c_slave_irq_handler(void)
 {
+	i2c_nr_t i2c_nr = i2c_nr_in_irq();
 	i2c_slave_t *slave = i2c_slave_ptr[i2c_nr - 1];
 	I2C_TypeDef *i2c = i2c_to_plat(i2c_nr);
 	uint32_t isr;

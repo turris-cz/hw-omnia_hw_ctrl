@@ -226,12 +226,12 @@ void power_control_usb_timeout_enable(void);
 void power_control_usb_timeout_disable(void);
 
 /*******************************************************************************
-  * @function   power_control_usb_timeout_handler
+  * @function   power_control_usb_timeout_irq_handler
   * @brief      Handle USB timeout.
   * @param      None.
   * @retval     None.
   *****************************************************************************/
-void power_control_usb_timeout_handler(void);
+void power_control_usb_timeout_irq_handler(void);
 
 /*******************************************************************************
   * @function   power_control_set_voltage

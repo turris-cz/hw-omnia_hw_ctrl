@@ -503,13 +503,14 @@ void power_control_usb_timeout_disable(void)
     timer_set_counter(USB_TIMEOUT_TIMER, 0);
 }
 
+#if !BOOTLOADER_BUILD
 /*******************************************************************************
-  * @function   power_control_usb_timeout_handler
+  * @function   power_control_usb_timeout_irq_handler
   * @brief      Handle USB timeout.
   * @param      None.
   * @retval     None.
   *****************************************************************************/
-void power_control_usb_timeout_handler(void)
+void power_control_usb_timeout_irq_handler(void)
 {
     struct st_i2c_status *i2c_control = &i2c_status;
 
@@ -519,7 +520,10 @@ void power_control_usb_timeout_handler(void)
     i2c_control->status_word |= STS_USB30_PWRON | STS_USB31_PWRON;
 
     power_control_usb_timeout_disable();
+
+    timer_irq_clear(USB_TIMEOUT_TIMER);
 }
+#endif
 
 /*******************************************************************************
   * @function   power_control_first_startup
