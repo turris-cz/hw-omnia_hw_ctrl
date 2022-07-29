@@ -44,7 +44,7 @@ struct input_sig debounce_input_signal;
 struct button_def button_front;
 
 #define DEBOUNCE_PERIOD		300
-#define DEBOUNCE_PRESC		800
+#define DEBOUNCE_FREQ		60000
 
 /*******************************************************************************
   * @function   debounce_timer_config
@@ -55,7 +55,7 @@ struct button_def button_front;
 static void debounce_timer_config(void)
 {
     timer_init(DEBOUNCE_TIMER, timer_interrupt,
-               DEBOUNCE_PERIOD, DEBOUNCE_PRESC, 3);
+               DEBOUNCE_PERIOD, DEBOUNCE_FREQ, 3);
     timer_enable(DEBOUNCE_TIMER, 1);
 }
 

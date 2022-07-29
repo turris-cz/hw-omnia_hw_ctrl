@@ -13,6 +13,8 @@ typedef uint8_t timer_nr_t;
 #define LED_PWM_TIMER		15
 #define USB_TIMEOUT_TIMER	17
 
+#define TIMER_PARENT_FREQ	48000000U
+
 typedef enum {
 	timer_interrupt,
 	timer_pwm,
@@ -63,18 +65,20 @@ static __force_inline uint8_t timer_irqn(timer_nr_t tim_nr)
 	}
 }
 
-static inline void timer_init(timer_nr_t tim_nr, timer_type_t type,
-			      uint16_t period, uint16_t presc,
-			      uint8_t irq_prio)
+static __force_inline void timer_init(timer_nr_t tim_nr, timer_type_t type,
+				      uint16_t period, uint32_t freq,
+				      uint8_t irq_prio)
 {
 	TIM_TypeDef *tim = timer_to_plat(tim_nr);
-
 	TIM_TimeBaseInitTypeDef init = {
 		.TIM_Period = period - 1,
-		.TIM_Prescaler = presc - 1,
+		.TIM_Prescaler = (TIMER_PARENT_FREQ / freq) - 1,
 		.TIM_ClockDivision = TIM_CKD_DIV1,
 		.TIM_CounterMode = TIM_CounterMode_Up,
 	};
+
+	compiletime_assert(TIMER_PARENT_FREQ % freq == 0,
+			   "Requested frequency unachievable");
 
 	timer_rcc_config(tim_nr, 0);
 	TIM_DeInit(tim);

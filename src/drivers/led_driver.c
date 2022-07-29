@@ -41,7 +41,7 @@
 // PWM-Frq     = TIM_CLK/(period+1)/(prescaler+1)
 *******************************************************************************/
 #define LED_PWM_PERIOD		2000
-#define LED_PWM_PRESCALE	6
+#define LED_PWM_FREQ		8000000
 
 /* Private typedef -----------------------------------------------------------*/
 typedef enum rgb_colour {
@@ -104,7 +104,7 @@ static void led_driver_io_config(void)
   *****************************************************************************/
 static void led_driver_timer_config(void)
 {
-    timer_init(LED_TIMER, timer_interrupt, 200, 20, 4);
+    timer_init(LED_TIMER, timer_interrupt, 200, 2400000, 4);
     timer_enable(LED_TIMER, 1);
 }
 
@@ -335,7 +335,7 @@ static void led_driver_pwm_io_config(void)
   *****************************************************************************/
 static void led_driver_pwm_timer_config(void)
 {
-    timer_init(LED_PWM_TIMER, timer_pwm, LED_PWM_PERIOD, LED_PWM_PRESCALE, 0);
+    timer_init(LED_PWM_TIMER, timer_pwm, LED_PWM_PERIOD, LED_PWM_FREQ, 0);
     timer_enable(LED_PWM_TIMER, 1);
 }
 
@@ -663,7 +663,7 @@ void led_driver_double_knight_rider_effect(void)
   *****************************************************************************/
 static void led_driver_timer_config_knight_rider(void)
 {
-    timer_init(LED_EFFECT_TIMER, timer_interrupt, 8000, 400, 5);
+    timer_init(LED_EFFECT_TIMER, timer_interrupt, 8000, 120000, 5);
 }
 
 /*******************************************************************************
