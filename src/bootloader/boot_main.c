@@ -20,8 +20,6 @@
  ******************************************************************************/
 int main(void)
 {
-    SYSCFG_MemoryRemapConfig(SYSCFG_MemoryRemap_Flash);
-
     bootloader_init();
 
     while(1)

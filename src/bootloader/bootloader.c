@@ -47,10 +47,6 @@ typedef void (*pFunction)(void);
   *****************************************************************************/
 void bootloader_init(void)
 {
-    /* system initialization */
-    SystemInit();
-    SystemCoreClockUpdate(); /* set HSI and PLL */
-
     /* peripheral initialization*/
     delay_systimer_config();
     led_driver_config();

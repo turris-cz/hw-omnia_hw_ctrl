@@ -1,11 +1,13 @@
-#include <stdint.h>
+#include "stm32f0xx.h"
+#include "stm32f0xx_syscfg.h"
+#include "stm32f0xx_rcc.h"
 #include "compiler.h"
 
 extern uint32_t _stack_top, _sfdata, _sdata, _edata, _sbss, _ebss;
-
 extern void __noreturn main(void);
 
-void SystemInit(void);
+static void configure_isr_vector(void);
+static void platform_init(void);
 
 void __noreturn __naked __section(".startup")
 reset_handler(void)
@@ -15,6 +17,8 @@ reset_handler(void)
 		"mov	sp, r0\n"
 	);
 
+	platform_init();
+
 	/* copy data */
 	for (uint32_t *src = &_sfdata, *dst = &_sdata; dst < &_edata;)
 		*dst++ = *src++;
@@ -23,7 +27,7 @@ reset_handler(void)
 	for (uint32_t *ptr = &_sbss; ptr < &_ebss; ++ptr)
 		*(uint32_t *)ptr = 0;
 
-	SystemInit();
+	configure_isr_vector();
 	main();
 }
 
@@ -95,3 +99,47 @@ static __used __section(".isr_vector") void *isr_vector[] = {
 	NULL,					/* Reserved */
 	NULL,					/* Reserved */
 };
+
+static void platform_init(void)
+{
+	/* initialize system clocks */
+	SystemInit();
+	/* set HSI and PLL */
+	SystemCoreClockUpdate();
+
+	/* PORTs reset */
+	RCC_AHBPeriphResetCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB |
+			      RCC_AHBPeriph_GPIOC | RCC_AHBPeriph_GPIOD |
+			      RCC_AHBPeriph_GPIOF, ENABLE);
+
+	/* SYSCFG reset */
+	RCC_APB2PeriphResetCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+
+	/* disable PORTs reset */
+	RCC_AHBPeriphResetCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB |
+			      RCC_AHBPeriph_GPIOC | RCC_AHBPeriph_GPIOD |
+			      RCC_AHBPeriph_GPIOF, DISABLE);
+
+	/* disable SYSCFG reset */
+	RCC_APB2PeriphResetCmd(RCC_APB2Periph_SYSCFG, DISABLE);
+}
+
+#define RAM_BEGINNING		0x20000000
+
+static void configure_isr_vector(void)
+{
+	if (BOOTLOADER_BUILD) {
+		/* remap flash to 0x00000000 to map ISR vector there */
+		SYSCFG_MemoryRemapConfig(SYSCFG_MemoryRemap_Flash);
+		return;
+	}
+
+	/* copy ISR vector to start of RAM */
+	for (uint32_t *dst = (uint32_t *)RAM_BEGINNING,
+		      *src = (uint32_t *)&isr_vector[0];
+	     src < (uint32_t *)&isr_vector[ARRAY_SIZE(isr_vector)];)
+	     *dst++ = *src++;
+
+	/* remap RAM to 0x00000000 to map ISR vector there */
+	SYSCFG_MemoryRemapConfig(SYSCFG_MemoryRemap_SRAM);
+}
