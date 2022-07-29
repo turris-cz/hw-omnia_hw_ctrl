@@ -18,12 +18,11 @@
 #include "debug.h"
 #include "eeprom.h"
 #include "cpu.h"
+#include "flash_defs.h"
 
 #define MAX_ERROR_COUNT            5
 #define SET_INTERRUPT_TO_CPU       gpio_write(INT_MCU_PIN, 0)
 #define RESET_INTERRUPT_TO_CPU     gpio_write(INT_MCU_PIN, 1)
-
-extern void start_bootloader(void);
 
 /*******************************************************************************
   * @function   app_mcu_init
@@ -567,7 +566,7 @@ void app_mcu_cyclic(void)
 
         case BOOTLOADER:
         {
-            start_bootloader();
+            reset_to_address(BOOTLOADER_BEGIN);
         } break;
     }
 }

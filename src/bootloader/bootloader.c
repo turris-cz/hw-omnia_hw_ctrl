@@ -20,6 +20,7 @@
 #include "gpio.h"
 #include "timer.h"
 #include "cpu.h"
+#include "flash_defs.h"
 
 typedef enum bootloader_states {
     POWER_ON,
@@ -37,8 +38,6 @@ typedef enum bootloader_return_val {
     GO_TO_FLASH,
     GO_TO_APPLICATION
 } boot_value_t;
-
-typedef void (*pFunction)(void);
 
 /*******************************************************************************
   * @function   bootloader_init
@@ -67,39 +66,6 @@ void bootloader_init(void)
     gpio_init_outputs(pin_opendrain, pin_spd_2, 1, SYSRES_OUT_PIN); /* dont control this ! */
 
     debug("Init\n");
-}
-
-/*******************************************************************************
-  * @function   bootloader_init
-  * @brief      Init of bootloader.
-  * @param      None
-  * @retval     None
-  *****************************************************************************/
-static void start_application(void)
-{
-    pFunction app_entry;
-    uint32_t app_stack;
-
-    disable_irq();
-
-    /* Get the application stack pointer (First entry in the application vector table) */
-    app_stack = (uint32_t) *((volatile uint32_t*)APPLICATION_BEGIN);
-
-    /* Get the application entry point (Second entry in the application vector table) */
-    app_entry = (pFunction) *(volatile uint32_t*) (APPLICATION_BEGIN + 4);
-
-    /* Set the application stack pointer */
-    set_msp(app_stack);
-
-    /* ISB = instruction synchronization barrier. It flushes the pipeline of
-     * the processor, so that all instructions following the ISB are fetched
-     * from cache or memory again, after the ISB instruction has been completed.
-     * Must be called after changing stack pointer according to the documentation.
-    */
-    isb();
-
-    /* Start the application */
-    app_entry();
 }
 
 /*******************************************************************************
@@ -275,7 +241,7 @@ void bootloader(void)
 
         case START_APPLICATION:
         {
-            start_application();
+            reset_to_address(APPLICATION_BEGIN);
         } break;
 
         case RESET_TO_APPLICATION:

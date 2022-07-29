@@ -28,4 +28,24 @@ static __force_inline void nop(void)
 	asm("nop\n");
 }
 
+static __force_inline __noreturn void reset_to_address(uint32_t isr_vec_addr)
+{
+	__noreturn void (*new_reset_handler)(void);
+	uint32_t sp;
+
+	/* get stack pointer from ISR vector */
+	sp = *(volatile uint32_t *)isr_vec_addr;
+
+	new_reset_handler = (void *)*(volatile uint32_t *)(isr_vec_addr + 4);
+
+	/* set stack pointer */
+	set_msp(sp);
+
+	/* instruction synchronization barrier to flush pipeline */
+	isb();
+
+	/* jump to new app */
+	new_reset_handler();
+}
+
 #endif /* CPU_H */
