@@ -19,6 +19,7 @@
 #include "debounce.h"
 #include "gpio.h"
 #include "timer.h"
+#include "cpu.h"
 
 typedef enum bootloader_states {
     POWER_ON,
@@ -57,7 +58,7 @@ void bootloader_init(void)
     flash_init();
     timer_deinit(DEBOUNCE_TIMER);
     timer_deinit(USB_TIMEOUT_TIMER);
-    __enable_irq();
+    enable_irq();
 
     led_driver_set_colour(LED_COUNT, GREEN_COLOUR);
     led_driver_reset_effect(ENABLE);
@@ -79,7 +80,7 @@ static void start_application(void)
     pFunction app_entry;
     uint32_t app_stack;
 
-    __disable_irq();
+    disable_irq();
 
     /* Get the application stack pointer (First entry in the application vector table) */
     app_stack = (uint32_t) *((volatile uint32_t*)APPLICATION_BEGIN);
@@ -88,14 +89,14 @@ static void start_application(void)
     app_entry = (pFunction) *(volatile uint32_t*) (APPLICATION_BEGIN + 4);
 
     /* Set the application stack pointer */
-    __set_MSP(app_stack);
+    set_msp(app_stack);
 
     /* ISB = instruction synchronization barrier. It flushes the pipeline of
      * the processor, so that all instructions following the ISB are fetched
      * from cache or memory again, after the ISB instruction has been completed.
      * Must be called after changing stack pointer according to the documentation.
     */
-    __ISB();
+    isb();
 
     /* Start the application */
     app_entry();

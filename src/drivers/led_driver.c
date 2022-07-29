@@ -8,7 +8,6 @@
  ******************************************************************************
  **/
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f0xx_conf.h"
 #include "led_driver.h"
 #include "delay.h"
 #include "power_control.h"
@@ -673,7 +672,7 @@ static void led_driver_timer_config_knight_rider(void)
   * @param      colour: colour in RGB range.
   * @retval     None.
   *****************************************************************************/
-void led_driver_reset_effect(FunctionalState state)
+void led_driver_reset_effect(bool state)
 {
     timer_enable(LED_EFFECT_TIMER, state);
     if (!state)

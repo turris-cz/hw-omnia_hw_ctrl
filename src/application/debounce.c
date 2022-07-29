@@ -7,9 +7,7 @@
  ******************************************************************************
  ******************************************************************************
  **/
-#include "stm32f0xx.h"
 #include "debounce.h"
-#include "stm32f0xx_conf.h"
 #include "power_control.h"
 #include "delay.h"
 #include "led_driver.h"

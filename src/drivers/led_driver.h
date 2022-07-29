@@ -12,6 +12,8 @@
 #ifndef __LED_DRIVER_H
 #define __LED_DRIVER_H
 
+#include "compiler.h"
+
 #define LED_COUNT		12
 
 enum colours {
@@ -196,6 +198,6 @@ void led_driver_effect_irq_handler(void);
   * @param      colour: colour in RGB range.
   * @retval     None.
   *****************************************************************************/
-void led_driver_reset_effect(FunctionalState state);
+void led_driver_reset_effect(bool state);
 
 #endif /*__LED_DRIVER_H */

@@ -9,7 +9,6 @@
  **/
 /* Includes ------------------------------------------------------------------*/
 #include "compiler.h"
-#include "stm32f0xx_conf.h"
 #include "slave_i2c_device.h"
 #include "debug.h"
 #include "led_driver.h"

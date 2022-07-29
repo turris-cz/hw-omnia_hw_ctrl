@@ -1,6 +1,8 @@
 #ifndef COMPILER_H
 #define COMPILER_H
 
+#include <stdint.h>
+
 #define _VARIADIC_SEL(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, x, ...) x
 
 #define VARIADIC(_N, ...)					\

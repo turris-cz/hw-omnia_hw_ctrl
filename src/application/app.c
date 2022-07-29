@@ -8,7 +8,6 @@
  ******************************************************************************
  **/
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f0xx.h"
 #include "app.h"
 #include "power_control.h"
 #include "debounce.h"
@@ -18,6 +17,7 @@
 #include "wan_lan_pci_status.h"
 #include "debug.h"
 #include "eeprom.h"
+#include "cpu.h"
 
 #define MAX_ERROR_COUNT            5
 #define SET_INTERRUPT_TO_CPU       gpio_write(INT_MCU_PIN, 0)
@@ -345,11 +345,11 @@ static ret_value_t input_manager(void)
         else
             i2c_control->ext_status_dword &= (~(EXT_STS_SFP_NDET));
 
-        __disable_irq();
+        disable_irq();
         if (i2c_control->ext_control_word & EXT_CTL_PHY_SFP_AUTO)
             gpio_write(PHY_SFP_PIN,
                        !!(i2c_control->ext_status_dword & EXT_STS_SFP_NDET));
-        __enable_irq();
+        enable_irq();
     }
 
     return value;

@@ -12,6 +12,8 @@
 #ifndef __DELAY_H
 #define __DELAY_H
 
+#include "compiler.h"
+
 typedef enum watchdog_state {
     STOP                 = 0,
     RUN                  = 1,
