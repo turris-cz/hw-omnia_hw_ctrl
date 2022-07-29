@@ -18,7 +18,7 @@
  * @param  None
  * @retval None
  ******************************************************************************/
-int boot_main(void)
+int main(void)
 {
     SYSCFG_MemoryRemapConfig(SYSCFG_MemoryRemap_Flash);
 

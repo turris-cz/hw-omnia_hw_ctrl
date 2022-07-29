@@ -83,12 +83,12 @@ CFLAGS += -fdata-sections
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
-LFLAGS  = -T$(LINKER_DIR)/STM32F0308_FLASH.ld
+LFLAGS  = -T$(APP_ROOT_DIR)/application.ld
 LFLAGS +="-Wl,-Map=$(APP_NAME).map",--cref
 LFLAGS += -nostartfiles
 LFLAGS += -Xlinker --gc-sections
 
-BOOT_LFLAGS  = -T$(BOOT_LINKER_DIR)/STM32F0308_FLASH.ld
+BOOT_LFLAGS  = -T$(BOOT_ROOT_DIR)/bootloader.ld
 BOOT_LFLAGS +="-Wl,-Map=$(BOOT_NAME).map",--cref
 BOOT_LFLAGS += -nostartfiles
 BOOT_LFLAGS += -Xlinker --gc-sections
@@ -111,8 +111,6 @@ STM_ROOT_LIB    = $(PROJ_ROOT_DIR)/platform/stm_lib/stm32f0xx_stdperiph_driver
 STM_SRC_DIR     = $(STM_ROOT_LIB)/src
 STM_CMSIS_DIR 	= $(PROJ_ROOT_DIR)/platform/stm_lib/cmsis_boot
 STM_STARTUP_DIR = $(STM_CMSIS_DIR)/startup
-
-LINKER_DIR = $(APP_ROOT_DIR)/linker
 
 vpath %.c $(APP_ROOT_DIR)
 vpath %.c $(STM_SRC_DIR)
@@ -153,6 +151,7 @@ endif
 SRCS  += app.c
 SRCS  += eeprom.c
 SRCS  += i2c_slave.c
+SRCS  += startup.c
 
 ################# STM LIB ##########################
 SRCS  += stm32f0xx_rcc.c
@@ -168,15 +167,11 @@ SRCS  += stm32f0xx_spi.c
 SRCS  += stm32f0xx_flash.c
 SRCS  += stm32f0xx_usart.c
 
-# startup file, calls main
-ASRC  = startup_stm32f030x8.s
-
 OBJS  = $(SRCS:.c=.o)
 OBJS += $(ASRC:.s=.o)
 
 #BOOTLOADER -------------------------------------------------------------------
 BOOT_ROOT_DIR		= $(PROJ_ROOT_DIR)/bootloader
-BOOT_LINKER_DIR		= $(BOOT_ROOT_DIR)/linker
 
 BOOT_STM_ROOT_LIB  	= $(PROJ_ROOT_DIR)/platform/stm_lib/stm32f0xx_stdperiph_driver
 BOOT_STM_SRC_DIR    = $(BOOT_STM_ROOT_LIB)/src
@@ -209,6 +204,7 @@ endif
 BOOTSRCS  += eeprom.c
 BOOTSRCS  += bootloader.c
 BOOTSRCS  += i2c_slave.c
+BOOTSRCS  += startup.c
 
 BOOTSRCS  += stm32f0xx_rcc.c
 BOOTSRCS  += stm32f0xx_gpio.c
@@ -220,8 +216,6 @@ BOOTSRCS  += stm32f0xx_misc.c
 BOOTSRCS  += stm32f0xx_spi.c
 BOOTSRCS  += stm32f0xx_flash.c
 BOOTSRCS  += stm32f0xx_usart.c
-
-BOOTASRC  = $(BOOT_STARTUP_DIR)/boot_startup_stm32f030x8.s
 
 BOOT_OBJS  = $(BOOTSRCS:.c=.o)
 BOOT_OBJS += $(BOOTASRC:.s=.o)

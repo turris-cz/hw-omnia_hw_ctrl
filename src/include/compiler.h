@@ -25,6 +25,13 @@
 #define fallthrough __attribute__((__fallthrough__))
 
 #define __force_inline inline __attribute__((__always_inline__))
+#define __noreturn __attribute__((__noreturn__))
+#define __naked __attribute__((__naked__))
+#define __irq __attribute__((__interrupt__))
+#define __weak __attribute__((__weak__))
+#define __weak_alias(x) __weak __attribute__((__alias__(#x)))
+#define __section(x) __attribute__((__section__(x)))
+#define __used __attribute__((__used__))
 
 #define compiletime_assert(condition, msg) \
 	_compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
@@ -37,6 +44,8 @@
 			prefix ## suffix();					\
 	} while (0)
 #define __compiletime_error(message) __attribute__((__error__(message)))
+
+#define NULL ((void *)0)
 
 typedef _Bool bool;
 
