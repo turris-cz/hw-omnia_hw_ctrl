@@ -19,6 +19,7 @@
 #include "eeprom.h"
 #include "msata_pci.h"
 #include "i2c_slave.h"
+#include "flash_defs.h"
 
 static const uint8_t version[] = VERSION;
 static struct {
@@ -28,9 +29,6 @@ static struct {
 
 #define I2C_SLAVE_ADDRESS		0x2a
 #define I2C_SLAVE_ADDRESS_EMULATOR	0x2b
-
-#define NUMBER_OF_BYTES_VERSION         20
-#define BOOTLOADER_VERSION_ADDR         0x080000C0
 
 static const uint16_t slave_features_supported =
 #if OMNIA_BOARD_REVISION >= 32
@@ -45,35 +43,6 @@ enum boot_request_e {
 };
 
 struct st_i2c_status i2c_status;
-
-/*******************************************************************************
-  * @brief  This function reads data from flash, byte after byte
-  * @param  flash_address: start of selected flash area to be read
-  * @param  data: data from flash
-  * @retval None.
-  *****************************************************************************/
-static void flash_read(volatile uint32_t *flash_address, uint8_t *data)
-{
-   *data = *(uint8_t*)*flash_address;
-    (*flash_address)++;
-}
-
-/*******************************************************************************
-  * @brief  This function reads version of bootloader (stored in flash)
-  * @param  flash_address: start of selected flash area to be read
-  * @param  data: data from flash
-  * @retval None.
-  *****************************************************************************/
-static void read_bootloader_version(uint8_t buff[])
-{
-    uint8_t idx;
-    uint32_t boot_version_addr = BOOTLOADER_VERSION_ADDR;
-
-    for(idx = 0; idx < NUMBER_OF_BYTES_VERSION; idx++)
-    {
-        flash_read(&boot_version_addr, &(buff[idx]));
-    }
-}
 
 /*******************************************************************************
   * @function   slave_i2c_check_control_byte
@@ -441,7 +410,7 @@ static int cmd_get_version(slave_i2c_state_t *state)
 	switch (state->cmd[0]) {
 	case CMD_GET_FW_VERSION_BOOT:
 		state->reply_len = 20;
-		read_bootloader_version(state->reply);
+		__builtin_memcpy(state->reply, BOOTLOADER_VERSION_PTR, 20);
 		break;
 
 	case CMD_GET_FW_VERSION_APP:
