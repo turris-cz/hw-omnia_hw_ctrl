@@ -2,7 +2,9 @@ ENTRY(reset_handler)
 
 MEMORY
 {
-	flash (rx)	: ORIGIN = 0x08005000, LENGTH = 0xA000 /* 40K */
+	isr_vector (r)	: ORIGIN = 0x08005000, LENGTH = 0xC0 /* 192B */
+	crcsum (r)	: ORIGIN = 0x080050C0, LENGTH = 8 /* 8B */
+	flash (rx)	: ORIGIN = 0x080050C8, LENGTH = 0xA000 - 0xC0 - 8 /* 40K - 192B - 8B */
 	ram (xrw)	: ORIGIN = 0x200000C0, LENGTH = 0x2000 - 192 /*8K - 192B for vector table */
 }
 
@@ -12,7 +14,11 @@ SECTIONS
 {
 	.isr_vector : {
 		KEEP(*(.isr_vector))
-	} >flash
+	} >isr_vector
+
+	.crcsum : {
+		KEEP(*(.crcsum))
+	} >crcsum
 
 	.text : {
 		KEEP(*(.startup));

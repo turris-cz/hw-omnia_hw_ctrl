@@ -21,6 +21,7 @@
 #include "timer.h"
 #include "cpu.h"
 #include "flash_defs.h"
+#include "crc32.h"
 
 typedef enum bootloader_states {
     POWER_ON,
@@ -66,6 +67,35 @@ void bootloader_init(void)
     gpio_init_outputs(pin_opendrain, pin_spd_2, 1, SYSRES_OUT_PIN); /* dont control this ! */
 
     debug("Init\n");
+}
+
+static bool check_app_crc(void)
+{
+	uint32_t len, crc, res, zero = 0, len_before_csum;
+	void *data;
+
+	data = (void *)APPLICATION_BEGIN;
+	len = *(uint32_t *)APPLICATION_CRCSUM;
+	crc = *(uint32_t *)(APPLICATION_CRCSUM + 4);
+
+	if (!len || len > APPLICATION_MAX_SIZE || len % 4) {
+		debug("Invalid length stored in application checksum!\n");
+		return 0;
+	}
+
+	len_before_csum = APPLICATION_CRCSUM - APPLICATION_BEGIN + 4;
+
+	crc32(&res, 0, data, len_before_csum);
+	crc32(&res, res, &zero, 4);
+	crc32(&res, res, data + len_before_csum + 4,
+	      len - (len_before_csum + 4));
+
+	if (res == crc)
+		debug("Application checksum OK\n");
+	else
+		debug("Application checksum FAILED\n");
+
+	return res == crc;
 }
 
 /*******************************************************************************
@@ -130,6 +160,13 @@ static boot_value_t startup_manager(void)
         default:
             break;
     }
+
+    /*
+     * if EEprom variable says we should boot application but application has
+     * bad CRC, just power on
+     */
+    if (retval == GO_TO_APPLICATION && !check_app_crc())
+        retval = GO_TO_POWER_ON;
 
     return retval;
 }

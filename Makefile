@@ -7,6 +7,8 @@ BOOT_NAME=bootloader_mcu
 
 CROSS_COMPILE ?= arm-none-eabi-
 
+HOSTCC  = gcc
+
 CC      = $(CROSS_COMPILE)gcc
 OBJCOPY = $(CROSS_COMPILE)objcopy
 OBJDUMP = $(CROSS_COMPILE)objdump
@@ -264,6 +266,14 @@ $(BOOT_NAME).elf: $(BOOT_OBJS)
 	@echo "[HEX        ]  $@"
 	@$(OBJCOPY) -I binary -O ihex $< $@
 
+$(APP_NAME).bin: $(APP_NAME).bin.nocrc crc32tool
+	@echo "[crc32      ]  $@"
+	@./crc32tool 0xC0 $< >$@
+
+$(APP_NAME).bin.nocrc: $(APP_NAME).elf
+	@echo "[Binary     ]  $@"
+	@$(OBJCOPY) -O binary $< $@
+
 %.bin: %.elf
 	@echo "[Binary     ]  $@"
 	@$(OBJCOPY) -O binary $< $@
@@ -280,10 +290,14 @@ $(BOOT_NAME).elf: $(BOOT_OBJS)
 	@echo "[Assembling ]" $^
 	@$(AS) $(AFLAGS) $< -o $@
 
+crc32tool: tools/crc32tool.c
+	@echo "[HostCompile]" $<
+	$(HOSTCC) -O2 -o $@ $<
+
 clean: cleanapp cleanboot
 
 cleanapp:
-	rm -r -f *.o $(APP_NAME).elf $(APP_NAME).dis $(APP_NAME).hex $(APP_NAME).bin $(APP_NAME).map
+	rm -r -f *.o $(APP_NAME).elf $(APP_NAME).dis $(APP_NAME).hex $(APP_NAME).bin $(APP_NAME).bin.nocrc $(APP_NAME).map crc32tool
 cleanboot:
 	rm -r -f *.o $(BOOT_NAME).elf $(BOOT_NAME).dis $(BOOT_NAME).hex $(BOOT_NAME).bin $(BOOT_NAME).map
 
