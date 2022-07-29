@@ -24,7 +24,7 @@ static inline void debug_init(void)
 {
 }
 
-static inline void debug(const char *buffer)
+static inline void debug(const char *)
 {
 }
 #endif
