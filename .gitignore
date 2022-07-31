@@ -1,8 +1,4 @@
-*.[oa]
+build.*/
 *~
-*.map
 *.bin
-*.elf
-*.hex
-*.list
-*.dis
+tools/crc32tool
