@@ -22,6 +22,8 @@ SRCS_DRIVERS	= $(filter-out src/drivers/debug.c,$(wildcard src/drivers/*.c))
 SRCS_APP	= $(wildcard src/application/*.c)
 SRCS_BOOT	= $(wildcard src/bootloader/*.c)
 
+HOSTTOOLS = crc32tool genflashimg
+
 ifeq ($(DBG_ENABLE), 1)
 	SRCS_DRIVERS += src/drivers/debug.c
 	CPPFLAGS += -DDBG_ENABLE=1
@@ -69,15 +71,19 @@ app:
 boot:
 	$(DEBUG_INFO_PRINT)
 clean:
-	rm -rf tools/crc32tool
+	rm -rf $(addprefix tools/,$(HOSTTOOLS))
 
-tools/crc32tool: tools/crc32tool.c
-	@echo "[HostCompile]" $<
-	$(HOSTCC) $(HOSTCFLAGS) -o $@ $<
+define HostToolRule
+  tools/$(1): tools/$(1).c
+	@echo "[HOSTCC  ]" $$<
+	@$(HOSTCC) $(HOSTCFLAGS) -o $$@ $$<
+endef
+
+$(foreach tool,$(HOSTTOOLS),$(eval $(call HostToolRule,$(tool))))
 
 define CompileRule
   build.$(1)/$(2)/$(3)%.o: $(3)%.c
-	@echo "[$(1):Compiling  ]  $$^"
+	@echo "$(1): [CC      ]  $$^"
 	@mkdir -p $$(@D)
 	@$$(CC) -c $$(CPPFLAGS) $$(CPPFLAGS_$(1)) $$(CFLAGS) $$(CFLAGS_$(1)) $$< -o $$@
 endef
@@ -90,53 +96,59 @@ define PlatBuild
 
   .PHONY: $(1) app_$(1) boot_$(1) clean_$(1)
 
-  $(1): app_$(1) boot_$(1)
+  $(1): $(1).flash.bin
   app_$(1): $(1).app.bin build.$(1)/app.hex build.$(1)/app.dis
   boot_$(1): $(1).boot.bin build.$(1)/boot.hex build.$(1)/boot.dis
 
+  $(1).flash.bin: app_$(1) boot_$(1) tools/genflashimg
+	@echo "$(1): [GENFLASH]  $$@"
+	@tools/genflashimg $(1).boot.bin $(1).app.bin $$(APP_POS_$(1)) >$$@
+	@chmod +x $$@
+
   clean_$(1):
-	rm -rf build.$(1) $(1).app.bin $(1).boot.bin
+	rm -rf build.$(1) $(1).flash.bin $(1).app.bin $(1).boot.bin
 
   build.$(1)/%.hex: $(1).%.bin
-	@echo "[$(1):HEX        ]  $$@"
+	@echo "$(1): [HEX     ]  $$@"
 	@$$(OBJCOPY) -I binary -O ihex $$< $$@
 
   build.$(1)/%.dis: build.$(1)/%.elf
-	@echo "[$(1):Disassembly]  $$@"
+	@echo "$(1): [DISASM  ]  $$@"
 	@$$(OBJDUMP) -D -S $$< >$$@
 
   $(1).app.bin: build.$(1)/app.bin.nocrc tools/crc32tool
-	@echo "[$(1):crc32      ]  $$@"
+	@echo "$(1): [CRC32   ]  $$@"
 	@tools/crc32tool $$(CSUM_POS_stm32) $$< >$$@
 	@chmod +x $$@
 
   build.$(1)/app.bin.nocrc: build.$(1)/app.elf
-	@echo "[$(1):Binary     ]  $$@"
+	@echo "$(1): [BIN     ]  $$@"
 	@$$(OBJCOPY) -O binary $$< $$@
 
   build.$(1)/app.elf: CPPFLAGS += $$(CPPFLAGS_app)
   build.$(1)/app.elf: LDSCRIPT = $$(LDSCRIPT_app)
   build.$(1)/app.elf: LDMAP = build.$(1)/app.map
   build.$(1)/app.elf: $$(OBJS_APP_$(1)) $$(LDSCRIPT_app)
-	@echo "[$(1):Linking    ]  $$@"
+	@echo "$(1): [LD      ]  $$@"
 	@$$(CC) $$(CFLAGS) $$(CFLAGS_$(1)) $$(LDFLAGS) $$(OBJS_APP_$(1)) -o $$@
 	@$$(SIZE) -d $$@
 
   $(1).boot.bin: build.$(1)/boot.elf
-	@echo "[$(1):Binary     ]  $$@"
+	@echo "$(1): [BIN     ]  $$@"
 	@$$(OBJCOPY) -O binary $$< $$@
 
   build.$(1)/boot.elf: CPPFLAGS += $$(CPPFLAGS_boot)
   build.$(1)/boot.elf: LDSCRIPT = $$(LDSCRIPT_boot)
   build.$(1)/boot.elf: LDMAP = build.$(1)/boot.map
   build.$(1)/boot.elf: $$(OBJS_BOOT_$(1)) $$(LDSCRIPT_boot)
-	@echo "[$(1):Linking    ]  $$@"
+	@echo "$(1): [LD      ]  $$@"
 	@$$(CC) $$(CFLAGS_$(1)) $$(LDFLAGS) $$(OBJS_BOOT_$(1)) -o $$@
 	@$$(SIZE) -d $$@
 
   $$(foreach dir,$$(sort $$(dir $$(SRCS_APP_$(1)))),$$(eval $$(call CompileRule,$(1),app,$$(dir))))
   $$(foreach dir,$$(sort $$(dir $$(SRCS_BOOT_$(1)))),$$(eval $$(call CompileRule,$(1),boot,$$(dir))))
 
+  all: $(1)
   app: app_$(1)
   boot: boot_$(1)
   clean: clean_$(1)
