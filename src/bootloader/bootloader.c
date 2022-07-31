@@ -46,7 +46,7 @@ typedef enum bootloader_return_val {
   * @param      None
   * @retval     None
   *****************************************************************************/
-void bootloader_init(void)
+static void bootloader_init(void)
 {
     /* peripheral initialization*/
     delay_systimer_config();
@@ -177,7 +177,7 @@ static boot_value_t startup_manager(void)
   * @param      None
   * @retval     None
   *****************************************************************************/
-void bootloader(void)
+static void bootloader(void)
 {
     static boot_state_t next_state = STARTUP_MANAGER;
     static boot_value_t val = GO_TO_RESET_MANAGER;
@@ -298,4 +298,12 @@ void bootloader(void)
             NVIC_SystemReset();
         } break;
     }
+}
+
+void main(void)
+{
+	bootloader_init();
+
+	while (1)
+		bootloader();
 }

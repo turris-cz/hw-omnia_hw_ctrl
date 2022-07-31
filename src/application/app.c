@@ -8,7 +8,6 @@
  ******************************************************************************
  **/
 /* Includes ------------------------------------------------------------------*/
-#include "app.h"
 #include "power_control.h"
 #include "debounce.h"
 #include "led_driver.h"
@@ -19,10 +18,37 @@
 #include "eeprom.h"
 #include "cpu.h"
 #include "flash_defs.h"
+#include "delay.h"
 
 #define MAX_ERROR_COUNT            5
 #define SET_INTERRUPT_TO_CPU       gpio_write(INT_MCU_PIN, 0)
 #define RESET_INTERRUPT_TO_CPU     gpio_write(INT_MCU_PIN, 1)
+
+typedef enum {
+	GO_TO_VTT_ERROR		= -8,
+	GO_TO_1V2_ERROR		= -7,
+	GO_TO_1V5_ERROR		= -6,
+	GO_TO_1V8_ERROR		= -5,
+	GO_TO_4V5_ERROR		= -4,
+	GO_TO_1V35_ERROR	= -3,
+	GO_TO_3V3_ERROR		= -2,
+	GO_TO_5V_ERROR		= -1,
+	OK			= 0,
+	GO_TO_LIGHT_RESET	= 1,
+	GO_TO_HARD_RESET	= 2,
+	GO_TO_BOOTLOADER	= 3,
+} ret_value_t;
+
+typedef enum {
+	POWER_ON,
+	LIGHT_RESET,
+	HARD_RESET,
+	ERROR_STATE,
+	INPUT_MANAGER,
+	I2C_MANAGER,
+	LED_MANAGER,
+	BOOTLOADER
+} states_t;
 
 /*******************************************************************************
   * @function   app_mcu_init
@@ -30,7 +56,7 @@
   * @param      None.
   * @retval     None.
   *****************************************************************************/
-void app_mcu_init(void)
+static void app_mcu_init(void)
 {
     struct st_watchdog *wdg = &watchdog;
     eeprom_var_t ee_var;
@@ -474,7 +500,7 @@ static void error_manager(ret_value_t error_state)
   * @param      None.
   * @retval     None.
   *****************************************************************************/
-void app_mcu_cyclic(void)
+static void app_mcu_cyclic(void)
 {
     static states_t next_state = POWER_ON;
     static ret_value_t val = OK;
@@ -569,4 +595,14 @@ void app_mcu_cyclic(void)
             reset_to_address(BOOTLOADER_BEGIN);
         } break;
     }
+}
+
+void main(void)
+{
+	enable_irq();
+
+	app_mcu_init();
+
+	while (1)
+		app_mcu_cyclic();
 }
