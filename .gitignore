@@ -3,3 +3,4 @@ build.*/
 *.bin
 tools/crc32tool
 tools/genflashimg
+tools/stm32tool
